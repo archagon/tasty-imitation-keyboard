@@ -86,8 +86,12 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
 //        self.button.titleLabel.font = self.button.titleLabel.font.fontWithSize(frame.height * 0.50)
     }
     
-    override func sizeThatFits(size: CGSize) -> CGSize {
-        return super.sizeThatFits(size)
+//    override func sizeThatFits(size: CGSize) -> CGSize {
+//        return super.sizeThatFits(size)
+//    }
+    
+    override func layoutSubviews() {
+        self.redrawText()
     }
     
     func redrawText() {

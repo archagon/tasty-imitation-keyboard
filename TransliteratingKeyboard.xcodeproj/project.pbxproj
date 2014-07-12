@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4E00A6E5197183EE009414F2 /* KeyboardKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E807DC81946209600D875D1 /* KeyboardKey.swift */; };
 		4E0192B9196E08FC00A3547A /* KeyboardKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E807DC81946209600D875D1 /* KeyboardKey.swift */; };
 		4E5B67A2196E03B700114361 /* KeyboardModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E5B67A1196E03B700114361 /* KeyboardModel.swift */; };
 		4E5B67AD196E07B200114361 /* KeyboardFramework.h in Headers */ = {isa = PBXBuildFile; fileRef = 4E5B67AC196E07B200114361 /* KeyboardFramework.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -612,6 +613,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4E5B67A2196E03B700114361 /* KeyboardModel.swift in Sources */,
+				4E00A6E5197183EE009414F2 /* KeyboardKey.swift in Sources */,
 				4EAAB700196E13FE005DE8F5 /* KeyboardViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1029,6 +1031,7 @@
 				4E976B9C196F381600F13611 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
