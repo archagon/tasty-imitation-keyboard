@@ -224,9 +224,9 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
             
             var drawColor = self.currentColor
             drawColor.append(1.0)
-            let color2 = drawColor.map { $0 * 0.80 }
+            var color2 = drawColor.map { $0 * 0.80 }
             color2[3] = 1.0
-            let color3 = drawColor.map { $0 * 0.4 }
+            var color3 = drawColor.map { $0 * 0.4 }
             color3[3] = 0.85
 
             let shadowOffset = 2.0

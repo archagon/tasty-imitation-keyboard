@@ -202,7 +202,7 @@ class KeyboardViewController: UIInputViewController {
             
             if isTopMarginGap {
                 canonicalMarginGap = rowGapName
-                allConstraints += "V:[topSpacer][\(rowGapName)(5)]" // TODO:
+                allConstraints += "V:[topSpacer][\(rowGapName)(0)]"
             }
             else if isBottomMarginGap {
                 allConstraints += "V:[key\(0)x\(i-1)][\(rowGapName)(\(canonicalMarginGap))][bottomSpacer]"
@@ -247,7 +247,7 @@ class KeyboardViewController: UIInputViewController {
         
         var canonicalMarginGap: String? = nil
         
-        for i in 0..keyboard.rows.count {
+        for i in 0..<keyboard.rows.count {
             for j in 0...keyboard.rows[i].count {
                 let keyGapName = "keyGap\(j)x\(i)"
                 let keyGap = self.elements[keyGapName]
@@ -304,8 +304,8 @@ class KeyboardViewController: UIInputViewController {
     func createKeyConstraints(keyboard: Keyboard) {
         var allConstraints: Array<String> = []
         
-        for i in 0..keyboard.rows.count {
-            for j in 0..keyboard.rows[i].count {
+        for i in 0..<keyboard.rows.count {
+            for j in 0..<keyboard.rows[i].count {
                 let keyModel = keyboard.rows[i][j]
                 
                 let keyName = "key\(j)x\(i)"
@@ -319,7 +319,7 @@ class KeyboardViewController: UIInputViewController {
                     width = "(keyWidth)"
                 case Key.KeyType.Shift, Key.KeyType.Backspace:
                     width = "(shiftAndBackspaceMaxWidth)"
-                case Key.KeyType.KeyboardChange, Key.KeyType.ModeChange, Key.KeyType.SpecialCharacter:
+                case Key.KeyType.KeyboardChange, Key.KeyType.ModeChange, Key.KeyType.SpecialCharacter, Key.KeyType.Period:
                     width = "(specialKeyWidth)"
                 case Key.KeyType.Space:
                     width = "(spaceWidth)"
