@@ -95,15 +95,14 @@ class KeyboardViewController: UIInputViewController {
     
     func addEdgeConstraints() {
         let spacers = [
-            "leftSpacer": Spacer(),
-            "rightSpacer": Spacer(),
-            "topSpacer": Spacer(),
-            "bottomSpacer": Spacer()]
+            "leftSpacer": Spacer(color: UIColor.redColor()),
+            "rightSpacer": Spacer(color: UIColor.redColor()),
+            "topSpacer": Spacer(color: UIColor.redColor()),
+            "bottomSpacer": Spacer(color: UIColor.redColor())]
         
         // basic setup
         for (name, spacer) in spacers {
             spacer.setTranslatesAutoresizingMaskIntoConstraints(false)
-            spacer.layer.backgroundColor = UIColor.redColor().CGColor
             self.elements[name] = spacer
             self.view.addSubview(spacer)
         }
@@ -156,20 +155,32 @@ class KeyboardViewController: UIInputViewController {
         }
     }
     
+    /*
+    Everything here relies on a simple naming convention.
+    
+    The rows of the keyboard have invisible spacer rows between them.
+    There are also invisible spacer rows on the top and bottom of the keyboard.
+    These are all labeled "rowGap<x>", where 0 <= x <= row count.
+    
+    Similarly, there are invisible spacer gaps between every key.
+    There are also invisible gaps at the start and end of every row.
+    These are labeled "keyGap<x>x<y>, where 0 <= x <= key count and y <= 0 < row count.
+    
+    The keys are labeled "key<x>x<y>".
+    */
+    
     func createViews(keyboard: Array<Array<String>>) {
         for i in 0...keyboard.count {
-            var rowGap = Spacer()
+            var rowGap = Spacer(color: ((i == 0 || i == keyboard.count) ? UIColor.purpleColor() : UIColor.yellowColor()))
             let rowGapName = "rowGap\(i)"
-            rowGap.layer.backgroundColor = UIColor.yellowColor().CGColor
             rowGap.setTranslatesAutoresizingMaskIntoConstraints(false)
             self.elements[rowGapName] = rowGap
             self.view.addSubview(rowGap)
             
             if (i < keyboard.count) {
                 for j in 0...keyboard[i].count {
-                    var keyGap = Spacer()
-                    let keyGapName = "keyGap\(i)x\(j)"
-                    keyGap.layer.backgroundColor = UIColor.blueColor().CGColor
+                    var keyGap = Spacer(color: UIColor.blueColor())
+                    let keyGapName = "keyGap\(j)x\(i)"
                     keyGap.setTranslatesAutoresizingMaskIntoConstraints(false)
                     self.elements[keyGapName] = keyGap
                     self.view.addSubview(keyGap)
@@ -178,7 +189,7 @@ class KeyboardViewController: UIInputViewController {
                         var key = keyboard[i][j]
                         
                         var keyView = KeyboardKey(frame: CGRectMake(0, 0, 26, 39)) // TODO:
-                        let keyViewName = "key\(i)x\(j)"
+                        let keyViewName = "key\(j)x\(i)"
                         keyView.enabled = true
                         keyView.setTranslatesAutoresizingMaskIntoConstraints(false)
                         keyView.text = key
@@ -209,7 +220,7 @@ class KeyboardViewController: UIInputViewController {
                 allConstraints += "V:[topSpacer][\(rowGapName)(5)]" // TODO:
             }
             else if isBottomMarginGap {
-                allConstraints += "V:[\(rowGapName)(\(canonicalMarginGap))][bottomSpacer]"
+                allConstraints += "V:[key\(0)x\(i-1)][\(rowGapName)(\(canonicalMarginGap))][bottomSpacer]"
             }
             else {
                 if !canonicalRowGap {
@@ -252,7 +263,7 @@ class KeyboardViewController: UIInputViewController {
         
         for i in 0..keyboard.count {
             for j in 0...keyboard[i].count {
-                let keyGapName = "keyGap\(i)x\(j)"
+                let keyGapName = "keyGap\(j)x\(i)"
                 let keyGap = self.elements[keyGapName]
                 
                 let isLeftMarginGap = (j == 0)
@@ -263,10 +274,10 @@ class KeyboardViewController: UIInputViewController {
                     allConstraints += "[leftSpacer][\(keyGapName)]"
                 }
                 else if isRightMarginGap {
-                    allConstraints += "[\(keyGapName)(\(canonicalMarginGap))][rightSpacer]"
+                    allConstraints += "[key\(j-1)x\(i)][\(keyGapName)(\(canonicalMarginGap))][rightSpacer]"
                 }
                 else {
-                    allConstraints += "[key\(0)x\(j-1)][\(keyGapName)(keyGap)]"
+                    allConstraints += "[key\(j-1)x\(i)][\(keyGapName)(keyGap)]"
                 }
                 
                 // each gap has the same height
@@ -277,7 +288,7 @@ class KeyboardViewController: UIInputViewController {
                     item: keyGap,
                     attribute: NSLayoutAttribute.CenterY,
                     relatedBy: NSLayoutRelation.Equal,
-                    toItem: self.elements["key\(0)x\(j-1)"],
+                    toItem: self.elements["key\(0)x\(i)"],
                     attribute: NSLayoutAttribute.CenterY,
                     multiplier: 1,
                     constant: 0))
@@ -299,10 +310,10 @@ class KeyboardViewController: UIInputViewController {
         
         for i in 0..keyboard.count {
             for j in 0..keyboard[i].count {
-                let keyName = "key\(i)x\(j)"
+                let keyName = "key\(j)x\(i)"
                 let key = self.elements[keyName]
                 
-                allConstraints += "[keyGap\(i)x\(j)][\(keyName)(keyWidth)]"
+                allConstraints += "[keyGap\(j)x\(i)][\(keyName)(keyWidth)]"
                 allConstraints += "V:[rowGap\(i)][\(keyName)(keyHeight)]"
             }
         }
@@ -314,158 +325,6 @@ class KeyboardViewController: UIInputViewController {
                 metrics: layout,
                 views: elements)
             self.view.addConstraints(generatedConstraints)
-        }
-    }
-    
-    func addRows(rows: Array<Array<String>>) {
-        var canonicalRowGap: String? = nil
-        var canonicalKeyFromPreviousRow: String? = nil
-        
-        var rowId = 0
-        
-        for h in 0..rows.count {
-            let row = rows[h]
-            
-            let firstRowInRows = (h == 0)
-            let lastRowInRows = (h == (rows.count - 1))
-            
-            if !firstRowInRows {
-                var rowGap = Spacer()
-                
-                let rowGapName = "rowGap\(rowId)"
-                rowGap.layer.backgroundColor = UIColor.yellowColor().CGColor
-                rowGap.setTranslatesAutoresizingMaskIntoConstraints(false)
-                self.elements[rowGapName] = rowGap
-                self.view.addSubview(rowGap)
-                
-                var height = ""
-                if !canonicalRowGap {
-                    canonicalRowGap = rowGapName
-                }
-                else {
-                    height = "(\(canonicalRowGap))"
-                }
-                
-                let constraints = [
-                    "[\(rowGapName)(debugWidth)]",
-                    "V:[\(canonicalKeyFromPreviousRow)][\(rowGapName)\(height)]"
-                ]
-                
-                for constraint in constraints {
-                    let generatedConstraints = NSLayoutConstraint.constraintsWithVisualFormat(
-                        constraint,
-                        options: NSLayoutFormatOptions(0),
-                        metrics: layout,
-                        views: elements)
-                    self.view.addConstraints(generatedConstraints)
-                }
-                
-                self.view.addConstraint(NSLayoutConstraint(
-                    item: rowGap,
-                    attribute: NSLayoutAttribute.CenterX,
-                    relatedBy: NSLayoutRelation.Equal,
-                    toItem: self.view,
-                    attribute: NSLayoutAttribute.CenterX,
-                    multiplier: 1,
-                    constant: 0))
-            }
-            
-            canonicalKeyFromPreviousRow = nil
-            
-            var keyId = 0
-            var canonicalGap: String? = nil
-            var previousKey: KeyboardKey? = nil
-            
-            for i in 0..row.count {
-                let key = row[i]
-                
-                let firstKeyInRow = (i == 0)
-                let lastKeyInRow = (i == (row.count - 1))
-                
-                if !firstKeyInRow {
-                    var gap = Spacer()
-
-                    let name = "spacer\(rowId)x\(keyId)"
-                    gap.layer.backgroundColor = UIColor.blueColor().CGColor
-                    gap.setTranslatesAutoresizingMaskIntoConstraints(false)
-                    self.elements[name] = gap
-                    self.view.addSubview(gap)
-                    
-                    var width = ""
-                    if !canonicalGap {
-                        canonicalGap = name
-                    }
-                    else {
-                        width = "(\(canonicalGap))"
-                    }
-                    
-                    let constraints = [
-                        "[key\(rowId)x\(keyId-1)][\(name)\(width)]",
-                        "V:[topSpacer][\(name)(debugWidth)]"
-                    ]
-                    
-                    for constraint in constraints {
-                        let generatedConstraints = NSLayoutConstraint.constraintsWithVisualFormat(
-                            constraint,
-                            options: NSLayoutFormatOptions(0),
-                            metrics: layout,
-                            views: elements)
-                        self.view.addConstraints(generatedConstraints)
-                    }
-                    
-                    self.view.addConstraint(NSLayoutConstraint(
-                        item: gap,
-                        attribute: NSLayoutAttribute.CenterY,
-                        relatedBy: NSLayoutRelation.Equal,
-                        toItem: previousKey,
-                        attribute: NSLayoutAttribute.CenterY,
-                        multiplier: 1,
-                        constant: 0))
-                }
-                
-                var keyView = KeyboardKey(frame: CGRectMake(0, 0, 26, 39)) // TODO:
-                
-                let name = "key\(rowId)x\(keyId)"
-                keyView.enabled = true
-                keyView.setTranslatesAutoresizingMaskIntoConstraints(false)
-                keyView.text = key
-                keyView.addTarget(self, action: "keyPressed:", forControlEvents: UIControlEvents.TouchUpInside)
-                self.elements[name] = keyView
-                self.view.addSubview(keyView)
-                
-                if (!canonicalKeyFromPreviousRow) {
-                    canonicalKeyFromPreviousRow = name
-                }
-                
-                var leftEdge = (firstKeyInRow ? "leftSpacer" : "spacer\(rowId)x\(keyId)")
-                var topEdge = (firstRowInRows ? "topSpacer" : "rowGap\(rowId)")
-                
-                var constraints = [
-                    "[\(leftEdge)][\(name)(keyWidth)]",
-                    "V:[\(topEdge)][\(name)(keyHeight)]"
-                ]
-                
-                if (lastKeyInRow) {
-                    constraints += "[\(name)][rightSpacer]"
-                }
-                if (lastRowInRows) {
-                    constraints += "V:[\(name)][bottomSpacer]"
-                }
-                
-                for constraint in constraints {
-                    let generatedConstraints = NSLayoutConstraint.constraintsWithVisualFormat(
-                        constraint,
-                        options: NSLayoutFormatOptions(0),
-                        metrics: layout,
-                        views: elements)
-                    self.view.addConstraints(generatedConstraints)
-                }
-                
-                previousKey = keyView
-                keyId++
-            }
-            
-            rowId++
         }
     }
     
@@ -499,10 +358,15 @@ class KeyboardViewController: UIInputViewController {
 class Spacer: UIView {
     init(frame: CGRect) {
         super.init(frame: frame)
-//        self.hidden = true
+        self.hidden = true
     }
     convenience init() {
-        return self.init(frame: CGRectMake(20, 20, 100, 100))
+        return self.init(frame: CGRectZero)
+    }
+    convenience init(color: UIColor) {
+        self.init(frame: CGRectMake(20, 20, 100, 100))
+        self.layer.backgroundColor = color.CGColor
+        self.hidden = false
     }
 //    override class func requiresConstraintBasedLayout() -> Bool {
 //        return true
