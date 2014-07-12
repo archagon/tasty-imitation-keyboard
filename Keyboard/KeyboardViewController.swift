@@ -10,24 +10,33 @@ import UIKit
 //import KeyboardFramework
 
 let layout = [
-    "leftGap": 5,
+    "leftGap": 3,
     "rightGap": 3,
-    "topGap": 5,
-    "bottomGap": 2,
-    "debugWidth": 2,
+    "topGap": 9,
+    "bottomGap": 7,
     "keyWidth": 26,
     "keyHeight": 39,
-    "keyGap": 5
+    "keyGap": 6, // 5 for russian, though still 6 on lower row
+    "shiftAndBackspaceMaxWidth": 36,
+    "specialKeyWidth": 34,
+    "doneKeyWidth": 50,
+    "spaceWidth": 138,
+    "debugWidth": 2
 ]
+
+// shift/backspace: 72x78, but shrinks to 48x78
+// lower row: 68x78, 100x78, 276
 
 class KeyboardViewController: UIInputViewController {
     
     var elements: Dictionary<String, UIView>
     var keyboard: Keyboard
+    var keyViewToKey: Dictionary<KeyboardKey, Key>
 
     init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
         self.elements = Dictionary<String, UIView>()
         self.keyboard = defaultKeyboard()
+        self.keyViewToKey = Dictionary<KeyboardKey, Key>()
         
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
     }
@@ -38,10 +47,6 @@ class KeyboardViewController: UIInputViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-    
-//        self.nextKeyboardButton.setTitle(NSLocalizedString("Next Keyboard", comment: "Title for 'Next Keyboard' button"), forState: .Normal)
-//        self.nextKeyboardButton.sizeToFit()
-//        self.nextKeyboardButton.addTarget(self, action: "advanceToNextInputMode", forControlEvents: .TouchUpInside)
         
         self.elements["superview"] = self.view
         createViews(keyboard)
@@ -157,9 +162,25 @@ class KeyboardViewController: UIInputViewController {
                         keyView.enabled = true
                         keyView.setTranslatesAutoresizingMaskIntoConstraints(false)
                         keyView.text = key.keyCap
-                        keyView.addTarget(self, action: "keyPressed:", forControlEvents: UIControlEvents.TouchUpInside)
                         self.elements[keyViewName] = keyView
                         self.view.addSubview(keyView)
+                        
+                        self.keyViewToKey[keyView] = key
+                        
+                        if key.type == Key.KeyType.KeyboardChange {
+                            keyView.addTarget(self, action: "advanceToNextInputMode", forControlEvents: .TouchUpInside)
+                        }
+                        
+                        if key.outputText {
+                            keyView.addTarget(self, action: "keyPressed:", forControlEvents: .TouchUpInside)
+                        }
+                        
+                        if key.type == Key.KeyType.Backspace {
+                            keyView.addTarget(self, action: "backspacePressed:", forControlEvents: .TouchUpInside)
+                        }
+                        
+                        //        self.nextKeyboardButton.setTitle(NSLocalizedString("Next Keyboard", comment: "Title for 'Next Keyboard' button"), forState: .Normal)
+                        //        self.nextKeyboardButton.sizeToFit()
                     }
                 }
             }
@@ -285,11 +306,29 @@ class KeyboardViewController: UIInputViewController {
         
         for i in 0..keyboard.rows.count {
             for j in 0..keyboard.rows[i].count {
+                let keyModel = keyboard.rows[i][j]
+                
                 let keyName = "key\(j)x\(i)"
                 let key = self.elements[keyName]
                 
-                allConstraints += "[keyGap\(j)x\(i)][\(keyName)(keyWidth)]"
-                allConstraints += "V:[rowGap\(i)][\(keyName)(keyHeight)]"
+                var width = ""
+                var height = "(keyHeight)"
+                
+                switch keyModel.type {
+                case Key.KeyType.Character:
+                    width = "(keyWidth)"
+                case Key.KeyType.Shift, Key.KeyType.Backspace:
+                    width = "(shiftAndBackspaceMaxWidth)"
+                case Key.KeyType.KeyboardChange, Key.KeyType.ModeChange, Key.KeyType.SpecialCharacter:
+                    width = "(specialKeyWidth)"
+                case Key.KeyType.Space:
+                    width = "(spaceWidth)"
+                case Key.KeyType.Return:
+                    width = "(doneKeyWidth)"
+                }
+                
+                allConstraints += "[keyGap\(j)x\(i)][\(keyName)\(width)]"
+                allConstraints += "V:[rowGap\(i)][\(keyName)\(height)]"
             }
         }
         
@@ -304,7 +343,15 @@ class KeyboardViewController: UIInputViewController {
     }
     
     func keyPressed(sender: KeyboardKey) {
-        NSLog("got key from \(sender)")
+        let model = self.keyViewToKey[sender]
+        
+        if model && model!.outputText {
+            (self.textDocumentProxy as UITextDocumentProxy as UIKeyInput).insertText(model!.outputText)
+        }
+    }
+    
+    func backspacePressed(sender: KeyboardKey) {
+        (self.textDocumentProxy as UITextDocumentProxy as UIKeyInput).deleteBackward()
     }
 
     override func didReceiveMemoryWarning() {

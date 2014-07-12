@@ -23,7 +23,7 @@ class Keyboard {
     
     func addKey(key: Key, row: Int) {
         if self.rows.count <= row {
-            for i in self.rows.count...(row + 1) {
+            for i in self.rows.count...row {
                 self.rows += Array<Key>()
             }
         }
@@ -100,7 +100,7 @@ func defaultKeyboard() -> Keyboard {
     
     var keyModel6 = Key(type: .Return)
     keyModel6.keyCap = "return"
-    keyModel5.outputText = "\n"
+    keyModel6.outputText = "\n"
     defaultKeyboard.addKey(keyModel6, row: 3)
     
     return defaultKeyboard

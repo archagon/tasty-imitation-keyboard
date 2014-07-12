@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		4E00A6E5197183EE009414F2 /* KeyboardKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E807DC81946209600D875D1 /* KeyboardKey.swift */; };
+		4E00A6E719719175009414F2 /* TODO.md in Sources */ = {isa = PBXBuildFile; fileRef = 4E00A6E619719175009414F2 /* TODO.md */; };
 		4E0192B9196E08FC00A3547A /* KeyboardKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E807DC81946209600D875D1 /* KeyboardKey.swift */; };
 		4E5B67A2196E03B700114361 /* KeyboardModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E5B67A1196E03B700114361 /* KeyboardModel.swift */; };
 		4E5B67AD196E07B200114361 /* KeyboardFramework.h in Headers */ = {isa = PBXBuildFile; fileRef = 4E5B67AC196E07B200114361 /* KeyboardFramework.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -133,6 +134,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4E00A6E619719175009414F2 /* TODO.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = TODO.md; sourceTree = "<group>"; };
 		4E5B679F196DF26E00114361 /* Keyboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Keyboard.storyboard; sourceTree = "<group>"; };
 		4E5B67A1196E03B700114361 /* KeyboardModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyboardModel.swift; sourceTree = "<group>"; };
 		4E5B67A8196E07B200114361 /* KeyboardFramework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = KeyboardFramework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -313,6 +315,7 @@
 				4E5B67A1196E03B700114361 /* KeyboardModel.swift */,
 				4E5B679F196DF26E00114361 /* Keyboard.storyboard */,
 				4E807DCA194620AB00D875D1 /* Keyboard.playground */,
+				4E00A6E619719175009414F2 /* TODO.md */,
 				4E807DBB19461DC700D875D1 /* Supporting Files */,
 			);
 			path = Keyboard;
@@ -612,6 +615,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4E00A6E719719175009414F2 /* TODO.md in Sources */,
 				4E5B67A2196E03B700114361 /* KeyboardModel.swift in Sources */,
 				4E00A6E5197183EE009414F2 /* KeyboardKey.swift in Sources */,
 				4EAAB700196E13FE005DE8F5 /* KeyboardViewController.swift in Sources */,
