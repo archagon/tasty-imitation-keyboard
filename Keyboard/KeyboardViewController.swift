@@ -249,74 +249,63 @@ class KeyboardViewController: UIInputViewController {
         }
     }
     
-    // TODO: make this a single constraint string??
-    // TODO: third row: side gaps come AFTER special buttons on sides
-    // TODO: last row: flexible gaps w/no edges
-    func createKeyGapConstraints(keyboard: Keyboard) {
+    func centerItems(item1: UIView, item2: UIView) {
+        self.view.addConstraint(NSLayoutConstraint(
+            item: item1,
+            attribute: NSLayoutAttribute.CenterY,
+            relatedBy: NSLayoutRelation.Equal,
+            toItem: item2,
+            attribute: NSLayoutAttribute.CenterY,
+            multiplier: 1,
+            constant: 0))
+    }
+    
+    func addFlexibleGapPair(nameFormat: String, row: Int, startIndex: Int, endIndex: Int, leftAnchor: String?, rightAnchor: String?, vertical: Bool) {
         var allConstraints: Array<String> = []
         
-        var canonicalMarginGap: String? = nil
+        var leftGapName = String(format: nameFormat, startIndex, row)
+        var rightGapName = String(format: nameFormat, endIndex, row)
         
-        for i in 0..<keyboard.rows.count {
-            // TODO: both of these should be determined based on the model data, not the row #
-            let isSideButtonRow = (i == 2)
-            let isEquallySpacedRow = (i == 3)
+        if leftAnchor {
+            allConstraints += "[\(leftAnchor)][\(leftGapName)]"
+        }
+        
+        if rightAnchor {
+            allConstraints += "[\(rightGapName)][\(rightAnchor)]"
+        }
+        
+        allConstraints += "[\(rightGapName)(\(leftGapName))]"
+        
+        allConstraints += "V:[\(leftGapName)(debugWidth)]"
+        allConstraints += "V:[\(rightGapName)(debugWidth)]"
+        centerItems(self.elements[leftGapName]!, item2: self.elements["key\(0)x\(row)"]!)
+        centerItems(self.elements[rightGapName]!, item2: self.elements["key\(0)x\(row)"]!)
+        
+        for constraint in allConstraints {
+            let generatedConstraints = NSLayoutConstraint.constraintsWithVisualFormat(
+                constraint,
+                options: NSLayoutFormatOptions(0),
+                metrics: layout,
+                views: elements)
+            self.view.addConstraints(generatedConstraints)
+        }
+    }
+    
+    func addFixedGapsInRange(nameFormat: String, row: Int, startIndex: Int, endIndex: Int, vertical: Bool, width: Double) {
+        var allConstraints: Array<String> = []
+        
+        var firstGapName = String(format: nameFormat, startIndex, row)
+        allConstraints += "[\(firstGapName)(\(width))]"
+        
+        for i in startIndex...endIndex {
+            var gapName = String(format: nameFormat, i, row)
             
-            var canonicalKeyGap: String? = nil
-            
-            for j in 0...keyboard.rows[i].count {
-                let keyGapName = "keyGap\(j)x\(i)"
-                let keyGap = self.elements[keyGapName]
-                
-                let isLeftMarginGap = (j == 0)
-                let isRightMarginGap = (j == keyboard.rows[i].count)
-                
-                if isLeftMarginGap {
-                    canonicalMarginGap = keyGapName
-                    let width = (isEquallySpacedRow ? "(0)" : "") // equally spaced row has no side margins
-                    allConstraints += "[leftSpacer][\(keyGapName)\(width)]"
-                }
-                else if isRightMarginGap {
-                    allConstraints += "[key\(j-1)x\(i)][\(keyGapName)(\(canonicalMarginGap))][rightSpacer]"
-                }
-                else {
-                    allConstraints += "[key\(j-1)x\(i)][\(keyGapName)]" // QQQ: this is where the gap width was
-                    
-                    // the width is determined as a percentage of the total container size,
-                    // as long as we're not on an equally spaced row
-                    if !canonicalKeyGap {
-                        if !isEquallySpacedRow {
-                            self.view.addConstraint(NSLayoutConstraint(
-                                item: keyGap,
-                                attribute: NSLayoutAttribute.Width,
-                                relatedBy: NSLayoutRelation.Equal,
-                                toItem: self.view,
-                                attribute: NSLayoutAttribute.Width,
-                                multiplier: 5/320.0,
-                                constant: 0))
-                        }
-                        canonicalKeyGap = keyGapName
-                    }
-                    else {
-                        allConstraints += "[\(keyGapName)(\(canonicalKeyGap))]"
-                    }
-                }
-                
-                // each gap has the same height
-                allConstraints += "V:[\(keyGapName)(debugWidth)]"
-                
-                // and the same centering
-                self.view.addConstraint(NSLayoutConstraint(
-                    item: keyGap,
-                    attribute: NSLayoutAttribute.CenterY,
-                    relatedBy: NSLayoutRelation.Equal,
-                    toItem: self.elements["key\(0)x\(i)"],
-                    attribute: NSLayoutAttribute.CenterY,
-                    multiplier: 1,
-                    constant: 0))
+            if i > 0 {
+                allConstraints += "[\(gapName)(\(firstGapName))]"
             }
             
-            canonicalKeyGap = nil
+            allConstraints += "V:[\(gapName)(debugWidth)]"
+            centerItems(self.elements[gapName]!, item2: self.elements["key\(0)x\(row)"]!)
         }
         
         for constraint in allConstraints {
@@ -326,6 +315,20 @@ class KeyboardViewController: UIInputViewController {
                 metrics: layout,
                 views: elements)
             self.view.addConstraints(generatedConstraints)
+        }
+    }
+    
+    // TODO: make this a single constraint string??
+    // TODO: third row: side gaps come AFTER special buttons on sides
+    // TODO: last row: flexible gaps w/no edges
+    func createKeyGapConstraints(keyboard: Keyboard) {
+        for i in 0..<keyboard.rows.count {
+            // TODO: both of these should be determined based on the model data, not the row #
+            let isSideButtonRow = (i == 2)
+            let isEquallySpacedRow = (i == 3)
+            
+            addFlexibleGapPair("keyGap%dx%d", row: i, startIndex: 0, endIndex: keyboard.rows[i].count, leftAnchor: "leftSpacer", rightAnchor: "rightSpacer", vertical: false)
+            addFixedGapsInRange("keyGap%dx%d", row: i, startIndex: 1, endIndex: keyboard.rows[i].count-1, vertical: false, width: 6)
         }
     }
     
@@ -355,7 +358,7 @@ class KeyboardViewController: UIInputViewController {
                     width = "(doneKeyWidth)"
                 }
                 
-                allConstraints += "[keyGap\(j)x\(i)][\(keyName)\(width)]"
+                allConstraints += "[keyGap\(j)x\(i)][\(keyName)\(width)][keyGap\(j+1)x\(i)]"
                 allConstraints += "V:[rowGap\(i)][\(keyName)\(height)]"
             }
         }
