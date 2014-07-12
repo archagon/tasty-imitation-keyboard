@@ -260,7 +260,7 @@ class KeyboardViewController: UIInputViewController {
             constant: 0))
     }
     
-    func addFlexibleGapPair(nameFormat: String, row: Int, startIndex: Int, endIndex: Int, leftAnchor: String?, rightAnchor: String?, vertical: Bool) {
+    func addGapPair(nameFormat: String, row: Int, startIndex: Int, endIndex: Int, leftAnchor: String?, rightAnchor: String?, vertical: Bool, width: Double?) {
         var allConstraints: Array<String> = []
         
         var leftGapName = String(format: nameFormat, startIndex, row)
@@ -272,6 +272,10 @@ class KeyboardViewController: UIInputViewController {
         
         if rightAnchor {
             allConstraints += "[\(rightGapName)][\(rightAnchor)]"
+        }
+        
+        if width {
+            allConstraints += "[\(leftAnchor)(\(width))]"
         }
         
         allConstraints += "[\(rightGapName)(\(leftGapName))]"
@@ -327,8 +331,18 @@ class KeyboardViewController: UIInputViewController {
             let isSideButtonRow = (i == 2)
             let isEquallySpacedRow = (i == 3)
             
-            addFlexibleGapPair("keyGap%dx%d", row: i, startIndex: 0, endIndex: keyboard.rows[i].count, leftAnchor: "leftSpacer", rightAnchor: "rightSpacer", vertical: false)
-            addFixedGapsInRange("keyGap%dx%d", row: i, startIndex: 1, endIndex: keyboard.rows[i].count-1, vertical: false, width: 6)
+            if isSideButtonRow {
+                addGapPair("keyGap%dx%d", row: i, startIndex: 0, endIndex: keyboard.rows[i].count, leftAnchor: "leftSpacer", rightAnchor: "rightSpacer", vertical: false, width: 0)
+                addGapPair("keyGap%dx%d", row: i, startIndex: 1, endIndex: keyboard.rows[i].count - 1, leftAnchor: nil, rightAnchor: nil, vertical: false, width: nil)
+                addFixedGapsInRange("keyGap%dx%d", row: i, startIndex: 2, endIndex: keyboard.rows[i].count - 2, vertical: false, width: 6)
+            }
+//            else if isEquallySpacedRow {
+//                
+//            }
+            else {
+                addGapPair("keyGap%dx%d", row: i, startIndex: 0, endIndex: keyboard.rows[i].count, leftAnchor: "leftSpacer", rightAnchor: "rightSpacer", vertical: false, width: nil)
+                addFixedGapsInRange("keyGap%dx%d", row: i, startIndex: 1, endIndex: keyboard.rows[i].count-1, vertical: false, width: 6)
+            }
         }
     }
     
