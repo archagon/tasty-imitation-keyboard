@@ -58,6 +58,14 @@ class KeyboardViewController: UIInputViewController {
         createKeyConstraints(keyboard)
     }
     
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+    }
+    
     func addEdgeConstraints() {
         let spacers = [
             "leftSpacer": Spacer(color: UIColor.redColor()),
@@ -125,7 +133,7 @@ class KeyboardViewController: UIInputViewController {
     
     The rows of the keyboard have invisible spacer rows between them.
     There are also invisible spacer rows on the top and bottom of the keyboard.
-    These are all labeled "rowGap<x>", where 0 <= x <= row count.
+    These are all labeled "rowGap<y>", where 0 <= y <= row count.
     
     Similarly, there are invisible spacer gaps between every key.
     There are also invisible gaps at the start and end of every row.
@@ -242,12 +250,20 @@ class KeyboardViewController: UIInputViewController {
     }
     
     // TODO: make this a single constraint string??
+    // TODO: third row: side gaps come AFTER special buttons on sides
+    // TODO: last row: flexible gaps w/no edges
     func createKeyGapConstraints(keyboard: Keyboard) {
         var allConstraints: Array<String> = []
         
         var canonicalMarginGap: String? = nil
         
         for i in 0..<keyboard.rows.count {
+            // TODO: both of these should be determined based on the model data, not the row #
+            let isSideButtonRow = (i == 2)
+            let isEquallySpacedRow = (i == 3)
+            
+            var canonicalKeyGap: String? = nil
+            
             for j in 0...keyboard.rows[i].count {
                 let keyGapName = "keyGap\(j)x\(i)"
                 let keyGap = self.elements[keyGapName]
@@ -257,7 +273,8 @@ class KeyboardViewController: UIInputViewController {
                 
                 if isLeftMarginGap {
                     canonicalMarginGap = keyGapName
-                    allConstraints += "[leftSpacer][\(keyGapName)]"
+                    let width = (isEquallySpacedRow ? "(0)" : "") // equally spaced row has no side margins
+                    allConstraints += "[leftSpacer][\(keyGapName)\(width)]"
                 }
                 else if isRightMarginGap {
                     allConstraints += "[key\(j-1)x\(i)][\(keyGapName)(\(canonicalMarginGap))][rightSpacer]"
@@ -265,15 +282,24 @@ class KeyboardViewController: UIInputViewController {
                 else {
                     allConstraints += "[key\(j-1)x\(i)][\(keyGapName)]" // QQQ: this is where the gap width was
                     
-                    // the width is determined as a percentage of the total container size
-                    self.view.addConstraint(NSLayoutConstraint(
-                        item: keyGap,
-                        attribute: NSLayoutAttribute.Width,
-                        relatedBy: NSLayoutRelation.Equal,
-                        toItem: self.view,
-                        attribute: NSLayoutAttribute.Width,
-                        multiplier: 5/320.0,
-                        constant: 0))
+                    // the width is determined as a percentage of the total container size,
+                    // as long as we're not on an equally spaced row
+                    if !canonicalKeyGap {
+                        if !isEquallySpacedRow {
+                            self.view.addConstraint(NSLayoutConstraint(
+                                item: keyGap,
+                                attribute: NSLayoutAttribute.Width,
+                                relatedBy: NSLayoutRelation.Equal,
+                                toItem: self.view,
+                                attribute: NSLayoutAttribute.Width,
+                                multiplier: 5/320.0,
+                                constant: 0))
+                        }
+                        canonicalKeyGap = keyGapName
+                    }
+                    else {
+                        allConstraints += "[\(keyGapName)(\(canonicalKeyGap))]"
+                    }
                 }
                 
                 // each gap has the same height
@@ -289,6 +315,8 @@ class KeyboardViewController: UIInputViewController {
                     multiplier: 1,
                     constant: 0))
             }
+            
+            canonicalKeyGap = nil
         }
         
         for constraint in allConstraints {
