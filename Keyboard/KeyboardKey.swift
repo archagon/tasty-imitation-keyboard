@@ -34,7 +34,7 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
 
 @IBDesignable class KeyboardKey: UIControl {
     
-    var background: KeyboardKeyBackground
+    var keyView: KeyboardKeyBackground
     
     @IBInspectable var text: String! {
     didSet {
@@ -50,37 +50,37 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
     
     override var enabled: Bool {
     didSet {
-        self.background.enabled = enabled
+        self.keyView.enabled = enabled
     }
     }
     
     override var selected: Bool {
     didSet {
-        self.background.selected = selected
+        self.keyView.selected = selected
     }
     }
     
     @IBInspectable override var highlighted: Bool {
     didSet {
 //        self.layer.backgroundColor = (highlighted ? UIColor.blueColor().CGColor : UIColor.redColor().CGColor)
-        self.background.highlighted = highlighted
+        self.keyView.highlighted = highlighted
     }
     }
     
     init(coder aDecoder: NSCoder!) {
-        background = KeyboardKeyBackground(frame: CGRectZero)
+        self.keyView = KeyboardKeyBackground(frame: CGRectZero)
         
         super.init(coder: aDecoder)
         
-        self.addSubview(background)
+        self.addSubview(self.keyView)
     }
     
     init(frame: CGRect) {
-        background = KeyboardKeyBackground(frame: CGRectZero)
+        self.keyView = KeyboardKeyBackground(frame: CGRectZero)
         
         super.init(frame: frame)
         
-        self.addSubview(background)
+        self.addSubview(self.keyView)
     }
     
 //    override func sizeThatFits(size: CGSize) -> CGSize {
@@ -92,23 +92,24 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
     }
     
     func redrawText() {
-        self.background.frame = self.bounds
+        self.keyView.frame = self.bounds
 //        self.button.frame = self.bounds
         
 //        self.button.setTitle(self.text, forState: UIControlState.Normal)
-        self.background.text = (self.text ? self.text : "")
+        self.keyView.text = (self.text ? self.text : "")
     }
     
     class KeyboardKeyBackground: UIControl {
         
+        var color: UIColor!
+        var shadowColor: UIColor!
+        var textColor: UIColor!
+        var downColor: UIColor!
+        var downShadowColor: UIColor!
+        var downTextColor: UIColor!
+        
         let arcHeightPercentageRadius = 0.15
-        let color = [0.98, 1.0, 0.98]
         
-        var normalTextColor = [0.25, 0.25, 0.5]
-        var disabledTextColor: Array<Double>
-        var selectedTextColor: Array<Double>
-        
-        var currentColor: Array<Double> // TODO: tuple
         var text: String {
         didSet {
             self.label.text = text
@@ -122,33 +123,22 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
         override var highlighted: Bool {
         didSet {
             if highlighted {
-                self.currentColor = color.map { $0 * 0.85 }
-                self.label.textColor = UIColor(
-                    red: selectedTextColor[0],
-                    green: selectedTextColor[1],
-                    blue: selectedTextColor[2],
-                    alpha: 1.0)
+                self.label.textColor = self.downTextColor
             }
             else {
-                self.currentColor = color
-                self.label.textColor = UIColor(
-                    red: normalTextColor[0],
-                    green: normalTextColor[1],
-                    blue: normalTextColor[2],
-                    alpha: 1.0)
+                self.label.textColor = self.textColor
             }
             self.setNeedsDisplay()
         }
         }
         
         init(frame: CGRect) {
-            currentColor = self.color
-            text = ""
+            text = "" // TODO: does this call the setter?
             label = UILabel()
-            disabledTextColor = normalTextColor.map { $0 * 1.5 }
-            selectedTextColor = normalTextColor.map { $0 * 0.75 }
             
             super.init(frame: frame)
+            
+            self.setDefaultColors()
             
             self.contentMode = UIViewContentMode.Redraw
             self.opaque = false
@@ -160,6 +150,15 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
 //            self.label.minimumFontSize = 10
             self.label.userInteractionEnabled = false
             self.addSubview(self.label)
+        }
+        
+        func setDefaultColors() {
+            self.color = UIColor(red: 0.98, green: 1.0, blue: 0.98, alpha: 1.0)
+            self.shadowColor = UIColor(red: 0.98 * 0.4, green: 1.0 * 0.4, blue: 0.98 * 0.4, alpha: 1.0)
+            self.textColor = UIColor(red: 0.25, green: 0.25, blue: 0.5, alpha: 1.0)
+            self.downColor = UIColor(red: 0.98 * 0.85, green: 1.0 * 0.85, blue: 0.98 * 0.85, alpha: 1.0)
+            self.downShadowColor = UIColor(red: 0.98 * 0.4 * 0.85, green: 1.0 * 0.4 * 0.85, blue: 0.98 * 0.4 * 0.85, alpha: 1.0)
+            self.downTextColor = UIColor(red: 0.25 * 0.75, green: 0.25 * 0.75, blue: 0.5 * 0.75, alpha: 1.0)
         }
         
         override func layoutSubviews() {
@@ -223,20 +222,16 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
             CGPathAddLineToPoint(path, nil, startMidpoint.x, startMidpoint.y)
             CGPathCloseSubpath(path)
             
-            var drawColor = self.currentColor
-            drawColor.append(1.0)
-            var color2 = drawColor.map { $0 * 0.80 }
-            color2[3] = 1.0
-            var color3 = drawColor.map { $0 * 0.4 }
-            color3[3] = 0.85
+            let mainColor = (self.highlighted ? self.downColor : self.color).CGColor
+            let shadowColor = (self.highlighted ? self.downShadowColor : self.shadowColor).CGColor
             
-            CGContextSetFillColor(ctx, color3)
+            CGContextSetFillColorWithColor(ctx, shadowColor)
             CGContextTranslateCTM(ctx, 0, shadowOffset)
             CGContextAddPath(ctx, path)
             CGContextFillPath(ctx)
             CGContextTranslateCTM(ctx, 0, -shadowOffset)
             
-            CGContextSetFillColor(ctx, drawColor)
+            CGContextSetFillColorWithColor(ctx, mainColor)
             CGContextAddPath(ctx, path)
             CGContextFillPath(ctx)
             

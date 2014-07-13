@@ -143,6 +143,24 @@ class KeyboardViewController: UIInputViewController {
     */
     
     func createViews(keyboard: Keyboard) {
+        func setColorsForKey(key: KeyboardKey, dark: Bool) {
+            let lightColor = UIColor.whiteColor()
+            let lightShadowColor = UIColor(hue: (220/360.0), saturation: 0.04, brightness: 0.56, alpha: 1)
+            let lightTextColor = UIColor.blackColor()
+            let darkColor = UIColor(hue: (217/360.0), saturation: 0.09, brightness: 0.75, alpha: 1)
+            let darkShadowColor = lightShadowColor
+            let darkTextColor = lightColor
+            let blueColor = UIColor(hue: (211/360.0), saturation: 1.0, brightness: 1.0, alpha: 1)
+            let blueShadowColor = UIColor(hue: (216/360.0), saturation: 0.05, brightness: 0.43, alpha: 1)
+            
+            key.keyView.color = (dark ? darkColor : lightColor)
+            key.keyView.shadowColor = (dark ? darkShadowColor : lightShadowColor)
+            key.keyView.textColor = (dark ? darkTextColor : lightTextColor)
+            key.keyView.downColor = (dark ? lightColor : darkColor)
+            key.keyView.downShadowColor = (dark ? lightShadowColor : darkShadowColor)
+            key.keyView.downTextColor = (dark ? lightTextColor : darkTextColor)
+        }
+        
         let numRows = keyboard.rows.count
         
         for i in 0...numRows {
@@ -170,21 +188,39 @@ class KeyboardViewController: UIInputViewController {
                         keyView.enabled = true
                         keyView.setTranslatesAutoresizingMaskIntoConstraints(false)
                         keyView.text = key.keyCap
-                        self.elements[keyViewName] = keyView
+                        
                         self.view.addSubview(keyView)
                         
+                        self.elements[keyViewName] = keyView
                         self.keyViewToKey[keyView] = key
                         
-                        if key.type == Key.KeyType.KeyboardChange {
+                        switch key.type {
+                        case
+                        Key.KeyType.Character,
+                        Key.KeyType.SpecialCharacter,
+                        Key.KeyType.Space,
+                        Key.KeyType.Period:
+                            setColorsForKey(keyView, false)
+                        case
+                        Key.KeyType.Shift,
+                        Key.KeyType.Backspace,
+                        Key.KeyType.ModeChange,
+                        Key.KeyType.KeyboardChange,
+                        Key.KeyType.Return:
+                            setColorsForKey(keyView, true)
+                        }
+                        
+                        switch key.type {
+                        case Key.KeyType.KeyboardChange:
                             keyView.addTarget(self, action: "advanceToNextInputMode", forControlEvents: .TouchUpInside)
+                        case Key.KeyType.Backspace:
+                            keyView.addTarget(self, action: "backspacePressed:", forControlEvents: .TouchUpInside)
+                        default:
+                            break
                         }
                         
                         if key.outputText {
                             keyView.addTarget(self, action: "keyPressed:", forControlEvents: .TouchUpInside)
-                        }
-                        
-                        if key.type == Key.KeyType.Backspace {
-                            keyView.addTarget(self, action: "backspacePressed:", forControlEvents: .TouchUpInside)
                         }
                         
                         //        self.nextKeyboardButton.setTitle(NSLocalizedString("Next Keyboard", comment: "Title for 'Next Keyboard' button"), forState: .Normal)
