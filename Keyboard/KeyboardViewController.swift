@@ -422,6 +422,8 @@ class KeyboardViewController: UIInputViewController {
     }
     
     func keyPressed(sender: KeyboardKey) {
+        UIDevice.currentDevice().playInputClick()
+        
         let model = self.keyViewToKey[sender]
         
         if model && model!.outputText {
@@ -430,6 +432,8 @@ class KeyboardViewController: UIInputViewController {
     }
     
     func backspacePressed(sender: KeyboardKey) {
+        UIDevice.currentDevice().playInputClick()
+        
         (self.textDocumentProxy as UITextDocumentProxy as UIKeyInput).deleteBackward()
     }
 
@@ -464,9 +468,9 @@ class Spacer: UIView {
         return self.init(frame: CGRectZero)
     }
     convenience init(color: UIColor) {
-        self.init(frame: CGRectMake(20, 20, 100, 100))
-        self.layer.backgroundColor = color.CGColor
-        self.hidden = false
+        self.init()
+//        self.layer.backgroundColor = color.CGColor
+//        self.hidden = false
     }
 //    override class func requiresConstraintBasedLayout() -> Bool {
 //        return true

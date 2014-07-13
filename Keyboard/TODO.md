@@ -15,3 +15,4 @@
 * add correct art
 ** make main app ui
 *** performance concerns
+* font size scaling

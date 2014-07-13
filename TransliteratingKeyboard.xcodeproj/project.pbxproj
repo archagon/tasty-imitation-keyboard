@@ -154,7 +154,7 @@
 		4E807DB919461DC700D875D1 /* Apple.TransliteratingKeyboard.Keyboard.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Apple.TransliteratingKeyboard.Keyboard.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E807DBC19461DC700D875D1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4E807DBD19461DC700D875D1 /* KeyboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardViewController.swift; sourceTree = "<group>"; };
-		4E807DC81946209600D875D1 /* KeyboardKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = KeyboardKey.swift; path = ../Keyboard/KeyboardKey.swift; sourceTree = "<group>"; };
+		4E807DC81946209600D875D1 /* KeyboardKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyboardKey.swift; sourceTree = "<group>"; };
 		4E807DCA194620AB00D875D1 /* Keyboard.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = Keyboard.playground; sourceTree = "<group>"; };
 		4E976B90196F381600F13611 /* Apple.TransliteratingKeyboard.TestKeyboard.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Apple.TransliteratingKeyboard.TestKeyboard.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E976B93196F381600F13611 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -213,7 +213,6 @@
 			isa = PBXGroup;
 			children = (
 				4E5B67AC196E07B200114361 /* KeyboardFramework.h */,
-				4E807DC81946209600D875D1 /* KeyboardKey.swift */,
 				4E5B67AA196E07B200114361 /* Supporting Files */,
 			);
 			path = KeyboardFramework;
@@ -311,6 +310,7 @@
 			isa = PBXGroup;
 			children = (
 				4E807DBD19461DC700D875D1 /* KeyboardViewController.swift */,
+				4E807DC81946209600D875D1 /* KeyboardKey.swift */,
 				4E5B67A1196E03B700114361 /* KeyboardModel.swift */,
 				4E5B679F196DF26E00114361 /* Keyboard.storyboard */,
 				4E807DCA194620AB00D875D1 /* Keyboard.playground */,

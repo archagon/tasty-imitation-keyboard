@@ -81,9 +81,6 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
         super.init(frame: frame)
         
         self.addSubview(background)
-        
-//        self.button.setTitleShadowColor(UIColor.blueColor(), forState: UIControlState.Normal);
-//        self.button.titleLabel.font = self.button.titleLabel.font.fontWithSize(frame.height * 0.50)
     }
     
 //    override func sizeThatFits(size: CGSize) -> CGSize {
@@ -104,8 +101,6 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
     
     class KeyboardKeyBackground: UIControl {
         
-//        let cornerOffset = [0.05, 0.05]
-        let cornerOffset = [0.0, 0.0]
         let arcHeightPercentageRadius = 0.15
         let color = [0.98, 1.0, 0.98]
         
@@ -159,10 +154,16 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
             self.opaque = false
             self.userInteractionEnabled = false
             
-            self.label.frame = self.bounds
             self.label.textAlignment = NSTextAlignment.Center
-            self.addSubview(self.label)
+            self.label.font = self.label.font.fontWithSize(22)
+            self.label.adjustsFontSizeToFitWidth = true
+//            self.label.minimumFontSize = 10
             self.label.userInteractionEnabled = false
+            self.addSubview(self.label)
+        }
+        
+        override func layoutSubviews() {
+            self.label.frame = self.bounds
         }
         
         override func drawRect(rect: CGRect) {
@@ -184,13 +185,13 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
             // draw the border //
             /////////////////////
             
-            let segmentWidth = self.bounds.width * (1 - (cornerOffset[0] * 2))
-            let segmentHeight = self.bounds.height * (1 - (cornerOffset[1] * 2))
+            let shadowOffset = 1.0
+            
+            let segmentWidth = self.bounds.width
+            let segmentHeight = self.bounds.height - shadowOffset
             let arcLength = segmentHeight * arcHeightPercentageRadius
             
-            let startMidpoint = CGPoint(
-                x: self.bounds.width * cornerOffset[0],
-                y: self.bounds.height * cornerOffset[1] + segmentHeight/2.0)
+            let startMidpoint = CGPoint(x: 0, y: segmentHeight/2.0)
             
             var path = CGPathCreateMutable();
             
@@ -205,11 +206,11 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
             
             for i in 0...3 {
                 let firstPoint = CGPoint(
-                    x: self.bounds.width * cornerOffset[0] + (correctPosition(i, 1) ? segmentWidth : 0),
-                    y: self.bounds.height * cornerOffset[1] + (correctPosition(i, 0) ? segmentHeight : 0))
+                    x: correctPosition(i, 1) ? segmentWidth : 0,
+                    y: correctPosition(i, 0) ? segmentHeight : 0)
                 let nextPoint = CGPoint(
-                    x: self.bounds.width * cornerOffset[0] + (correctPosition(i, 0) ? segmentWidth : 0),
-                    y: self.bounds.height * cornerOffset[1] + (correctPosition(i, -1) ? segmentHeight : 0))
+                    x: correctPosition(i, 0) ? segmentWidth : 0,
+                    y: correctPosition(i, -1) ? segmentHeight : 0)
                 
                 CGPathAddArcToPoint(path, nil,
                     firstPoint.x,
@@ -228,8 +229,6 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
             color2[3] = 1.0
             var color3 = drawColor.map { $0 * 0.4 }
             color3[3] = 0.85
-
-            let shadowOffset = 2.0
             
             CGContextSetFillColor(ctx, color3)
             CGContextTranslateCTM(ctx, 0, shadowOffset)
@@ -241,10 +240,10 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
             CGContextAddPath(ctx, path)
             CGContextFillPath(ctx)
             
-            CGContextSetStrokeColor(ctx, color2)
-            CGContextSetLineWidth(ctx, 1.0)
-            CGContextAddPath(ctx, path)
-            CGContextStrokePath(ctx)
+            //CGContextSetStrokeColor(ctx, color2)
+            //CGContextSetLineWidth(ctx, 1.0)
+            //CGContextAddPath(ctx, path)
+            //CGContextStrokePath(ctx)
             
             /////////////
             // cleanup //
