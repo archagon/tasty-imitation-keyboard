@@ -9,6 +9,9 @@
 import UIKit
 //import KeyboardFramework
 
+let DEBUG = true
+var DEBUG_SAVED_SCREENSHOT = false
+
 let layout: Dictionary<String, Double> = [
     "leftGap": 3,
     "rightGap": 3,
@@ -67,6 +70,27 @@ class KeyboardViewController: UIInputViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        
+        // this code grabs a screenshot of the keyboard and puts it in the project directory
+        // source: http://stackoverflow.com/questions/2214957/how-do-i-take-a-screen-shot-of-a-uiview
+        if DEBUG && !DEBUG_SAVED_SCREENSHOT {
+            if !CGRectIsEmpty(self.view.bounds) {
+                let oldViewColor = self.view.layer.backgroundColor
+                self.view.layer.backgroundColor = UIColor(hue: (216/360.0), saturation: 0.05, brightness: 0.86, alpha: 1).CGColor
+                
+                var rect = self.view.bounds
+                UIGraphicsBeginImageContextWithOptions(rect.size, true, 0)
+                var context = UIGraphicsGetCurrentContext()
+                self.view.layer.renderInContext(context)
+                var capturedImage = UIGraphicsGetImageFromCurrentImageContext()
+                UIGraphicsEndImageContext()
+                var imagePath = "/Users/archagon/Documents/Programming/OSX/TransliteratingKeyboard/Screenshot.png"
+                UIImagePNGRepresentation(capturedImage).writeToFile(imagePath, atomically: true)
+                
+                self.view.layer.backgroundColor = oldViewColor
+                DEBUG_SAVED_SCREENSHOT = true
+            }
+        }
     }
     
     func addEdgeConstraints() {
