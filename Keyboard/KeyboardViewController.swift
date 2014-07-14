@@ -42,6 +42,7 @@ class ForwardingView: UIView {
     
     var myView: UIView?
     
+    // TODO: drag up control centre from bottom == stuck
     func handleControl(view: UIView?, controlEvent: UIControlEvents) {
         if !view {
             return
@@ -53,26 +54,27 @@ class ForwardingView: UIView {
         
         let control = view! as UIControl
         
-        if (controlEvent & UIControlEvents.TouchDown) {
-            control.highlighted = true
-        }
-        if (controlEvent & UIControlEvents.TouchDownRepeat) {
-        }
-        if (controlEvent & UIControlEvents.TouchDragInside) {
-        }
-        if (controlEvent & UIControlEvents.TouchDragOutside) {
-        }
-        if (controlEvent & UIControlEvents.TouchDragEnter) {
-        }
-        if (controlEvent & UIControlEvents.TouchDragExit) {
-        }
-        if (controlEvent & UIControlEvents.TouchUpInside) {
-            control.highlighted = false
-        }
-        if (controlEvent & UIControlEvents.TouchUpOutside) {
-            control.highlighted = false
-        }
-        if (controlEvent & UIControlEvents.TouchCancel) {
+        let controlEvents = [
+            UIControlEvents.TouchDownRepeat,
+            UIControlEvents.TouchDragInside,
+            UIControlEvents.TouchDragOutside,
+            UIControlEvents.TouchDragEnter,
+            UIControlEvents.TouchDragExit,
+            UIControlEvents.TouchUpInside,
+            UIControlEvents.TouchUpOutside,
+            UIControlEvents.TouchCancel]
+        
+        let targets = control.allTargets()
+        if targets {
+            for target in targets.allObjects { // TODO: Xcode crashes
+                var actions = control.actionsForTarget(target, forControlEvent: controlEvent)
+                if actions {
+                    for action in actions {
+                        let selector = Selector(action as String)
+                        control.sendAction(selector, to: target, forEvent: nil)
+                    }
+                }
+            }
         }
     }
     
