@@ -35,6 +35,7 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
 @IBDesignable class KeyboardKey: UIControl {
     
     var keyView: KeyboardKeyBackground
+    var popup: KeyboardKeyPopup?
     
     @IBInspectable var text: String! {
     didSet {
@@ -80,7 +81,13 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
         
         super.init(frame: frame)
         
+        self.clipsToBounds = false
         self.addSubview(self.keyView)
+        
+        let showOptions: UIControlEvents = .TouchDown | .TouchDragInside
+        let hideOptions: UIControlEvents = .TouchUpInside | .TouchUpOutside | .TouchDragOutside
+        self.addTarget(self, action: Selector("showPopup"), forControlEvents: showOptions)
+        self.addTarget(self, action: Selector("hidePopup"), forControlEvents: hideOptions)
     }
     
 //    override func sizeThatFits(size: CGSize) -> CGSize {
@@ -97,6 +104,20 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
         
 //        self.button.setTitle(self.text, forState: UIControlState.Normal)
         self.keyView.text = (self.text ? self.text : "")
+    }
+    
+    func showPopup() {
+        if !self.popup {
+            self.popup = KeyboardKeyPopup(frame: CGRectMake(0, -self.bounds.height, self.bounds.width * 5, self.bounds.height), vertical: false)
+            self.addSubview(self.popup)
+        }
+    }
+    
+    func hidePopup() {
+        if self.popup {
+            self.popup!.removeFromSuperview()
+            self.popup = nil
+        }
     }
     
     class KeyboardKeyBackground: UIControl {
@@ -246,6 +267,18 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
             
             CGColorSpaceRelease(csp)
             CGPathRelease(path)
+        }
+    }
+    
+    class KeyboardKeyPopup: UIControl {
+        
+        init(frame: CGRect, vertical: Bool) {
+            super.init(frame: frame)
+            self.layer.backgroundColor = UIColor.redColor().CGColor
+        }
+        
+        // if action is nil, the key is not selectable
+        func addOption(option: String, action: String?) {
         }
     }
 }
