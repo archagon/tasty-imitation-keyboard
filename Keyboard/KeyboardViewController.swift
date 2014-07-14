@@ -53,9 +53,12 @@ class KeyboardViewController: UIInputViewController {
         
         addEdgeConstraints()
         
+        // TODO: autolayout class that can optionally "bake" values?
         createRowGapConstraints(keyboard)
         createKeyGapConstraints(keyboard)
         createKeyConstraints(keyboard)
+        
+        self.view.clipsToBounds = false
     }
     
     override func viewWillLayoutSubviews() {
@@ -177,6 +180,7 @@ class KeyboardViewController: UIInputViewController {
                     var keyGap = Spacer(color: UIColor.blueColor())
                     let keyGapName = "keyGap\(j)x\(i)"
                     keyGap.setTranslatesAutoresizingMaskIntoConstraints(false)
+                    
                     self.elements[keyGapName] = keyGap
                     self.view.addSubview(keyGap)
                     
@@ -188,6 +192,8 @@ class KeyboardViewController: UIInputViewController {
                         keyView.enabled = true
                         keyView.setTranslatesAutoresizingMaskIntoConstraints(false)
                         keyView.text = key.keyCap
+                        // should be UILayoutPriorityDefaultHigh
+                        keyView.setContentCompressionResistancePriority(1000, forAxis: .Vertical)
                         
                         self.view.addSubview(keyView)
                         
@@ -254,6 +260,7 @@ class KeyboardViewController: UIInputViewController {
             else {
                 if !canonicalRowGap {
                     allConstraints += "V:[key\(0)x\(i-1)][\(rowGapName)]"
+                    allConstraints += "V:[\(rowGapName)(>=5)]" // QQQ:
                     canonicalRowGap = rowGapName
                 }
                 else {
@@ -331,11 +338,14 @@ class KeyboardViewController: UIInputViewController {
         }
     }
     
-    func addFixedGapsInRange(nameFormat: String, row: Int, startIndex: Int, endIndex: Int, vertical: Bool, width: Double) {
+    func addGapsInRange(nameFormat: String, row: Int, startIndex: Int, endIndex: Int, vertical: Bool, width: Double?) {
         var allConstraints: Array<String> = []
         
         var firstGapName = String(format: nameFormat, startIndex, row)
-        allConstraints += "[\(firstGapName)(\(width))]"
+        
+        if width {
+            allConstraints += "[\(firstGapName)(\(width))]"
+        }
         
         for i in startIndex...endIndex {
             var gapName = String(format: nameFormat, i, row)
@@ -384,7 +394,7 @@ class KeyboardViewController: UIInputViewController {
                     rightAnchor: nil,
                     vertical: false,
                     width: nil)
-                addFixedGapsInRange(
+                addGapsInRange(
                     "keyGap%dx%d",
                     row: i,
                     startIndex: 2,
@@ -392,9 +402,24 @@ class KeyboardViewController: UIInputViewController {
                     vertical: false,
                     width: layout["keyGap"]!)
             }
-            //else if isEquallySpacedRow {
-            //    
-            //}
+            else if isEquallySpacedRow {
+                addGapPair(
+                    "keyGap%dx%d",
+                    row: i,
+                    startIndex: 0,
+                    endIndex: keyboard.rows[i].count,
+                    leftAnchor: "leftSpacer",
+                    rightAnchor: "rightSpacer",
+                    vertical: false,
+                    width: 0)
+                addGapsInRange(
+                    "keyGap%dx%d",
+                    row: i,
+                    startIndex: 1,
+                    endIndex: keyboard.rows[i].count - 1,
+                    vertical: false,
+                    width: nil)
+            }
             else {
                 addGapPair(
                     "keyGap%dx%d",
@@ -405,7 +430,7 @@ class KeyboardViewController: UIInputViewController {
                     rightAnchor: "rightSpacer",
                     vertical: false,
                     width: nil)
-                addFixedGapsInRange(
+                addGapsInRange(
                     "keyGap%dx%d",
                     row: i,
                     startIndex: 1,
@@ -427,23 +452,62 @@ class KeyboardViewController: UIInputViewController {
                 let key = self.elements[keyName]
                 
                 var width = ""
-                var height = "(keyHeight)"
+//                var height = "(keyHeight)"
+//                var height = "(>=keyHeight,==keyHeight@100)"
+                var height = "(>=keyHeight@100)"
+//                var height = "(50)"
                 
                 switch keyModel.type {
-                case Key.KeyType.Character:
-                    width = "(keyWidth)"
-                case Key.KeyType.Shift, Key.KeyType.Backspace:
-                    width = "(shiftAndBackspaceMaxWidth)"
                 case Key.KeyType.KeyboardChange, Key.KeyType.ModeChange, Key.KeyType.SpecialCharacter, Key.KeyType.Period:
                     width = "(specialKeyWidth)"
                 case Key.KeyType.Space:
                     width = "(spaceWidth)"
                 case Key.KeyType.Return:
                     width = "(doneKeyWidth)"
+                default:
+                    break
                 }
                 
                 allConstraints += "[keyGap\(j)x\(i)][\(keyName)\(width)][keyGap\(j+1)x\(i)]"
                 allConstraints += "V:[rowGap\(i)][\(keyName)\(height)]"
+                
+                let canonicalKey = elements["key0x0"]
+                let isCanonicalKey = (key == canonicalKey) // TODO:
+                
+                // only the canonical key has a constant width
+                if isCanonicalKey {
+                    let keyWidth = layout["keyWidth"]!
+                    allConstraints += "[\(keyName)(\(keyWidth)@19)]"
+                    allConstraints += "[\(keyName)(\(keyWidth*2)@20)]"
+                }
+                else {
+                    allConstraints += "V:[\(keyName)(key0x0)]"
+                    
+                    switch keyModel.type {
+                    case Key.KeyType.Character:
+                        var constraint0 = NSLayoutConstraint(
+                            item: key,
+                            attribute: NSLayoutAttribute.Width,
+                            relatedBy: NSLayoutRelation.Equal,
+                            toItem: canonicalKey,
+                            attribute: NSLayoutAttribute.Width,
+                            multiplier: 1,
+                            constant: 0)
+                        self.view.addConstraint(constraint0)
+                    case Key.KeyType.Shift, Key.KeyType.Backspace:
+                        var constraint = NSLayoutConstraint(
+                            item: key,
+                            attribute: NSLayoutAttribute.Width,
+                            relatedBy: NSLayoutRelation.Equal,
+                            toItem: canonicalKey,
+                            attribute: NSLayoutAttribute.Width,
+                            multiplier: layout["shiftAndBackspaceMaxWidth"]!/layout["keyWidth"]!,
+                            constant: 0)
+                        self.view.addConstraint(constraint)
+                    default:
+                        break
+                    }
+                }
             }
         }
         
