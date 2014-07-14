@@ -192,8 +192,8 @@ class KeyboardViewController: UIInputViewController {
                         keyView.enabled = true
                         keyView.setTranslatesAutoresizingMaskIntoConstraints(false)
                         keyView.text = key.keyCap
-                        // should be UILayoutPriorityDefaultHigh
-                        keyView.setContentCompressionResistancePriority(1000, forAxis: .Vertical)
+//                        // should be UILayoutPriorityDefaultHigh
+//                        keyView.setContentCompressionResistancePriority(1000, forAxis: .Vertical)
                         
                         self.view.addSubview(keyView)
                         
@@ -260,7 +260,7 @@ class KeyboardViewController: UIInputViewController {
             else {
                 if !canonicalRowGap {
                     allConstraints += "V:[key\(0)x\(i-1)][\(rowGapName)]"
-                    allConstraints += "V:[\(rowGapName)(>=5)]" // QQQ:
+                    allConstraints += "V:[\(rowGapName)(>=5@50)]" // QQQ:
                     canonicalRowGap = rowGapName
                 }
                 else {
@@ -452,10 +452,6 @@ class KeyboardViewController: UIInputViewController {
                 let key = self.elements[keyName]
                 
                 var width = ""
-//                var height = "(keyHeight)"
-//                var height = "(>=keyHeight,==keyHeight@100)"
-                var height = "(>=keyHeight@100)"
-//                var height = "(50)"
                 
                 switch keyModel.type {
                 case Key.KeyType.KeyboardChange, Key.KeyType.ModeChange, Key.KeyType.SpecialCharacter, Key.KeyType.Period:
@@ -469,7 +465,7 @@ class KeyboardViewController: UIInputViewController {
                 }
                 
                 allConstraints += "[keyGap\(j)x\(i)][\(keyName)\(width)][keyGap\(j+1)x\(i)]"
-                allConstraints += "V:[rowGap\(i)][\(keyName)\(height)]"
+                allConstraints += "V:[rowGap\(i)][\(keyName)]"
                 
                 let canonicalKey = elements["key0x0"]
                 let isCanonicalKey = (key == canonicalKey) // TODO:
@@ -479,6 +475,7 @@ class KeyboardViewController: UIInputViewController {
                     let keyWidth = layout["keyWidth"]!
                     allConstraints += "[\(keyName)(\(keyWidth)@19)]"
                     allConstraints += "[\(keyName)(\(keyWidth*2)@20)]"
+                    allConstraints += "V:[\(keyName)(<=keyHeight@100,>=5@100)]"
                 }
                 else {
                     allConstraints += "V:[\(keyName)(key0x0)]"
