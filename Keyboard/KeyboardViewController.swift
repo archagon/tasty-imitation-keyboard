@@ -30,11 +30,103 @@ let layout: Dictionary<String, Double> = [
 // shift/backspace: 72x78, but shrinks to 48x78
 // lower row: 68x78, 100x78, 276
 
+class ForwardingView: UIView {
+    init(frame: CGRect) {
+        super.init(frame: frame)
+        self.multipleTouchEnabled = false
+    }
+    
+    override func hitTest(point: CGPoint, withEvent event: UIEvent!) -> UIView! {
+        return self
+    }
+    
+    var myView: UIView?
+    
+    func handleControl(view: UIView?, controlEvent: UIControlEvents) {
+        if !view {
+            return
+        }
+        
+        if !(view is UIControl) {
+            return
+        }
+        
+        let control = view! as UIControl
+        
+        if (controlEvent & UIControlEvents.TouchDown) {
+            control.highlighted = true
+        }
+        if (controlEvent & UIControlEvents.TouchDownRepeat) {
+        }
+        if (controlEvent & UIControlEvents.TouchDragInside) {
+        }
+        if (controlEvent & UIControlEvents.TouchDragOutside) {
+        }
+        if (controlEvent & UIControlEvents.TouchDragEnter) {
+        }
+        if (controlEvent & UIControlEvents.TouchDragExit) {
+        }
+        if (controlEvent & UIControlEvents.TouchUpInside) {
+            control.highlighted = false
+        }
+        if (controlEvent & UIControlEvents.TouchUpOutside) {
+            control.highlighted = false
+        }
+        if (controlEvent & UIControlEvents.TouchCancel) {
+        }
+    }
+    
+    override func touchesBegan(touches: NSSet!, withEvent event: UIEvent!) {
+        NSLog("began!")
+        
+        let touch = touches.anyObject()
+        let position = touch.locationInView(self)
+        var view = super.hitTest(position, withEvent: event)
+        NSLog("view is \(view)")
+        
+        self.myView = view
+        
+        self.handleControl(self.myView, controlEvent: .TouchDown)
+    }
+    
+    override func touchesMoved(touches: NSSet!, withEvent event: UIEvent!) {
+        NSLog("moved!")
+        
+        let touch = touches.anyObject()
+        let position = touch.locationInView(self)
+        var view = super.hitTest(position, withEvent: event)
+        NSLog("view is \(view)")
+        
+        if view != self.myView {
+            self.handleControl(self.myView, controlEvent: .TouchUpOutside)
+            
+            self.myView = view
+            
+            self.handleControl(self.myView, controlEvent: .TouchDown)
+        }
+        else {
+            self.handleControl(self.myView, controlEvent: .TouchDragInside)
+        }
+    }
+    
+    override func touchesEnded(touches: NSSet!, withEvent event: UIEvent!)  {
+        NSLog("ended!")
+        
+        let touch = touches.anyObject()
+        let position = touch.locationInView(self)
+        var view = super.hitTest(position, withEvent: event)
+        NSLog("view is \(view)")
+        
+        self.handleControl(view, controlEvent: .TouchUpInside)
+    }
+}
+
 class KeyboardViewController: UIInputViewController {
     
     var elements: Dictionary<String, UIView>
     var keyboard: Keyboard
     var keyViewToKey: Dictionary<KeyboardKey, Key>
+    var forwardingView: ForwardingView!
 
     init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
         self.elements = Dictionary<String, UIView>()
@@ -51,6 +143,10 @@ class KeyboardViewController: UIInputViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        self.forwardingView = ForwardingView(frame: self.view.bounds)
+        self.forwardingView.backgroundColor = UIColor.yellowColor()
+        self.view.addSubview(self.forwardingView)
+        
         self.elements["superview"] = self.view
         createViews(keyboard)
         
@@ -60,8 +156,6 @@ class KeyboardViewController: UIInputViewController {
         createRowGapConstraints(keyboard)
         createKeyGapConstraints(keyboard)
         createKeyConstraints(keyboard)
-        
-        self.view.clipsToBounds = false
     }
     
     override func viewWillLayoutSubviews() {
@@ -70,6 +164,8 @@ class KeyboardViewController: UIInputViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        
+        self.forwardingView.frame = self.view.bounds
         
         // this code grabs a screenshot of the keyboard and puts it in the project directory
         // source: http://stackoverflow.com/questions/2214957/how-do-i-take-a-screen-shot-of-a-uiview
@@ -104,7 +200,7 @@ class KeyboardViewController: UIInputViewController {
         for (name, spacer) in spacers {
             spacer.setTranslatesAutoresizingMaskIntoConstraints(false)
             self.elements[name] = spacer
-            self.view.addSubview(spacer)
+            self.forwardingView.addSubview(spacer)
         }
         
         let constraints = [
@@ -195,7 +291,7 @@ class KeyboardViewController: UIInputViewController {
             let rowGapName = "rowGap\(i)"
             rowGap.setTranslatesAutoresizingMaskIntoConstraints(false)
             self.elements[rowGapName] = rowGap
-            self.view.addSubview(rowGap)
+            self.forwardingView.addSubview(rowGap)
             
             if (i < numRows) {
                 let numKeys = keyboard.rows[i].count
@@ -206,7 +302,7 @@ class KeyboardViewController: UIInputViewController {
                     keyGap.setTranslatesAutoresizingMaskIntoConstraints(false)
                     
                     self.elements[keyGapName] = keyGap
-                    self.view.addSubview(keyGap)
+                    self.forwardingView.addSubview(keyGap)
                     
                     if (j < numKeys) {
                         var key = keyboard.rows[i][j]
@@ -219,7 +315,7 @@ class KeyboardViewController: UIInputViewController {
 //                        // should be UILayoutPriorityDefaultHigh
 //                        keyView.setContentCompressionResistancePriority(1000, forAxis: .Vertical)
                         
-                        self.view.addSubview(keyView)
+                        self.forwardingView.addSubview(keyView)
                         
                         self.elements[keyViewName] = keyView
                         self.keyViewToKey[keyView] = key
@@ -578,6 +674,18 @@ class KeyboardViewController: UIInputViewController {
             textColor = UIColor.blackColor()
         }
     }
+    
+//    override func touchesBegan(touches: NSSet!, withEvent event: UIEvent!) {
+//        NSLog("touches began!")
+//    }
+//    
+//    override func touchesMoved(touches: NSSet!, withEvent event: UIEvent!) {
+//        NSLog("touches moved!")
+//    }
+//    
+//    override func touchesEnded(touches: NSSet!, withEvent event: UIEvent!) {
+//        NSLog("touches ended!")
+//    }
 }
 
 class Spacer: UIView {

@@ -84,7 +84,7 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
         self.clipsToBounds = false
         self.addSubview(self.keyView)
         
-        let showOptions: UIControlEvents = .TouchDown | .TouchDragInside
+        let showOptions: UIControlEvents = .TouchDown | .TouchDragInside | .TouchDragEnter
         let hideOptions: UIControlEvents = .TouchUpInside | .TouchUpOutside | .TouchDragOutside
         self.addTarget(self, action: Selector("showPopup"), forControlEvents: showOptions)
         self.addTarget(self, action: Selector("hidePopup"), forControlEvents: hideOptions)
