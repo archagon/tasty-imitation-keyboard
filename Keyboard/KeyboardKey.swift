@@ -108,8 +108,20 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
     
     func showPopup() {
         if !self.popup {
-            self.popup = KeyboardKeyPopup(frame: CGRectMake(0, -self.bounds.height, self.bounds.width * 5, self.bounds.height), vertical: false)
+            let gap = 3
+            let popupSize = CGFloat(1.5)
+            
+            var popupFrame = CGRectMake(0, 0, self.bounds.width * popupSize, self.bounds.height * popupSize)
+            popupFrame.origin = CGPointMake(
+                (self.bounds.size.width - popupFrame.size.width)/2.0,
+                -popupFrame.size.height - CGFloat(gap))
+            
+            self.popup = KeyboardKeyPopup(frame: popupFrame, vertical: false)
             self.addSubview(self.popup)
+            
+            self.popup!.text = self.keyView.text
+            self.keyView.label.hidden = true
+            self.popup!.label.font = self.popup!.label.font.fontWithSize(22 * 1.5)
         }
     }
     
@@ -117,6 +129,7 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
         if self.popup {
             self.popup!.removeFromSuperview()
             self.popup = nil
+            self.keyView.label.hidden = false
         }
     }
     
@@ -207,9 +220,9 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
             
             let shadowOffset = 1.0
             
-            let segmentWidth = self.bounds.width
-            let segmentHeight = self.bounds.height - shadowOffset
-            let arcLength = segmentHeight * arcHeightPercentageRadius
+            let segmentWidth: CGFloat = self.bounds.width
+            let segmentHeight: CGFloat = self.bounds.height - CGFloat(shadowOffset)
+            let arcLength: CGFloat = segmentHeight * CGFloat(arcHeightPercentageRadius)
             
             let startMidpoint = CGPoint(x: 0, y: segmentHeight/2.0)
             
@@ -247,10 +260,10 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
             let shadowColor = (self.highlighted ? self.downShadowColor : self.shadowColor).CGColor
             
             CGContextSetFillColorWithColor(ctx, shadowColor)
-            CGContextTranslateCTM(ctx, 0, shadowOffset)
+            CGContextTranslateCTM(ctx, 0, CGFloat(shadowOffset))
             CGContextAddPath(ctx, path)
             CGContextFillPath(ctx)
-            CGContextTranslateCTM(ctx, 0, -shadowOffset)
+            CGContextTranslateCTM(ctx, 0, -CGFloat(shadowOffset))
             
             CGContextSetFillColorWithColor(ctx, mainColor)
             CGContextAddPath(ctx, path)
@@ -270,11 +283,10 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
         }
     }
     
-    class KeyboardKeyPopup: UIControl {
+    class KeyboardKeyPopup: KeyboardKeyBackground {
         
         init(frame: CGRect, vertical: Bool) {
             super.init(frame: frame)
-            self.layer.backgroundColor = UIColor.redColor().CGColor
         }
         
         // if action is nil, the key is not selectable

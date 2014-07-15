@@ -9,7 +9,7 @@
 import UIKit
 //import KeyboardFramework
 
-let DEBUG = true
+let DEBUG = false
 var DEBUG_SAVED_SCREENSHOT = false
 
 let layout: Dictionary<String, Double> = [
@@ -81,7 +81,7 @@ class ForwardingView: UIView {
     override func touchesBegan(touches: NSSet!, withEvent event: UIEvent!) {
         NSLog("began!")
         
-        let touch = touches.anyObject()
+        let touch = touches.anyObject() as UITouch
         let position = touch.locationInView(self)
         var view = super.hitTest(position, withEvent: event)
         NSLog("view is \(view)")
@@ -94,7 +94,7 @@ class ForwardingView: UIView {
     override func touchesMoved(touches: NSSet!, withEvent event: UIEvent!) {
         NSLog("moved!")
         
-        let touch = touches.anyObject()
+        let touch = touches.anyObject() as UITouch
         let position = touch.locationInView(self)
         var view = super.hitTest(position, withEvent: event)
         NSLog("view is \(view)")
@@ -114,7 +114,7 @@ class ForwardingView: UIView {
     override func touchesEnded(touches: NSSet!, withEvent event: UIEvent!)  {
         NSLog("ended!")
         
-        let touch = touches.anyObject()
+        let touch = touches.anyObject() as UITouch
         let position = touch.locationInView(self)
         var view = super.hitTest(position, withEvent: event)
         NSLog("view is \(view)")
@@ -614,13 +614,15 @@ class KeyboardViewController: UIInputViewController {
                             constant: 0)
                         self.view.addConstraint(constraint0)
                     case Key.KeyType.Shift, Key.KeyType.Backspace:
+                        let shiftAndBackspaceMaxWidth = layout["shiftAndBackspaceMaxWidth"]!
+                        let keyWidth = layout["keyWidth"]!
                         var constraint = NSLayoutConstraint(
                             item: key,
                             attribute: NSLayoutAttribute.Width,
                             relatedBy: NSLayoutRelation.Equal,
                             toItem: canonicalKey,
                             attribute: NSLayoutAttribute.Width,
-                            multiplier: layout["shiftAndBackspaceMaxWidth"]!/layout["keyWidth"]!,
+                            multiplier: CGFloat(shiftAndBackspaceMaxWidth/keyWidth),
                             constant: 0)
                         self.view.addConstraint(constraint)
                     default:
@@ -667,33 +669,14 @@ class KeyboardViewController: UIInputViewController {
 
     override func textDidChange(textInput: UITextInput) {
         // The app has just changed the document's contents, the document context has been updated.
-    
-        var textColor: UIColor
-        var proxy = self.textDocumentProxy as UITextDocumentProxy
-        if proxy.keyboardAppearance == UIKeyboardAppearance.Dark {
-            textColor = UIColor.whiteColor()
-        } else {
-            textColor = UIColor.blackColor()
-        }
     }
-    
-//    override func touchesBegan(touches: NSSet!, withEvent event: UIEvent!) {
-//        NSLog("touches began!")
-//    }
-//    
-//    override func touchesMoved(touches: NSSet!, withEvent event: UIEvent!) {
-//        NSLog("touches moved!")
-//    }
-//    
-//    override func touchesEnded(touches: NSSet!, withEvent event: UIEvent!) {
-//        NSLog("touches ended!")
-//    }
 }
 
 class Spacer: UIView {
     init(frame: CGRect) {
         super.init(frame: frame)
         self.hidden = true
+        self.userInteractionEnabled = true
     }
     convenience init() {
         return self.init(frame: CGRectZero)
