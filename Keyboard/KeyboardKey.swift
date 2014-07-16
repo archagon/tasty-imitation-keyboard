@@ -19,11 +19,11 @@ import UIKit
 //     > storyboard + custom widget
 //     > framework
 
-enum Direction {
-    case Left
-    case Right
-    case Up
-    case Down
+enum Direction: Int {
+    case Left = 0
+    case Down = 1
+    case Right = 2
+    case Up = 3
 }
 
 protocol Connectable {
@@ -97,6 +97,27 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
         let hideOptions: UIControlEvents = .TouchUpInside | .TouchUpOutside | .TouchDragOutside
         self.addTarget(self, action: Selector("showPopup"), forControlEvents: showOptions)
         self.addTarget(self, action: Selector("hidePopup"), forControlEvents: hideOptions)
+        self.addTarget(self, action: Selector("debugCycle"), forControlEvents: showOptions)
+    }
+    
+    func debugCycle() {
+        if self.keyView._attached == nil {
+            self.keyView._attached = Direction.Up
+        }
+        else {
+            if self.keyView._attached! == Direction.Up {
+                self.keyView._attached = Direction.Left
+            }
+            else if self.keyView._attached! == Direction.Left {
+                self.keyView._attached = Direction.Down
+            }
+            else if self.keyView._attached! == Direction.Down {
+                self.keyView._attached = Direction.Right
+            }
+            else if self.keyView._attached! == Direction.Right {
+                self.keyView._attached = nil
+            }
+        }
     }
     
 //    override func sizeThatFits(size: CGSize) -> CGSize {
@@ -151,7 +172,11 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
         var downShadowColor: UIColor!
         var downTextColor: UIColor!
         
-        var _attached: Direction?
+        var _attached: Direction? {
+        didSet {
+            self.setNeedsDisplay()
+        }
+        }
         
         let arcHeightPercentageRadius = 0.15
         
@@ -238,32 +263,88 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
             
             var path = CGPathCreateMutable();
             
-            CGPathMoveToPoint(path, nil, 0, CGFloat(shadowOffset) + segmentHeight)
+//            CGPathMoveToPoint(path, nil, 0, CGFloat(shadowOffset) + segmentHeight)
             
-            for i in 0...3 {
-                let horizontal = ((i == 1) || (i == 3))
+            // order of edge drawing: left edge, down edge, right edge, up edge
+            
+            // base, untranslated corner points
+            let startingPoints = [
+                CGPointMake(0, segmentHeight),
+                CGPointMake(0, 0),
+                CGPointMake(segmentWidth, 0),
+                CGPointMake(segmentWidth, segmentHeight),
+            ]
+            
+            // actual coordinates for each edge, including translation
+            var segmentPoints: [(CGPoint, CGPoint)] = [] // TODO: is this declaration correct?
+            
+            // actual coordinates for arc centers for each corner
+            var arcCenters: [CGPoint] = []
+            
+            var arcStartingAngles: [CGFloat] = []
+            
+            for i in 0..<startingPoints.count {
+                let currentPoint = startingPoints[i]
+                let nextPoint = startingPoints[(i + 1) % startingPoints.count]
                 
-                if horizontal {
-                    let goingRight = (i == 1)
-                    let direction = (goingRight ? 1.0 : -1.0)
-                    let x = (goingRight ? segmentWidth - CGFloat(cornerRadius) : CGFloat(cornerRadius))
-                    let y = (goingRight ? CGFloat(shadowOffset) : CGFloat(shadowOffset) + segmentHeight)
-                    
-                    CGPathAddLineToPoint(path, nil, x, y)
-                    let arcY: CGFloat = CGFloat(y + CGFloat(direction) * CGFloat(cornerRadius))
-                    let arcDir1: CGFloat = -CGFloat(direction * M_PI * 0.5)
-                    CGPathAddRelativeArc(path, nil, x, arcY, CGFloat(cornerRadius), arcDir1, CGFloat(0.5 * M_PI))
+                var xDir = 0.0
+                var yDir = 0.0
+                
+                if (i == 1) {
+                    xDir = 1.0
+                    arcStartingAngles += CGFloat(M_PI)
                 }
-                else {
-                    let goingDown = (i == 0)
-                    let direction = (goingDown ? 1.0 : -1.0)
-                    let x = (goingDown ? 0 : segmentWidth)
-                    let y = (goingDown ? CGFloat(shadowOffset) + CGFloat(cornerRadius) : CGFloat(shadowOffset) + segmentHeight - CGFloat(cornerRadius))
-                    CGPathAddLineToPoint(path, nil, x, y)
-                    
-                    let arcX: CGFloat = CGFloat(x + CGFloat(direction) * CGFloat(cornerRadius))
-                    let arcDir1: CGFloat = CGFloat(goingDown ? M_PI : 0)
-                    CGPathAddRelativeArc(path, nil, arcX, y, CGFloat(cornerRadius), arcDir1, CGFloat(0.5 * M_PI))
+                else if (i == 3) {
+                    xDir = -1.0
+                    arcStartingAngles += CGFloat(0)
+                }
+                
+                if (i == 0) {
+                    yDir = -1.0
+                    arcStartingAngles += CGFloat(M_PI/2.0)
+                }
+                else if (i == 2) {
+                    yDir = 1.0
+                    arcStartingAngles += CGFloat(-M_PI/2.0)
+                }
+                
+                let p0 = CGPointMake(
+                    currentPoint.x + CGFloat(xDir * cornerRadius),
+                    currentPoint.y + CGFloat(shadowOffset) + CGFloat(yDir * cornerRadius))
+                let p1 = CGPointMake(
+                    nextPoint.x - CGFloat(xDir * cornerRadius),
+                    nextPoint.y + CGFloat(shadowOffset) - CGFloat(yDir * cornerRadius))
+                
+                segmentPoints += (p0, p1)
+                
+                let c = CGPointMake(
+                    p0.x - CGFloat(yDir * cornerRadius),
+                    p0.y + CGFloat(xDir * cornerRadius))
+                
+                arcCenters += c
+            }
+            
+            // here be where we do the drawing
+            
+            if self._attached && self._attached!.toRaw() == 0 {
+                CGPathMoveToPoint(path, nil, segmentPoints[1].0.x, segmentPoints[1].0.y)
+            }
+            else {
+                CGPathMoveToPoint(path, nil, segmentPoints[0].0.x, segmentPoints[0].0.y)
+            }
+            
+            for i in 0..<4 {
+                if self._attached && self._attached!.toRaw() == i {
+                    continue
+                }
+                
+                CGPathAddLineToPoint(path, nil, segmentPoints[i].0.x, segmentPoints[i].0.y)
+                CGPathAddLineToPoint(path, nil, segmentPoints[i].1.x, segmentPoints[i].1.y)
+                
+                if (self._attached && (self._attached!.toRaw() + 4 - 1) % 4 == i) {
+                    // do nothing
+                } else {
+                    CGPathAddRelativeArc(path, nil, arcCenters[(i + 1) % 4].x, arcCenters[(i + 1) % 4].y, CGFloat(cornerRadius), arcStartingAngles[(i + 1) % 4], CGFloat(M_PI/2.0))
                 }
             }
             
