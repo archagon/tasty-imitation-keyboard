@@ -19,7 +19,16 @@ import UIKit
 //     > storyboard + custom widget
 //     > framework
 
+enum Direction {
+    case Left
+    case Right
+    case Up
+    case Down
+}
+
 protocol Connectable {
+    func attachmentPoints(direction: Direction) -> (CGPoint, CGPoint)
+    func attach(direction: Direction?) // call with nil to detach
 }
 
 class KeyboardConnector: UIView {
@@ -133,7 +142,7 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
         }
     }
     
-    class KeyboardKeyBackground: UIControl {
+    class KeyboardKeyBackground: UIControl, Connectable {
         
         var color: UIColor!
         var shadowColor: UIColor!
@@ -141,6 +150,8 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
         var downColor: UIColor!
         var downShadowColor: UIColor!
         var downTextColor: UIColor!
+        
+        var _attached: Direction?
         
         let arcHeightPercentageRadius = 0.15
         
@@ -169,6 +180,7 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
         init(frame: CGRect) {
             text = "" // TODO: does this call the setter?
             label = UILabel()
+            _attached = nil
             
             super.init(frame: frame)
             
@@ -219,60 +231,56 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
             /////////////////////
             
             let shadowOffset = 1.0
+            let cornerRadius = 3.0
             
             let segmentWidth: CGFloat = self.bounds.width
             let segmentHeight: CGFloat = self.bounds.height - CGFloat(shadowOffset)
-            let arcLength: CGFloat = segmentHeight * CGFloat(arcHeightPercentageRadius)
-            
-            let startMidpoint = CGPoint(x: 0, y: segmentHeight/2.0)
             
             var path = CGPathCreateMutable();
             
-            CGPathMoveToPoint(path, nil, startMidpoint.x, startMidpoint.y)
-            
-            func correctPosition(index: Int, offset: Int) -> Bool {
-                let shiftedOffset = offset % 4
-                var shiftedIndex = index - shiftedOffset
-                shiftedIndex = (shiftedIndex + 4) % 4
-                return shiftedIndex < 2
-            }
+            CGPathMoveToPoint(path, nil, 0, CGFloat(shadowOffset) + segmentHeight)
             
             for i in 0...3 {
-                let firstPoint = CGPoint(
-                    x: correctPosition(i, 1) ? segmentWidth : 0,
-                    y: correctPosition(i, 0) ? segmentHeight : 0)
-                let nextPoint = CGPoint(
-                    x: correctPosition(i, 0) ? segmentWidth : 0,
-                    y: correctPosition(i, -1) ? segmentHeight : 0)
+                let horizontal = ((i == 1) || (i == 3))
                 
-                CGPathAddArcToPoint(path, nil,
-                    firstPoint.x,
-                    firstPoint.y,
-                    nextPoint.x,
-                    nextPoint.y,
-                    arcLength)
+                if horizontal {
+                    let goingRight = (i == 1)
+                    let direction = (goingRight ? 1.0 : -1.0)
+                    let x = (goingRight ? segmentWidth - CGFloat(cornerRadius) : CGFloat(cornerRadius))
+                    let y = (goingRight ? CGFloat(shadowOffset) : CGFloat(shadowOffset) + segmentHeight)
+                    
+                    CGPathAddLineToPoint(path, nil, x, y)
+                    let arcY: CGFloat = CGFloat(y + CGFloat(direction) * CGFloat(cornerRadius))
+                    let arcDir1: CGFloat = -CGFloat(direction * M_PI * 0.5)
+                    CGPathAddRelativeArc(path, nil, x, arcY, CGFloat(cornerRadius), arcDir1, CGFloat(0.5 * M_PI))
+                }
+                else {
+                    let goingDown = (i == 0)
+                    let direction = (goingDown ? 1.0 : -1.0)
+                    let x = (goingDown ? 0 : segmentWidth)
+                    let y = (goingDown ? CGFloat(shadowOffset) + CGFloat(cornerRadius) : CGFloat(shadowOffset) + segmentHeight - CGFloat(cornerRadius))
+                    CGPathAddLineToPoint(path, nil, x, y)
+                    
+                    let arcX: CGFloat = CGFloat(x + CGFloat(direction) * CGFloat(cornerRadius))
+                    let arcDir1: CGFloat = CGFloat(goingDown ? M_PI : 0)
+                    CGPathAddRelativeArc(path, nil, arcX, y, CGFloat(cornerRadius), arcDir1, CGFloat(0.5 * M_PI))
+                }
             }
             
-            CGPathAddLineToPoint(path, nil, startMidpoint.x, startMidpoint.y)
             CGPathCloseSubpath(path)
             
             let mainColor = (self.highlighted ? self.downColor : self.color).CGColor
             let shadowColor = (self.highlighted ? self.downShadowColor : self.shadowColor).CGColor
             
             CGContextSetFillColorWithColor(ctx, shadowColor)
-            CGContextTranslateCTM(ctx, 0, CGFloat(shadowOffset))
             CGContextAddPath(ctx, path)
             CGContextFillPath(ctx)
-            CGContextTranslateCTM(ctx, 0, -CGFloat(shadowOffset))
             
             CGContextSetFillColorWithColor(ctx, mainColor)
+            CGContextTranslateCTM(ctx, 0, -CGFloat(shadowOffset))
             CGContextAddPath(ctx, path)
             CGContextFillPath(ctx)
-            
-            //CGContextSetStrokeColor(ctx, color2)
-            //CGContextSetLineWidth(ctx, 1.0)
-            //CGContextAddPath(ctx, path)
-            //CGContextStrokePath(ctx)
+            CGContextTranslateCTM(ctx, 0, CGFloat(shadowOffset))
             
             /////////////
             // cleanup //
@@ -280,6 +288,14 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
             
             CGColorSpaceRelease(csp)
             CGPathRelease(path)
+        }
+        
+        func attachmentPoints(direction: Direction) -> (CGPoint, CGPoint) {
+            return (CGPointZero, CGPointZero)
+        }
+        
+        func attach(direction: Direction?) {
+            self._attached = direction
         }
     }
     
