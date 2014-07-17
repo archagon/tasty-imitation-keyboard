@@ -146,7 +146,6 @@ class KeyboardViewController: UIInputViewController {
         super.viewDidLoad()
         
         self.forwardingView = ForwardingView(frame: self.view.bounds)
-        self.forwardingView.backgroundColor = UIColor.yellowColor()
         self.view.addSubview(self.forwardingView)
         
         self.elements["superview"] = self.view

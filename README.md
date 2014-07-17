@@ -13,6 +13,6 @@ Learning goals for this project:
 
 The actual keyboard is under the `Keyboard` directory. `TransliteratingKeyboard` is the hosting app. Everything else is garbage. (I'll clean it up later.)
 
-Here's a screenshot generated from the latest build:
+Here's a screenshot generated from a recent build:
 
 ![](Screenshot.png)

@@ -94,6 +94,10 @@ class KeyboardConnector: UIView {
     }
     
     func generateConvertedPoints() {
+        if !self.superview {
+            return
+        }
+        
         let startPoints = self.startConnectable.attachmentPoints(.Up)
         let endPoints = self.endConnectable.attachmentPoints(.Down)
         
@@ -105,7 +109,7 @@ class KeyboardConnector: UIView {
             self.superview.convertPoint(endPoints.1, fromView: self.end))
     }
     
-    func resizeFrame() {        
+    func resizeFrame() {
         let minX = min(convertedStartPoints.0.x, convertedStartPoints.1.x, convertedEndPoints.0.x, convertedEndPoints.1.x)
         let minY = min(convertedStartPoints.0.y, convertedStartPoints.1.y, convertedEndPoints.0.y, convertedEndPoints.1.y)
         let maxX = max(convertedStartPoints.0.x, convertedStartPoints.1.x, convertedEndPoints.0.x, convertedEndPoints.1.x)
@@ -145,17 +149,11 @@ class KeyboardConnector: UIView {
     }
 }
 
-func drawConnection<T: Connectable>(conn1: T, conn2: T) {
-    // take coords of conn1
-    // take coords of conn2
-    // draw splines between them using protocol colors and specs
-    // done!
-}
-
 @IBDesignable class KeyboardKey: UIControl {
     
     var keyView: KeyboardKeyBackground
     var popup: KeyboardKeyPopup?
+    var connector: KeyboardConnector?
     
     @IBInspectable var text: String! {
     didSet {
@@ -271,34 +269,20 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
             self.popup!.attach(Direction.Down)
             self.keyView.attach(Direction.Up)
             
-//            let startAttachmentPoints = map(self.keyView.attachmentPoints(Direction.Up)) {
-//                self.convertPoint($0, fromView: self.keyView)
-//            }
-//            let endAttachmentPoints = map(self.popup!.attachmentPoints(Direction.Down)) {
-//                self.convertPoint($0, fromView: self.popup!)
-//            }
-            
-            let startAttachmentPoints = self.keyView.attachmentPoints(Direction.Up)
-            let endAttachmentPoints = self.popup!.attachmentPoints(Direction.Down)
-            
-            let localStartAttachmentPoints = (
-                self.convertPoint(startAttachmentPoints.0, fromView: self.keyView),
-                self.convertPoint(startAttachmentPoints.1, fromView: self.keyView))
-            let localEndAttachmentPoints = (
-                self.convertPoint(endAttachmentPoints.0, fromView: self.popup!),
-                self.convertPoint(endAttachmentPoints.1, fromView: self.popup!))
-            
-            let connector = KeyboardConnector(start: self.keyView, end: self.popup!)
-            self.addSubview(connector)
+            self.connector = KeyboardConnector(start: self.keyView, end: self.popup!)
+            self.addSubview(self.connector)
         }
     }
     
     func hidePopup() {
         if self.popup {
-            self.popup!.removeFromSuperview()
-            self.popup = nil
-            self.keyView.label.hidden = false
+            self.connector?.removeFromSuperview()
+            self.connector = nil
             
+            self.popup?.removeFromSuperview()
+            self.popup = nil
+            
+            self.keyView.label.hidden = false
             self.keyView.attach(nil)
         }
     }
