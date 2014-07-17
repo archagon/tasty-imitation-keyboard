@@ -21,9 +21,22 @@ import UIKit
 
 enum Direction: Int {
     case Left = 0
-    case Down = 1
+    case Down = 3
     case Right = 2
-    case Up = 3
+    case Up = 1
+    
+    mutating func inverse() {
+        switch self {
+        case Left:
+            self = Right
+        case Right:
+            self = Left
+        case Up:
+            self = Down
+        case Down:
+            self = Up
+        }
+    }
 }
 
 protocol Connectable {
@@ -31,7 +44,92 @@ protocol Connectable {
     func attach(direction: Direction?) // call with nil to detach
 }
 
+// TODO: Xcode crashes
 class KeyboardConnector: UIView {
+    
+    var start: UIView
+    var end: UIView
+    
+    // TODO: temporary fix for Swift compiler crash
+    var startConnectable: Connectable
+    var endConnectable: Connectable
+    var convertedStartPoints: (CGPoint, CGPoint)!
+    var convertedEndPoints: (CGPoint, CGPoint)!
+    
+    init<ConnectableView: UIView where ConnectableView: Connectable>(start: ConnectableView, end: ConnectableView) {
+        self.start = start
+        self.end = end
+        self.startConnectable = start
+        self.endConnectable = end
+    
+        super.init(frame: CGRectZero)
+        
+        self.clipsToBounds = false
+        self.backgroundColor = UIColor.clearColor()
+    }
+    
+    override func didMoveToSuperview() {
+        super.didMoveToSuperview()
+        generateConvertedPoints()
+        self.resizeFrame()
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        generateConvertedPoints()
+        resizeFrame()
+    }
+    
+    func generateConvertedPoints() {
+        let startPoints = self.startConnectable.attachmentPoints(.Up)
+        let endPoints = self.endConnectable.attachmentPoints(.Down)
+        
+        self.convertedStartPoints = (
+            self.superview.convertPoint(startPoints.0, fromView: self.start),
+            self.superview.convertPoint(startPoints.1, fromView: self.start))
+        self.convertedEndPoints = (
+            self.superview.convertPoint(endPoints.0, fromView: self.end),
+            self.superview.convertPoint(endPoints.1, fromView: self.end))
+    }
+    
+    func resizeFrame() {        
+        let minX = min(convertedStartPoints.0.x, convertedStartPoints.1.x, convertedEndPoints.0.x, convertedEndPoints.1.x)
+        let minY = min(convertedStartPoints.0.y, convertedStartPoints.1.y, convertedEndPoints.0.y, convertedEndPoints.1.y)
+        let maxX = max(convertedStartPoints.0.x, convertedStartPoints.1.x, convertedEndPoints.0.x, convertedEndPoints.1.x)
+        let maxY = max(convertedStartPoints.0.y, convertedStartPoints.1.y, convertedEndPoints.0.y, convertedEndPoints.1.y)
+        let width = maxX - minX
+        let height = maxY - minY
+        
+        self.frame = CGRectMake(minX, minY, width, height)
+    }
+    
+    override func drawRect(rect: CGRect) {
+        let startPoints = self.startConnectable.attachmentPoints(.Up)
+        let endPoints = self.endConnectable.attachmentPoints(.Down)
+        
+        let myConvertedStartPoints = (
+            self.convertPoint(startPoints.0, fromView: self.start),
+            self.convertPoint(startPoints.1, fromView: self.start))
+        let myConvertedEndPoints = (
+            self.convertPoint(endPoints.0, fromView: self.end),
+            self.convertPoint(endPoints.1, fromView: self.end))
+        
+        let ctx = UIGraphicsGetCurrentContext()
+        let csp = CGColorSpaceCreateDeviceRGB()
+        
+        var path = CGPathCreateMutable();
+        
+        CGContextMoveToPoint(ctx, myConvertedStartPoints.0.x, myConvertedStartPoints.0.y)
+        CGContextAddLineToPoint(ctx, myConvertedEndPoints.1.x, myConvertedEndPoints.1.y) // TODO: wtf
+        CGContextAddLineToPoint(ctx, myConvertedEndPoints.0.x, myConvertedEndPoints.0.y)
+        CGContextAddLineToPoint(ctx, myConvertedStartPoints.1.x, myConvertedStartPoints.1.y)
+        CGContextClosePath(ctx)
+        
+        CGContextSetFillColorWithColor(ctx, UIColor.blueColor().CGColor)
+        CGContextFillPath(ctx)
+        
+        CGPathRelease(path)
+    }
 }
 
 func drawConnection<T: Connectable>(conn1: T, conn2: T) {
@@ -97,16 +195,16 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
         let hideOptions: UIControlEvents = .TouchUpInside | .TouchUpOutside | .TouchDragOutside
         self.addTarget(self, action: Selector("showPopup"), forControlEvents: showOptions)
         self.addTarget(self, action: Selector("hidePopup"), forControlEvents: hideOptions)
-        self.addTarget(self, action: Selector("debugCycle"), forControlEvents: showOptions)
+//        self.addTarget(self, action: Selector("debugCycle"), forControlEvents: showOptions)
     }
     
     func debugCycle() {
         if self.keyView._attached == nil {
-            self.keyView._attached = Direction.Up
+            self.keyView._attached = Direction.Left
         }
         else {
             if self.keyView._attached! == Direction.Up {
-                self.keyView._attached = Direction.Left
+                self.keyView._attached = nil
             }
             else if self.keyView._attached! == Direction.Left {
                 self.keyView._attached = Direction.Down
@@ -115,7 +213,7 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
                 self.keyView._attached = Direction.Right
             }
             else if self.keyView._attached! == Direction.Right {
-                self.keyView._attached = nil
+                self.keyView._attached = Direction.Up
             }
         }
     }
@@ -136,6 +234,10 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
         self.keyView.text = (self.text ? self.text : "")
     }
     
+    override func drawRect(rect: CGRect) {
+//        super.drawRect(rect)
+    }
+    
     func showPopup() {
         if !self.popup {
             let gap = 3
@@ -152,6 +254,29 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
             self.popup!.text = self.keyView.text
             self.keyView.label.hidden = true
             self.popup!.label.font = self.popup!.label.font.fontWithSize(22 * 1.5)
+            
+            self.popup!.attach(Direction.Down)
+            self.keyView.attach(Direction.Up)
+            
+//            let startAttachmentPoints = map(self.keyView.attachmentPoints(Direction.Up)) {
+//                self.convertPoint($0, fromView: self.keyView)
+//            }
+//            let endAttachmentPoints = map(self.popup!.attachmentPoints(Direction.Down)) {
+//                self.convertPoint($0, fromView: self.popup!)
+//            }
+            
+            let startAttachmentPoints = self.keyView.attachmentPoints(Direction.Up)
+            let endAttachmentPoints = self.popup!.attachmentPoints(Direction.Down)
+            
+            let localStartAttachmentPoints = (
+                self.convertPoint(startAttachmentPoints.0, fromView: self.keyView),
+                self.convertPoint(startAttachmentPoints.1, fromView: self.keyView))
+            let localEndAttachmentPoints = (
+                self.convertPoint(endAttachmentPoints.0, fromView: self.popup!),
+                self.convertPoint(endAttachmentPoints.1, fromView: self.popup!))
+            
+            let connector = KeyboardConnector(start: self.keyView, end: self.popup!)
+            self.addSubview(connector)
         }
     }
     
@@ -160,10 +285,15 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
             self.popup!.removeFromSuperview()
             self.popup = nil
             self.keyView.label.hidden = false
+            
+            self.keyView.attach(nil)
         }
     }
     
     class KeyboardKeyBackground: UIControl, Connectable {
+        
+        var shadowOffset: Double
+        var cornerRadius: Double
         
         var color: UIColor!
         var shadowColor: UIColor!
@@ -171,6 +301,11 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
         var downColor: UIColor!
         var downShadowColor: UIColor!
         var downTextColor: UIColor!
+        
+        var _startingPoints: [CGPoint]
+        var _segmentPoints: [(CGPoint, CGPoint)]
+        var _arcCenters: [CGPoint]
+        var _arcStartingAngles: [CGFloat]
         
         var _attached: Direction? {
         didSet {
@@ -207,6 +342,14 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
             label = UILabel()
             _attached = nil
             
+            _startingPoints = []
+            _segmentPoints = []
+            _arcCenters = []
+            _arcStartingAngles = []
+            
+            shadowOffset = 1.0
+            cornerRadius = 3.0
+            
             super.init(frame: frame)
             
             self.setDefaultColors()
@@ -221,6 +364,8 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
 //            self.label.minimumFontSize = 10
             self.label.userInteractionEnabled = false
             self.addSubview(self.label)
+            
+            generatePointsForDrawing()
         }
         
         func setDefaultColors() {
@@ -233,6 +378,9 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
         }
         
         override func layoutSubviews() {
+            super.layoutSubviews()
+            
+            generatePointsForDrawing()
             self.label.frame = self.bounds
         }
         
@@ -255,82 +403,21 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
             // draw the border //
             /////////////////////
             
-            let shadowOffset = 1.0
-            let cornerRadius = 3.0
-            
-            let segmentWidth: CGFloat = self.bounds.width
-            let segmentHeight: CGFloat = self.bounds.height - CGFloat(shadowOffset)
-            
             var path = CGPathCreateMutable();
-            
-//            CGPathMoveToPoint(path, nil, 0, CGFloat(shadowOffset) + segmentHeight)
             
             // order of edge drawing: left edge, down edge, right edge, up edge
             
-            // base, untranslated corner points
-            let startingPoints = [
-                CGPointMake(0, segmentHeight),
-                CGPointMake(0, 0),
-                CGPointMake(segmentWidth, 0),
-                CGPointMake(segmentWidth, segmentHeight),
-            ]
-            
-            // actual coordinates for each edge, including translation
-            var segmentPoints: [(CGPoint, CGPoint)] = [] // TODO: is this declaration correct?
-            
-            // actual coordinates for arc centers for each corner
-            var arcCenters: [CGPoint] = []
-            
-            var arcStartingAngles: [CGFloat] = []
-            
-            for i in 0..<startingPoints.count {
-                let currentPoint = startingPoints[i]
-                let nextPoint = startingPoints[(i + 1) % startingPoints.count]
-                
-                var xDir = 0.0
-                var yDir = 0.0
-                
-                if (i == 1) {
-                    xDir = 1.0
-                    arcStartingAngles += CGFloat(M_PI)
-                }
-                else if (i == 3) {
-                    xDir = -1.0
-                    arcStartingAngles += CGFloat(0)
-                }
-                
-                if (i == 0) {
-                    yDir = -1.0
-                    arcStartingAngles += CGFloat(M_PI/2.0)
-                }
-                else if (i == 2) {
-                    yDir = 1.0
-                    arcStartingAngles += CGFloat(-M_PI/2.0)
-                }
-                
-                let p0 = CGPointMake(
-                    currentPoint.x + CGFloat(xDir * cornerRadius),
-                    currentPoint.y + CGFloat(shadowOffset) + CGFloat(yDir * cornerRadius))
-                let p1 = CGPointMake(
-                    nextPoint.x - CGFloat(xDir * cornerRadius),
-                    nextPoint.y + CGFloat(shadowOffset) - CGFloat(yDir * cornerRadius))
-                
-                segmentPoints += (p0, p1)
-                
-                let c = CGPointMake(
-                    p0.x - CGFloat(yDir * cornerRadius),
-                    p0.y + CGFloat(xDir * cornerRadius))
-                
-                arcCenters += c
-            }
-            
             // here be where we do the drawing
             
+            if self._attached {
+                NSLog("skipping: \(self._attached!.toRaw())")
+            }
+            
             if self._attached && self._attached!.toRaw() == 0 {
-                CGPathMoveToPoint(path, nil, segmentPoints[1].0.x, segmentPoints[1].0.y)
+                CGPathMoveToPoint(path, nil, self._segmentPoints[1].0.x, self._segmentPoints[1].0.y)
             }
             else {
-                CGPathMoveToPoint(path, nil, segmentPoints[0].0.x, segmentPoints[0].0.y)
+                CGPathMoveToPoint(path, nil, self._segmentPoints[0].0.x, self._segmentPoints[0].0.y)
             }
             
             for i in 0..<4 {
@@ -338,13 +425,13 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
                     continue
                 }
                 
-                CGPathAddLineToPoint(path, nil, segmentPoints[i].0.x, segmentPoints[i].0.y)
-                CGPathAddLineToPoint(path, nil, segmentPoints[i].1.x, segmentPoints[i].1.y)
+                CGPathAddLineToPoint(path, nil, self._segmentPoints[i].0.x, self._segmentPoints[i].0.y)
+                CGPathAddLineToPoint(path, nil, self._segmentPoints[i].1.x, self._segmentPoints[i].1.y)
                 
                 if (self._attached && (self._attached!.toRaw() + 4 - 1) % 4 == i) {
                     // do nothing
                 } else {
-                    CGPathAddRelativeArc(path, nil, arcCenters[(i + 1) % 4].x, arcCenters[(i + 1) % 4].y, CGFloat(cornerRadius), arcStartingAngles[(i + 1) % 4], CGFloat(M_PI/2.0))
+                    CGPathAddRelativeArc(path, nil, self._arcCenters[(i + 1) % 4].x, self._arcCenters[(i + 1) % 4].y, CGFloat(self.cornerRadius), self._arcStartingAngles[(i + 1) % 4], CGFloat(M_PI/2.0))
                 }
             }
             
@@ -371,8 +458,70 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
             CGPathRelease(path)
         }
         
+        func generatePointsForDrawing() {
+            let segmentWidth = self.bounds.width
+            let segmentHeight = self.bounds.height - CGFloat(shadowOffset)
+            
+            // base, untranslated corner points
+            self._startingPoints = [
+                CGPointMake(0, segmentHeight),
+                CGPointMake(0, 0),
+                CGPointMake(segmentWidth, 0),
+                CGPointMake(segmentWidth, segmentHeight),
+            ]
+            
+            // actual coordinates for each edge, including translation
+            self._segmentPoints = [] // TODO: is this declaration correct?
+            
+            // actual coordinates for arc centers for each corner
+            self._arcCenters = []
+            
+            self._arcStartingAngles = []
+            
+            for i in 0 ..< self._startingPoints.count {
+                let currentPoint = self._startingPoints[i]
+                let nextPoint = self._startingPoints[(i + 1) % self._startingPoints.count]
+                
+                var xDir = 0.0
+                var yDir = 0.0
+                
+                if (i == 1) {
+                    xDir = 1.0
+                    self._arcStartingAngles += CGFloat(M_PI)
+                }
+                else if (i == 3) {
+                    xDir = -1.0
+                    self._arcStartingAngles += CGFloat(0)
+                }
+                
+                if (i == 0) {
+                    yDir = -1.0
+                    self._arcStartingAngles += CGFloat(M_PI/2.0)
+                }
+                else if (i == 2) {
+                    yDir = 1.0
+                    self._arcStartingAngles += CGFloat(-M_PI/2.0)
+                }
+                
+                let p0 = CGPointMake(
+                    currentPoint.x + CGFloat(xDir * cornerRadius),
+                    currentPoint.y + CGFloat(shadowOffset) + CGFloat(yDir * cornerRadius))
+                let p1 = CGPointMake(
+                    nextPoint.x - CGFloat(xDir * cornerRadius),
+                    nextPoint.y + CGFloat(shadowOffset) - CGFloat(yDir * cornerRadius))
+                
+                self._segmentPoints += (p0, p1)
+                
+                let c = CGPointMake(
+                    p0.x - CGFloat(yDir * cornerRadius),
+                    p0.y + CGFloat(xDir * cornerRadius))
+                
+                self._arcCenters += c
+            }
+        }
+        
         func attachmentPoints(direction: Direction) -> (CGPoint, CGPoint) {
-            return (CGPointZero, CGPointZero)
+            return self._segmentPoints[direction.toRaw()]
         }
         
         func attach(direction: Direction?) {
