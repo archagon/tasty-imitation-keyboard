@@ -437,9 +437,11 @@ class KeyboardConnector: UIView {
             let mainColor = (self.highlighted ? self.downColor : self.color).CGColor
             let shadowColor = (self.highlighted ? self.downShadowColor : self.shadowColor).CGColor
             
-            CGContextSetFillColorWithColor(ctx, shadowColor)
-            CGContextAddPath(ctx, path)
-            CGContextFillPath(ctx)
+            if !(self._attached && self._attached! == .Down) {
+                CGContextSetFillColorWithColor(ctx, shadowColor)
+                CGContextAddPath(ctx, path)
+                CGContextFillPath(ctx)
+            }
             
             CGContextSetFillColorWithColor(ctx, mainColor)
             CGContextTranslateCTM(ctx, 0, -CGFloat(shadowOffset))
@@ -518,9 +520,17 @@ class KeyboardConnector: UIView {
         }
         
         func attachmentPoints(direction: Direction) -> (CGPoint, CGPoint) {
-            return (
+            var returnValue = (
                 self._segmentPoints[direction.clockwise().toRaw()].0,
                 self._segmentPoints[direction.counterclockwise().toRaw()].1)
+            
+            // TODO: quick hack
+            if direction == .Down {
+                returnValue.0.y -= CGFloat(self.shadowOffset)
+                returnValue.1.y -= CGFloat(self.shadowOffset)
+            }
+            
+            return returnValue
         }
         
         func attach(direction: Direction?) {
