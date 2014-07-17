@@ -77,8 +77,8 @@ class KeyboardConnector: UIView {
     
         super.init(frame: CGRectZero)
         
-        self.clipsToBounds = false
         self.backgroundColor = UIColor.clearColor()
+//        self.backgroundColor = UIColor.redColor()
     }
     
     override func didMoveToSuperview() {
@@ -115,9 +115,9 @@ class KeyboardConnector: UIView {
         let maxX = max(convertedStartPoints.0.x, convertedStartPoints.1.x, convertedEndPoints.0.x, convertedEndPoints.1.x)
         let maxY = max(convertedStartPoints.0.y, convertedStartPoints.1.y, convertedEndPoints.0.y, convertedEndPoints.1.y)
         let width = maxX - minX
-        let height = maxY - minY
+        let height = maxY - minY + 15
         
-        self.frame = CGRectMake(minX, minY, width, height)
+        self.frame = CGRectMake(minX, minY - 15, width, height)
     }
     
     override func drawRect(rect: CGRect) {
@@ -138,7 +138,7 @@ class KeyboardConnector: UIView {
         CGPathRetain(path)
         
         CGPathMoveToPoint(path, nil, myConvertedStartPoints.0.x, myConvertedStartPoints.0.y)
-        CGPathAddLineToPoint(path, nil, myConvertedEndPoints.1.x, myConvertedEndPoints.1.y) // TODO: wtf
+        CGPathAddLineToPoint(path, nil, myConvertedEndPoints.1.x, myConvertedEndPoints.1.y)
         CGPathAddLineToPoint(path, nil, myConvertedEndPoints.0.x, myConvertedEndPoints.0.y)
         CGPathAddLineToPoint(path, nil, myConvertedStartPoints.1.x, myConvertedStartPoints.1.y)
         CGPathCloseSubpath(path)
@@ -152,7 +152,12 @@ class KeyboardConnector: UIView {
         CGContextClip(ctx)
         CGContextAddPath(ctx, path)
         CGContextFillPath(ctx)
-        CGContextAddPath(ctx, path)
+        
+        CGContextMoveToPoint(ctx, myConvertedStartPoints.0.x, myConvertedStartPoints.0.y)
+        CGContextAddLineToPoint(ctx, myConvertedEndPoints.1.x, myConvertedEndPoints.1.y)
+        CGContextStrokePath(ctx)
+        CGContextMoveToPoint(ctx, myConvertedEndPoints.0.x, myConvertedEndPoints.0.y)
+        CGContextAddLineToPoint(ctx, myConvertedStartPoints.1.x, myConvertedStartPoints.1.y)
         CGContextStrokePath(ctx)
         
 //        CGPathRelease(path)
@@ -270,11 +275,12 @@ class KeyboardConnector: UIView {
                 -popupFrame.size.height - CGFloat(gap))
             
             self.popup = KeyboardKeyPopup(frame: popupFrame, vertical: false)
+            self.popup!.cornerRadius = 9.0
             self.addSubview(self.popup)
             
             self.popup!.text = self.keyView.text
             self.keyView.label.hidden = true
-            self.popup!.label.font = self.popup!.label.font.fontWithSize(22 * 1.5)
+            self.popup!.label.font = self.popup!.label.font.fontWithSize(22 * 2.0)
             
             self.popup!.attach(Direction.Down)
             self.keyView.attach(Direction.Up)
@@ -456,7 +462,7 @@ class KeyboardConnector: UIView {
                 }
             }
             
-            CGPathCloseSubpath(path)
+//            CGPathCloseSubpath(path)
             
             let mainColor = (self.highlighted ? self.downColor : self.color).CGColor
             let shadowColor = (self.highlighted ? self.downShadowColor : self.shadowColor).CGColor
