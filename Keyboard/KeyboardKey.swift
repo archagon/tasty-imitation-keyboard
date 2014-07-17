@@ -25,16 +25,29 @@ enum Direction: Int {
     case Right = 2
     case Up = 1
     
-    mutating func inverse() {
+    func clockwise() -> Direction {
         switch self {
         case Left:
-            self = Right
+            return Up
         case Right:
-            self = Left
+            return Down
         case Up:
-            self = Down
+            return Right
         case Down:
-            self = Up
+            return Left
+        }
+    }
+    
+    func counterclockwise() -> Direction {
+        switch self {
+        case Left:
+            return Down
+        case Right:
+            return Up
+        case Up:
+            return Left
+        case Down:
+            return Right
         }
     }
 }
@@ -125,7 +138,7 @@ class KeyboardConnector: UIView {
         CGContextAddLineToPoint(ctx, myConvertedStartPoints.1.x, myConvertedStartPoints.1.y)
         CGContextClosePath(ctx)
         
-        CGContextSetFillColorWithColor(ctx, UIColor.blueColor().CGColor)
+        CGContextSetFillColorWithColor(ctx, UIColor.whiteColor().CGColor)
         CGContextFillPath(ctx)
         
         CGPathRelease(path)
@@ -521,7 +534,9 @@ func drawConnection<T: Connectable>(conn1: T, conn2: T) {
         }
         
         func attachmentPoints(direction: Direction) -> (CGPoint, CGPoint) {
-            return self._segmentPoints[direction.toRaw()]
+            return (
+                self._segmentPoints[direction.clockwise().toRaw()].0,
+                self._segmentPoints[direction.counterclockwise().toRaw()].1)
         }
         
         func attach(direction: Direction?) {
