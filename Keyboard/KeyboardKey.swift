@@ -135,17 +135,27 @@ class KeyboardConnector: UIView {
         let csp = CGColorSpaceCreateDeviceRGB()
         
         var path = CGPathCreateMutable();
+        CGPathRetain(path)
         
-        CGContextMoveToPoint(ctx, myConvertedStartPoints.0.x, myConvertedStartPoints.0.y)
-        CGContextAddLineToPoint(ctx, myConvertedEndPoints.1.x, myConvertedEndPoints.1.y) // TODO: wtf
-        CGContextAddLineToPoint(ctx, myConvertedEndPoints.0.x, myConvertedEndPoints.0.y)
-        CGContextAddLineToPoint(ctx, myConvertedStartPoints.1.x, myConvertedStartPoints.1.y)
-        CGContextClosePath(ctx)
+        CGPathMoveToPoint(path, nil, myConvertedStartPoints.0.x, myConvertedStartPoints.0.y)
+        CGPathAddLineToPoint(path, nil, myConvertedEndPoints.1.x, myConvertedEndPoints.1.y) // TODO: wtf
+        CGPathAddLineToPoint(path, nil, myConvertedEndPoints.0.x, myConvertedEndPoints.0.y)
+        CGPathAddLineToPoint(path, nil, myConvertedStartPoints.1.x, myConvertedStartPoints.1.y)
+        CGPathCloseSubpath(path)
         
+        let borderColor = UIColor(hue: 0, saturation: 0, brightness: 0.68, alpha: 1.0).CGColor
         CGContextSetFillColorWithColor(ctx, UIColor.whiteColor().CGColor)
-        CGContextFillPath(ctx)
+        CGContextSetStrokeColorWithColor(ctx, borderColor)
+        CGContextSetLineWidth(ctx, 1)
         
-        CGPathRelease(path)
+        CGContextAddPath(ctx, path)
+        CGContextClip(ctx)
+        CGContextAddPath(ctx, path)
+        CGContextFillPath(ctx)
+        CGContextAddPath(ctx, path)
+        CGContextStrokePath(ctx)
+        
+//        CGPathRelease(path)
     }
 }
 
@@ -254,7 +264,7 @@ class KeyboardConnector: UIView {
             let gap = 3
             let popupSize = CGFloat(1.5)
             
-            var popupFrame = CGRectMake(0, 0, self.bounds.width * popupSize, self.bounds.height * popupSize)
+            var popupFrame = CGRectMake(0, 0, 53, 53)
             popupFrame.origin = CGPointMake(
                 (self.bounds.size.width - popupFrame.size.width)/2.0,
                 -popupFrame.size.height - CGFloat(gap))
@@ -271,6 +281,9 @@ class KeyboardConnector: UIView {
             
             self.connector = KeyboardConnector(start: self.keyView, end: self.popup!)
             self.addSubview(self.connector)
+            
+            self.popup!.border = true
+            self.keyView.border = true
         }
     }
     
@@ -284,6 +297,8 @@ class KeyboardConnector: UIView {
             
             self.keyView.label.hidden = false
             self.keyView.attach(nil)
+            
+            self.keyView.border = false
         }
     }
     
@@ -291,6 +306,11 @@ class KeyboardConnector: UIView {
         
         var shadowOffset: Double
         var cornerRadius: Double
+        var border: Bool {
+        didSet {
+            self.setNeedsDisplay()
+        }
+        }
         
         var color: UIColor!
         var shadowColor: UIColor!
@@ -298,6 +318,7 @@ class KeyboardConnector: UIView {
         var downColor: UIColor!
         var downShadowColor: UIColor!
         var downTextColor: UIColor!
+        var borderColor: UIColor!
         
         var _startingPoints: [CGPoint]
         var _segmentPoints: [(CGPoint, CGPoint)]
@@ -346,6 +367,7 @@ class KeyboardConnector: UIView {
             
             shadowOffset = 1.0
             cornerRadius = 3.0
+            border = false
             
             super.init(frame: frame)
             
@@ -360,6 +382,7 @@ class KeyboardConnector: UIView {
             self.label.adjustsFontSizeToFitWidth = true
 //            self.label.minimumFontSize = 10
             self.label.userInteractionEnabled = false
+            self.clipsToBounds = false
             self.addSubview(self.label)
             
             generatePointsForDrawing()
@@ -372,6 +395,7 @@ class KeyboardConnector: UIView {
             self.downColor = UIColor(red: 0.98 * 0.85, green: 1.0 * 0.85, blue: 0.98 * 0.85, alpha: 1.0)
             self.downShadowColor = UIColor(red: 0.98 * 0.4 * 0.85, green: 1.0 * 0.4 * 0.85, blue: 0.98 * 0.4 * 0.85, alpha: 1.0)
             self.downTextColor = UIColor(red: 0.25 * 0.75, green: 0.25 * 0.75, blue: 0.5 * 0.75, alpha: 1.0)
+            self.borderColor = UIColor(hue: 0, saturation: 0, brightness: 0.68, alpha: 1.0)
         }
         
         override func layoutSubviews() {
@@ -444,9 +468,21 @@ class KeyboardConnector: UIView {
             }
             
             CGContextSetFillColorWithColor(ctx, mainColor)
+            CGContextSetStrokeColorWithColor(ctx, self.borderColor.CGColor)
+            CGContextSetLineWidth(ctx, 1)
+            
+            // TODO: border stroke outside, not inside
             CGContextTranslateCTM(ctx, 0, -CGFloat(shadowOffset))
+            CGContextSaveGState(ctx)
+            CGContextAddPath(ctx, path)
+            CGContextClip(ctx)
             CGContextAddPath(ctx, path)
             CGContextFillPath(ctx)
+            if self.border {
+                CGContextAddPath(ctx, path)
+                CGContextStrokePath(ctx)
+            }
+            CGContextRestoreGState(ctx)
             CGContextTranslateCTM(ctx, 0, CGFloat(shadowOffset))
             
             /////////////

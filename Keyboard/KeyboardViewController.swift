@@ -19,6 +19,7 @@ let layout: Dictionary<String, Double> = [
     "bottomGap": 7,
     "keyWidth": 26,
     "keyHeight": 39,
+    "popupKeyHeight": 53,
     "keyGap": 6, // 5 for russian, though still 6 on lower row
     "shiftAndBackspaceMaxWidth": 36,
     "specialKeyWidth": 34,
@@ -352,7 +353,7 @@ class KeyboardViewController: UIInputViewController {
                         
                         if key.outputText {
                             keyView.addTarget(self, action: "keyPressed:", forControlEvents: .TouchUpInside)
-                            keyView.addTarget(self, action: "takeScreenshot", forControlEvents: .TouchUpInside)
+//                            keyView.addTarget(self, action: "takeScreenshot", forControlEvents: .TouchUpInside)
                         }
                         
                         //        self.nextKeyboardButton.setTitle(NSLocalizedString("Next Keyboard", comment: "Title for 'Next Keyboard' button"), forState: .Normal)
