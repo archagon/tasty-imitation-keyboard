@@ -83,13 +83,11 @@ class KeyboardConnector: UIView {
     
     override func didMoveToSuperview() {
         super.didMoveToSuperview()
-        generateConvertedPoints()
         self.resizeFrame()
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        generateConvertedPoints()
         resizeFrame()
     }
     
@@ -266,8 +264,7 @@ class KeyboardConnector: UIView {
     
     func showPopup() {
         if !self.popup {
-            let gap = 3
-            let popupSize = CGFloat(1.5)
+            let gap = 2
             
             var popupFrame = CGRectMake(0, 0, 53, 53)
             popupFrame.origin = CGPointMake(
@@ -314,6 +311,7 @@ class KeyboardConnector: UIView {
         var cornerRadius: Double
         var border: Bool {
         didSet {
+            generatePointsForDrawing() // TODO: add this elsewhere as well
             self.setNeedsDisplay()
         }
         }
