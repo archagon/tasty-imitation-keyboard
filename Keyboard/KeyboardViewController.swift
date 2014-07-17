@@ -171,22 +171,26 @@ class KeyboardViewController: UIInputViewController {
         // this code grabs a screenshot of the keyboard and puts it in the project directory
         // source: http://stackoverflow.com/questions/2214957/how-do-i-take-a-screen-shot-of-a-uiview
         if DEBUG && !DEBUG_SAVED_SCREENSHOT {
-            if !CGRectIsEmpty(self.view.bounds) {
-                let oldViewColor = self.view.layer.backgroundColor
-                self.view.layer.backgroundColor = UIColor(hue: (216/360.0), saturation: 0.05, brightness: 0.86, alpha: 1).CGColor
-                
-                var rect = self.view.bounds
-                UIGraphicsBeginImageContextWithOptions(rect.size, true, 0)
-                var context = UIGraphicsGetCurrentContext()
-                self.view.layer.renderInContext(context)
-                var capturedImage = UIGraphicsGetImageFromCurrentImageContext()
-                UIGraphicsEndImageContext()
-                var imagePath = "/Users/archagon/Documents/Programming/OSX/TransliteratingKeyboard/Screenshot.png"
-                UIImagePNGRepresentation(capturedImage).writeToFile(imagePath, atomically: true)
-                
-                self.view.layer.backgroundColor = oldViewColor
-                DEBUG_SAVED_SCREENSHOT = true
-            }
+            takeScreenshot()
+            DEBUG_SAVED_SCREENSHOT = true
+        }
+    }
+    
+    func takeScreenshot() {
+        if !CGRectIsEmpty(self.view.bounds) {
+            let oldViewColor = self.view.layer.backgroundColor
+            self.view.layer.backgroundColor = UIColor(hue: (216/360.0), saturation: 0.05, brightness: 0.86, alpha: 1).CGColor
+            
+            var rect = self.view.bounds
+            UIGraphicsBeginImageContextWithOptions(rect.size, true, 0)
+            var context = UIGraphicsGetCurrentContext()
+            self.view.layer.renderInContext(context)
+            var capturedImage = UIGraphicsGetImageFromCurrentImageContext()
+            UIGraphicsEndImageContext()
+            var imagePath = "/Users/archagon/Documents/Programming/OSX/TransliteratingKeyboard/Screenshot.png"
+            UIImagePNGRepresentation(capturedImage).writeToFile(imagePath, atomically: true)
+            
+            self.view.layer.backgroundColor = oldViewColor
         }
     }
     
@@ -348,6 +352,7 @@ class KeyboardViewController: UIInputViewController {
                         
                         if key.outputText {
                             keyView.addTarget(self, action: "keyPressed:", forControlEvents: .TouchUpInside)
+                            keyView.addTarget(self, action: "takeScreenshot", forControlEvents: .TouchUpInside)
                         }
                         
                         //        self.nextKeyboardButton.setTitle(NSLocalizedString("Next Keyboard", comment: "Title for 'Next Keyboard' button"), forState: .Normal)
