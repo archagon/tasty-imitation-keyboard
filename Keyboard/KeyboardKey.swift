@@ -176,11 +176,11 @@ class KeyboardConnector: UIView {
         CGContextAddPath(ctx, bezierPath.CGPath)
         CGContextFillPath(ctx)
         
-        CGContextMoveToPoint(ctx, myConvertedStartPoints.0.x, myConvertedStartPoints.0.x)
+        CGContextMoveToPoint(ctx, myConvertedStartPoints.0.x, myConvertedStartPoints.0.y)
         CGContextAddCurveToPoint(ctx, myConvertedStartPoints.0.x, midpoint, myConvertedEndPoints.1.x, midpoint, myConvertedEndPoints.1.x, myConvertedEndPoints.1.y)
         CGContextStrokePath(ctx)
         
-        CGContextMoveToPoint(ctx, myConvertedEndPoints.0.x, myConvertedEndPoints.0.x)
+        CGContextMoveToPoint(ctx, myConvertedEndPoints.0.x, myConvertedEndPoints.0.y)
         CGContextAddCurveToPoint(ctx, myConvertedEndPoints.0.x, midpoint, myConvertedStartPoints.1.x, midpoint, myConvertedStartPoints.1.x, myConvertedStartPoints.1.y)
         CGContextStrokePath(ctx)
         
