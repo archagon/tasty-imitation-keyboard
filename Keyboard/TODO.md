@@ -6,6 +6,7 @@
     * popup sizes
     * popup shadows
     * popup edge hugging + left/right/down for top of screen
+    * add correct art
 ** touch down allows you to slide on keys
     * add nearest key detection
 ** pulling data from model thru controller
@@ -19,7 +20,6 @@
 * delete autorepeat
 ** multitouch + shift key
 * add sounds
-* add correct art
 ** make main app ui
 *** performance concerns
     * bake in?

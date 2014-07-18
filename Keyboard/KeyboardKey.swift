@@ -333,8 +333,8 @@ class KeyboardConnector: UIView {
 //                (self.bounds.size.width - popupFrame.size.width)/2.0,
 //                -popupFrame.size.height - CGFloat(gap))
             popupFrame.origin = CGPointMake(
-                self.bounds.size.width + CGFloat(gap),
-                0)
+                self.bounds.size.width + CGFloat(Double(gap) / 2.0),
+                (self.bounds.size.height - popupFrame.size.height)/2.0)
             
             self.layer.zPosition = 1000
             
