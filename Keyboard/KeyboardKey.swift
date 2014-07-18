@@ -62,6 +62,8 @@ class KeyboardConnector: UIView {
     
     var start: UIView
     var end: UIView
+    var startDir: Direction
+    var endDir: Direction
     
     // TODO: temporary fix for Swift compiler crash
     var startConnectable: Connectable
@@ -69,16 +71,17 @@ class KeyboardConnector: UIView {
     var convertedStartPoints: (CGPoint, CGPoint)!
     var convertedEndPoints: (CGPoint, CGPoint)!
     
-    init<ConnectableView: UIView where ConnectableView: Connectable>(start: ConnectableView, end: ConnectableView) {
+    init<ConnectableView: UIView where ConnectableView: Connectable>(start: ConnectableView, end: ConnectableView, startDirection: Direction, endDirection: Direction) {
         self.start = start
         self.end = end
+        self.startDir = startDirection
+        self.endDir = endDirection
         self.startConnectable = start
         self.endConnectable = end
     
         super.init(frame: CGRectZero)
         
         self.backgroundColor = UIColor.clearColor()
-//        self.backgroundColor = UIColor.redColor()
     }
     
     override func didMoveToSuperview() {
@@ -96,8 +99,8 @@ class KeyboardConnector: UIView {
             return
         }
         
-        let startPoints = self.startConnectable.attachmentPoints(.Up)
-        let endPoints = self.endConnectable.attachmentPoints(.Down)
+        let startPoints = self.startConnectable.attachmentPoints(self.startDir)
+        let endPoints = self.endConnectable.attachmentPoints(self.endDir)
         
         self.convertedStartPoints = (
             self.superview.convertPoint(startPoints.0, fromView: self.start),
@@ -115,14 +118,16 @@ class KeyboardConnector: UIView {
         let maxX = max(convertedStartPoints.0.x, convertedStartPoints.1.x, convertedEndPoints.0.x, convertedEndPoints.1.x)
         let maxY = max(convertedStartPoints.0.y, convertedStartPoints.1.y, convertedEndPoints.0.y, convertedEndPoints.1.y)
         let width = maxX - minX
-        let height = maxY - minY + 15
+        let height = maxY - minY
         
-        self.frame = CGRectMake(minX, minY - 15, width, height)
+        self.frame = CGRectMake(minX, minY, width, height)
     }
     
     override func drawRect(rect: CGRect) {
-        let startPoints = self.startConnectable.attachmentPoints(.Up)
-        let endPoints = self.endConnectable.attachmentPoints(.Down)
+        resizeFrame()
+        
+        let startPoints = self.startConnectable.attachmentPoints(self.startDir)
+        let endPoints = self.endConnectable.attachmentPoints(self.endDir)
         
         let myConvertedStartPoints = (
             self.convertPoint(startPoints.0, fromView: self.start),
@@ -143,21 +148,40 @@ class KeyboardConnector: UIView {
         CGPathAddLineToPoint(path, nil, myConvertedStartPoints.1.x, myConvertedStartPoints.1.y)
         CGPathCloseSubpath(path)
         
+        // for now, assuming axis-aligned attachment points
+        // TODO: left/right
+        let midpoint = myConvertedStartPoints.0.y + (myConvertedEndPoints.1.y - myConvertedStartPoints.0.y) / 2
+        
+        var bezierPath = UIBezierPath()
+        bezierPath.moveToPoint(myConvertedStartPoints.0)
+        bezierPath.addCurveToPoint(
+            myConvertedEndPoints.1,
+            controlPoint1: CGPointMake(myConvertedStartPoints.0.x, midpoint),
+            controlPoint2: CGPointMake(myConvertedEndPoints.1.x, midpoint))
+        bezierPath.addLineToPoint(myConvertedEndPoints.0)
+        bezierPath.addCurveToPoint(
+            myConvertedStartPoints.1,
+            controlPoint1: CGPointMake(myConvertedEndPoints.0.x, midpoint),
+            controlPoint2: CGPointMake(myConvertedStartPoints.1.x, midpoint))
+        bezierPath.addLineToPoint(myConvertedStartPoints.0)
+        bezierPath.closePath()
+        
         let borderColor = UIColor(hue: 0, saturation: 0, brightness: 0.68, alpha: 1.0).CGColor
         CGContextSetFillColorWithColor(ctx, UIColor.whiteColor().CGColor)
         CGContextSetStrokeColorWithColor(ctx, borderColor)
         CGContextSetLineWidth(ctx, 1)
         
-        CGContextAddPath(ctx, path)
+        CGContextAddPath(ctx, bezierPath.CGPath)
         CGContextClip(ctx)
-        CGContextAddPath(ctx, path)
+        CGContextAddPath(ctx, bezierPath.CGPath)
         CGContextFillPath(ctx)
         
-        CGContextMoveToPoint(ctx, myConvertedStartPoints.0.x, myConvertedStartPoints.0.y)
-        CGContextAddLineToPoint(ctx, myConvertedEndPoints.1.x, myConvertedEndPoints.1.y)
+        CGContextMoveToPoint(ctx, myConvertedStartPoints.0.x, myConvertedStartPoints.0.x)
+        CGContextAddCurveToPoint(ctx, myConvertedStartPoints.0.x, midpoint, myConvertedEndPoints.1.x, midpoint, myConvertedEndPoints.1.x, myConvertedEndPoints.1.y)
         CGContextStrokePath(ctx)
-        CGContextMoveToPoint(ctx, myConvertedEndPoints.0.x, myConvertedEndPoints.0.y)
-        CGContextAddLineToPoint(ctx, myConvertedStartPoints.1.x, myConvertedStartPoints.1.y)
+        
+        CGContextMoveToPoint(ctx, myConvertedEndPoints.0.x, myConvertedEndPoints.0.x)
+        CGContextAddCurveToPoint(ctx, myConvertedEndPoints.0.x, midpoint, myConvertedStartPoints.1.x, midpoint, myConvertedStartPoints.1.x, myConvertedStartPoints.1.y)
         CGContextStrokePath(ctx)
         
 //        CGPathRelease(path)
@@ -266,16 +290,23 @@ class KeyboardConnector: UIView {
     
     func showPopup() {
         if !self.popup {
-            let gap = 2
+            let gap = 7
             
             var popupFrame = CGRectMake(0, 0, 53, 53)
             popupFrame.origin = CGPointMake(
                 (self.bounds.size.width - popupFrame.size.width)/2.0,
                 -popupFrame.size.height - CGFloat(gap))
+//            popupFrame.origin = CGPointMake(
+//                self.bounds.size.width + CGFloat(gap),
+//                0)
+            
+            self.layer.zPosition = 1000
             
             self.popup = KeyboardKeyPopup(frame: popupFrame, vertical: false)
             self.popup!.cornerRadius = 9.0
             self.addSubview(self.popup)
+            
+            NSLog("popup frame is \(NSStringFromCGRect(self.popup!.frame))")
             
             self.popup!.text = self.keyView.text
             self.keyView.label.hidden = true
@@ -283,8 +314,10 @@ class KeyboardConnector: UIView {
             
             self.popup!.attach(Direction.Down)
             self.keyView.attach(Direction.Up)
+//            self.popup!.attach(Direction.Left)
+//            self.keyView.attach(Direction.Right)
             
-            self.connector = KeyboardConnector(start: self.keyView, end: self.popup!)
+            self.connector = KeyboardConnector(start: self.keyView, end: self.popup!, startDirection: .Up, endDirection: .Down)
             self.addSubview(self.connector)
             
             self.popup!.border = true
@@ -304,6 +337,8 @@ class KeyboardConnector: UIView {
             self.keyView.attach(nil)
             
             self.keyView.border = false
+            
+            self.layer.zPosition = 0
         }
     }
     
@@ -567,10 +602,8 @@ class KeyboardConnector: UIView {
                 self._segmentPoints[direction.counterclockwise().toRaw()].1)
             
             // TODO: quick hack
-            if direction == .Down {
-                returnValue.0.y -= CGFloat(self.shadowOffset)
-                returnValue.1.y -= CGFloat(self.shadowOffset)
-            }
+            returnValue.0.y -= CGFloat(self.shadowOffset)
+            returnValue.1.y -= CGFloat(self.shadowOffset)
             
             return returnValue
         }

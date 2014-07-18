@@ -80,12 +80,9 @@ class ForwardingView: UIView {
     }
     
     override func touchesBegan(touches: NSSet!, withEvent event: UIEvent!) {
-        NSLog("began!")
-        
         let touch = touches.anyObject() as UITouch
         let position = touch.locationInView(self)
         var view = super.hitTest(position, withEvent: event)
-        NSLog("view is \(view)")
         
         self.myView = view
         
@@ -93,12 +90,9 @@ class ForwardingView: UIView {
     }
     
     override func touchesMoved(touches: NSSet!, withEvent event: UIEvent!) {
-        NSLog("moved!")
-        
         let touch = touches.anyObject() as UITouch
         let position = touch.locationInView(self)
         var view = super.hitTest(position, withEvent: event)
-        NSLog("view is \(view)")
         
         if view != self.myView {
             self.handleControl(self.myView, controlEvent: .TouchUpOutside)
@@ -113,12 +107,9 @@ class ForwardingView: UIView {
     }
     
     override func touchesEnded(touches: NSSet!, withEvent event: UIEvent!)  {
-        NSLog("ended!")
-        
         let touch = touches.anyObject() as UITouch
         let position = touch.locationInView(self)
         var view = super.hitTest(position, withEvent: event)
-        NSLog("view is \(view)")
         
         self.handleControl(view, controlEvent: .TouchUpInside)
     }
