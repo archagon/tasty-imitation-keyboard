@@ -8,7 +8,9 @@ Learning goals for this project:
 
 * Swift
 * 3rd party extensions
+* 3rd party frameworks (for IB use)
 * autolayout
+* CoreGraphics
 * finally release an app on the App Store, darn it
 
 The actual keyboard is under the `Keyboard` directory. `TransliteratingKeyboard` is the hosting app. Everything else is garbage. (I'll clean it up later.)
