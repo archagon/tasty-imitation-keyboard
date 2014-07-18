@@ -8,6 +8,8 @@
     * popup edge hugging + left/right/down for top of screen
 ** touch down allows you to slide on keys
     * add nearest key detection
+** pulling data from model thru controller
+** make keys use autolayout as well
 
 *** alternate character ui
 ** landscape mode

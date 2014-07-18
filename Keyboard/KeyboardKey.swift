@@ -118,7 +118,7 @@ class KeyboardConnector: UIView {
         let maxX = max(convertedStartPoints.0.x, convertedStartPoints.1.x, convertedEndPoints.0.x, convertedEndPoints.1.x)
         let maxY = max(convertedStartPoints.0.y, convertedStartPoints.1.y, convertedEndPoints.0.y, convertedEndPoints.1.y)
         let width = maxX - minX
-        let height = maxY - minY
+        let height = maxY - minY + 5
         
         self.frame = CGRectMake(minX, minY, width, height)
     }
@@ -149,42 +149,78 @@ class KeyboardConnector: UIView {
         CGPathCloseSubpath(path)
         
         // for now, assuming axis-aligned attachment points
-        // TODO: left/right
-        let midpoint = myConvertedStartPoints.0.y + (myConvertedEndPoints.1.y - myConvertedStartPoints.0.y) / 2
+        
+        let isVertical = (self.startDir == .Up || self.startDir == .Down) && (self.endDir == .Up || self.endDir == .Down)
+        
+        var midpoint: CGFloat
+        if  isVertical {
+            midpoint = myConvertedStartPoints.0.y + (myConvertedEndPoints.1.y - myConvertedStartPoints.0.y) / 2
+        }
+        else {
+            midpoint = myConvertedStartPoints.0.x + (myConvertedEndPoints.1.x - myConvertedStartPoints.0.x) / 2
+        }
         
         var bezierPath = UIBezierPath()
         bezierPath.moveToPoint(myConvertedStartPoints.0)
         bezierPath.addCurveToPoint(
             myConvertedEndPoints.1,
-            controlPoint1: CGPointMake(myConvertedStartPoints.0.x, midpoint),
-            controlPoint2: CGPointMake(myConvertedEndPoints.1.x, midpoint))
+            controlPoint1: (isVertical ?
+                CGPointMake(myConvertedStartPoints.0.x, midpoint) :
+                CGPointMake(midpoint, myConvertedStartPoints.0.y)),
+            controlPoint2: (isVertical ?
+                CGPointMake(myConvertedEndPoints.1.x, midpoint) :
+                CGPointMake(midpoint, myConvertedEndPoints.1.y)))
         bezierPath.addLineToPoint(myConvertedEndPoints.0)
         bezierPath.addCurveToPoint(
             myConvertedStartPoints.1,
-            controlPoint1: CGPointMake(myConvertedEndPoints.0.x, midpoint),
-            controlPoint2: CGPointMake(myConvertedStartPoints.1.x, midpoint))
+            controlPoint1: (isVertical ?
+                CGPointMake(myConvertedEndPoints.0.x, midpoint) :
+                CGPointMake(midpoint, myConvertedEndPoints.0.y)),
+            controlPoint2: (isVertical ?
+                CGPointMake(myConvertedStartPoints.1.x, midpoint) :
+                CGPointMake(midpoint, myConvertedStartPoints.1.y)))
         bezierPath.addLineToPoint(myConvertedStartPoints.0)
         bezierPath.closePath()
         
         let borderColor = UIColor(hue: 0, saturation: 0, brightness: 0.68, alpha: 1.0).CGColor
-        CGContextSetFillColorWithColor(ctx, UIColor.whiteColor().CGColor)
+        let shadowColor = UIColor(hue: (220/360.0), saturation: 0.04, brightness: 0.56, alpha: 1)
+        
         CGContextSetStrokeColorWithColor(ctx, borderColor)
         CGContextSetLineWidth(ctx, 1)
         
+        CGContextTranslateCTM(ctx, 0, 1)
+        shadowColor.setFill()
+        CGContextAddPath(ctx, bezierPath.CGPath)
+        CGContextFillPath(ctx)
+        CGContextTranslateCTM(ctx, 0, -1)
+        
+        CGContextSetFillColorWithColor(ctx, UIColor.whiteColor().CGColor)
         CGContextAddPath(ctx, bezierPath.CGPath)
         CGContextClip(ctx)
         CGContextAddPath(ctx, bezierPath.CGPath)
         CGContextFillPath(ctx)
         
         CGContextMoveToPoint(ctx, myConvertedStartPoints.0.x, myConvertedStartPoints.0.y)
-        CGContextAddCurveToPoint(ctx, myConvertedStartPoints.0.x, midpoint, myConvertedEndPoints.1.x, midpoint, myConvertedEndPoints.1.x, myConvertedEndPoints.1.y)
+        CGContextAddCurveToPoint(
+            ctx,
+            (isVertical ? myConvertedStartPoints.0.x : midpoint),
+            (isVertical ? midpoint : myConvertedStartPoints.0.y),
+            (isVertical ? myConvertedEndPoints.1.x : midpoint),
+            (isVertical ? midpoint : myConvertedEndPoints.1.y),
+            myConvertedEndPoints.1.x,
+            myConvertedEndPoints.1.y)
         CGContextStrokePath(ctx)
-        
+
         CGContextMoveToPoint(ctx, myConvertedEndPoints.0.x, myConvertedEndPoints.0.y)
-        CGContextAddCurveToPoint(ctx, myConvertedEndPoints.0.x, midpoint, myConvertedStartPoints.1.x, midpoint, myConvertedStartPoints.1.x, myConvertedStartPoints.1.y)
+        CGContextAddCurveToPoint(
+            ctx,
+            (isVertical ? myConvertedEndPoints.0.x : midpoint),
+            (isVertical ? midpoint : myConvertedEndPoints.0.y),
+            (isVertical ? myConvertedStartPoints.1.x : midpoint),
+            (isVertical ? midpoint : myConvertedStartPoints.1.y),
+            myConvertedStartPoints.1.x,
+            myConvertedStartPoints.1.y)
         CGContextStrokePath(ctx)
-        
-//        CGPathRelease(path)
     }
 }
 
@@ -293,12 +329,12 @@ class KeyboardConnector: UIView {
             let gap = 9
             
             var popupFrame = CGRectMake(0, 0, 52, 54)
-            popupFrame.origin = CGPointMake(
-                (self.bounds.size.width - popupFrame.size.width)/2.0,
-                -popupFrame.size.height - CGFloat(gap))
 //            popupFrame.origin = CGPointMake(
-//                self.bounds.size.width + CGFloat(gap),
-//                0)
+//                (self.bounds.size.width - popupFrame.size.width)/2.0,
+//                -popupFrame.size.height - CGFloat(gap))
+            popupFrame.origin = CGPointMake(
+                self.bounds.size.width + CGFloat(gap),
+                0)
             
             self.layer.zPosition = 1000
             
@@ -312,12 +348,12 @@ class KeyboardConnector: UIView {
             self.keyView.label.hidden = true
             self.popup!.label.font = self.popup!.label.font.fontWithSize(22 * 2.0)
             
-            self.popup!.attach(Direction.Down)
-            self.keyView.attach(Direction.Up)
-//            self.popup!.attach(Direction.Left)
-//            self.keyView.attach(Direction.Right)
+//            self.popup!.attach(Direction.Down)
+//            self.keyView.attach(Direction.Up)
+            self.popup!.attach(Direction.Left)
+            self.keyView.attach(Direction.Right)
             
-            self.connector = KeyboardConnector(start: self.keyView, end: self.popup!, startDirection: .Up, endDirection: .Down)
+            self.connector = KeyboardConnector(start: self.keyView, end: self.popup!, startDirection: .Right, endDirection: .Left)
             self.addSubview(self.connector)
             
             self.popup!.border = true
@@ -474,6 +510,7 @@ class KeyboardConnector: UIView {
             
             var fillPath = CGPathCreateMutable();
             var edgePaths: [CGMutablePathRef] = []
+            var firstEdge = false
             
             for i in 0..<4 {
                 if self._attached && self._attached!.toRaw() == i {
@@ -486,8 +523,9 @@ class KeyboardConnector: UIView {
                 CGPathAddLineToPoint(edgePath, nil, self._segmentPoints[i].1.x, self._segmentPoints[i].1.y)
                 
                 // TODO: figure out if this is ncessary
-                if i == 0 {
+                if !firstEdge {
                     CGPathMoveToPoint(fillPath, nil, self._segmentPoints[i].0.x, self._segmentPoints[i].0.y)
+                    firstEdge = true
                 }
                 else {
                     CGPathAddLineToPoint(fillPath, nil, self._segmentPoints[i].0.x, self._segmentPoints[i].0.y)
@@ -537,11 +575,7 @@ class KeyboardConnector: UIView {
             // cleanup //
             /////////////
             
-            CGColorSpaceRelease(csp)
-//            CGPathRelease(fillPath)
-//            for path in edgePaths {
-//                CGPathRelease(path)
-//            }
+            // TODO: apparently you don't need to call CFRelease for "annotated" CG APIs... does this apply to paths and color spaces?
         }
         
         func generatePointsForDrawing() {
