@@ -465,46 +465,51 @@ class KeyboardConnector: UIView {
             // draw the border //
             /////////////////////
             
-            var path = CGPathCreateMutable();
-            
             // order of edge drawing: left edge, down edge, right edge, up edge
             
-            // here be where we do the drawing
+            // We need to have separate paths for all the edges so we can toggle them as needed.
+            // Unfortunately, it doesn't seem possible to assemble the connected fill path
+            // by simply using CGPathAddPath, since it closes all the subpaths, so we have to
+            // duplicate the code a little bit.
             
-            if self._attached {
-                NSLog("skipping: \(self._attached!.toRaw())")
-            }
-            
-            if self._attached && self._attached!.toRaw() == 0 {
-                CGPathMoveToPoint(path, nil, self._segmentPoints[1].0.x, self._segmentPoints[1].0.y)
-            }
-            else {
-                CGPathMoveToPoint(path, nil, self._segmentPoints[0].0.x, self._segmentPoints[0].0.y)
-            }
+            var fillPath = CGPathCreateMutable();
+            var edgePaths: [CGMutablePathRef] = []
             
             for i in 0..<4 {
                 if self._attached && self._attached!.toRaw() == i {
                     continue
                 }
                 
-                CGPathAddLineToPoint(path, nil, self._segmentPoints[i].0.x, self._segmentPoints[i].0.y)
-                CGPathAddLineToPoint(path, nil, self._segmentPoints[i].1.x, self._segmentPoints[i].1.y)
+                var edgePath = CGPathCreateMutable()
+                
+                CGPathMoveToPoint(edgePath, nil, self._segmentPoints[i].0.x, self._segmentPoints[i].0.y)
+                CGPathAddLineToPoint(edgePath, nil, self._segmentPoints[i].1.x, self._segmentPoints[i].1.y)
+                
+                // TODO: figure out if this is ncessary
+                if i == 0 {
+                    CGPathMoveToPoint(fillPath, nil, self._segmentPoints[i].0.x, self._segmentPoints[i].0.y)
+                }
+                else {
+                    CGPathAddLineToPoint(fillPath, nil, self._segmentPoints[i].0.x, self._segmentPoints[i].0.y)
+                }
+                CGPathAddLineToPoint(fillPath, nil, self._segmentPoints[i].1.x, self._segmentPoints[i].1.y)
                 
                 if (self._attached && (self._attached!.toRaw() + 4 - 1) % 4 == i) {
                     // do nothing
                 } else {
-                    CGPathAddRelativeArc(path, nil, self._arcCenters[(i + 1) % 4].x, self._arcCenters[(i + 1) % 4].y, CGFloat(self.cornerRadius), self._arcStartingAngles[(i + 1) % 4], CGFloat(M_PI/2.0))
+                    CGPathAddRelativeArc(edgePath, nil, self._arcCenters[(i + 1) % 4].x, self._arcCenters[(i + 1) % 4].y, CGFloat(self.cornerRadius), self._arcStartingAngles[(i + 1) % 4], CGFloat(M_PI/2.0))
+                    CGPathAddRelativeArc(fillPath, nil, self._arcCenters[(i + 1) % 4].x, self._arcCenters[(i + 1) % 4].y, CGFloat(self.cornerRadius), self._arcStartingAngles[(i + 1) % 4], CGFloat(M_PI/2.0))
                 }
+                
+                edgePaths += edgePath
             }
-            
-//            CGPathCloseSubpath(path)
             
             let mainColor = (self.highlighted ? self.downColor : self.color).CGColor
             let shadowColor = (self.highlighted ? self.downShadowColor : self.shadowColor).CGColor
             
             if !(self._attached && self._attached! == .Down) {
                 CGContextSetFillColorWithColor(ctx, shadowColor)
-                CGContextAddPath(ctx, path)
+                CGContextAddPath(ctx, fillPath)
                 CGContextFillPath(ctx)
             }
             
@@ -515,13 +520,15 @@ class KeyboardConnector: UIView {
             // TODO: border stroke outside, not inside
             CGContextTranslateCTM(ctx, 0, -CGFloat(shadowOffset))
             CGContextSaveGState(ctx)
-            CGContextAddPath(ctx, path)
+            CGContextAddPath(ctx, fillPath)
             CGContextClip(ctx)
-            CGContextAddPath(ctx, path)
+            CGContextAddPath(ctx, fillPath)
             CGContextFillPath(ctx)
             if self.border {
-                CGContextAddPath(ctx, path)
-                CGContextStrokePath(ctx)
+                for path in edgePaths {
+                    CGContextAddPath(ctx, path)
+                    CGContextStrokePath(ctx)
+                }
             }
             CGContextRestoreGState(ctx)
             CGContextTranslateCTM(ctx, 0, CGFloat(shadowOffset))
@@ -531,7 +538,10 @@ class KeyboardConnector: UIView {
             /////////////
             
             CGColorSpaceRelease(csp)
-            CGPathRelease(path)
+//            CGPathRelease(fillPath)
+//            for path in edgePaths {
+//                CGPathRelease(path)
+//            }
         }
         
         func generatePointsForDrawing() {

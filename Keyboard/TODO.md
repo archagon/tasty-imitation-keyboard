@@ -3,14 +3,13 @@
     * dark/light keys
     * transparency
     * font size
-    * popup bezier curves
     * popup sizes
     * popup shadows
     * popup edge hugging + left/right/down for top of screen
-*** alternate character ui
 ** touch down allows you to slide on keys
     * add nearest key detection
 
+*** alternate character ui
 ** landscape mode
 * import transliterator
     * fix trie
