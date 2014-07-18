@@ -290,9 +290,9 @@ class KeyboardConnector: UIView {
     
     func showPopup() {
         if !self.popup {
-            let gap = 7
+            let gap = 9
             
-            var popupFrame = CGRectMake(0, 0, 53, 53)
+            var popupFrame = CGRectMake(0, 0, 52, 54)
             popupFrame.origin = CGPointMake(
                 (self.bounds.size.width - popupFrame.size.width)/2.0,
                 -popupFrame.size.height - CGFloat(gap))
