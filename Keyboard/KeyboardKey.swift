@@ -25,8 +25,6 @@ import UIKit
 //      - inability to use method generics without compiler crashes when using -O
 //      - framework (?) compiler crashes when using -Ofast
 
-let debugHorizontal = false
-
 // this is more of a view controller than a view, so we'll let the model stuff slide for now
 class KeyboardKey: UIControl, KeyboardView {
     
@@ -89,14 +87,6 @@ class KeyboardKey: UIControl, KeyboardView {
         
         self.clipsToBounds = false
         self.addSubview(self.keyView)
-        
-        let showOptions: UIControlEvents = .TouchDown | .TouchDragInside | .TouchDragEnter
-        let hideOptions: UIControlEvents = .TouchUpInside | .TouchUpOutside | .TouchDragOutside
-        
-        if model.type == Key.KeyType.Character || model.type == Key.KeyType.Period {
-            self.addTarget(self, action: Selector("showPopup"), forControlEvents: showOptions)
-            self.addTarget(self, action: Selector("hidePopup"), forControlEvents: hideOptions)
-        }
     }
     
 //    override func sizeThatFits(size: CGSize) -> CGSize {
@@ -144,19 +134,30 @@ class KeyboardKey: UIControl, KeyboardView {
     
     func showPopup() {
         if !self.popup {
-            let gap = 9
-
+            let gap = 4.5 // should be 9
+            
             var popupFrame = CGRectMake(0, 0, 52, 52)
-
-            if !debugHorizontal {
+            var direction: Direction = .Up
+            
+            if (self.frame.origin.y - self.frame.height - CGFloat(gap) - popupFrame.height) <= 0.0 {
+                direction = Direction.Right
+            }
+            
+            switch direction {
+            case .Up:
                 popupFrame.origin = CGPointMake(
                     (self.bounds.size.width - popupFrame.size.width)/2.0,
                     -popupFrame.size.height - CGFloat(gap))
-            }
-            else {
+            case .Right:
                 popupFrame.origin = CGPointMake(
-                    self.bounds.size.width + CGFloat(Double(gap) / 2.0),
+                    self.bounds.size.width + CGFloat(gap),
                     (self.bounds.size.height - popupFrame.size.height)/2.0)
+            case .Left:
+                popupFrame.origin = CGPointMake(
+                    CGFloat(0.0) - CGFloat(gap) - popupFrame.width,
+                    (self.bounds.size.height - popupFrame.size.height)/2.0)
+            case .Down:
+                assert(false, "can't show down yet")
             }
             
             self.layer.zPosition = 1000
@@ -169,24 +170,13 @@ class KeyboardKey: UIControl, KeyboardView {
             self.keyView.label.hidden = true
             self.popup!.label.font = self.popup!.label.font.fontWithSize(22 * 2.0)
             
-            if !debugHorizontal {
-                self.popup!.attach(Direction.Down)
-                self.keyView.attach(Direction.Up)
-            }
-            else {
-                self.popup!.attach(Direction.Left)
-                self.keyView.attach(Direction.Right)
-            }
+            self.keyView.attach(direction)
+            self.popup!.attach(direction.opposite())
             
             let kv = self.keyView
             let p = self.popup!
 
-            if !debugHorizontal {
-                self.connector = KeyboardConnector(start: kv, end: p, startConnectable: kv, endConnectable: p, startDirection: .Up, endDirection: .Down)
-            }
-            else {
-                self.connector = KeyboardConnector(start: kv, end: p, startConnectable: kv, endConnectable: p, startDirection: .Right, endDirection: .Left)
-            }
+            self.connector = KeyboardConnector(start: kv, end: p, startConnectable: kv, endConnectable: p, startDirection: direction, endDirection: direction.opposite())
             self.addSubview(self.connector)
             self.connector!.layer.zPosition = -1
 

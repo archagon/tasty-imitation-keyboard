@@ -37,4 +37,17 @@ enum Direction: Int {
             return Right
         }
     }
+    
+    func opposite() -> Direction {
+        switch self {
+        case Left:
+            return Right
+        case Right:
+            return Left
+        case Up:
+            return Down
+        case Down:
+            return Up
+        }
+    }
 }

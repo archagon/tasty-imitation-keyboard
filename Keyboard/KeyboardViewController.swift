@@ -283,6 +283,14 @@ class KeyboardViewController: UIInputViewController {
 //                            keyView.addTarget(self, action: "takeScreenshot", forControlEvents: .TouchUpInside)
                         }
                         
+                        let showOptions: UIControlEvents = .TouchDown | .TouchDragInside | .TouchDragEnter
+                        let hideOptions: UIControlEvents = .TouchUpInside | .TouchUpOutside | .TouchDragOutside
+                        
+                        if key.type == Key.KeyType.Character || key.type == Key.KeyType.Period {
+                            keyView.addTarget(keyView, action: Selector("showPopup"), forControlEvents: showOptions)
+                            keyView.addTarget(keyView, action: Selector("hidePopup"), forControlEvents: hideOptions)
+                        }
+                        
                         //        self.nextKeyboardButton.setTitle(NSLocalizedString("Next Keyboard", comment: "Title for 'Next Keyboard' button"), forState: .Normal)
                         //        self.nextKeyboardButton.sizeToFit()
                     }

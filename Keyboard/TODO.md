@@ -1,5 +1,6 @@
 next up:
     seamless popup
+    popup shadow
     horizontal popups & auto popup positioning
     key autolayout and other autolayout things
     translit
