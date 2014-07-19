@@ -258,6 +258,18 @@ class KeyboardViewController: UIInputViewController {
                         setColorsForKey(keyView, key)
                         
                         switch key.type {
+                        case
+                        Key.KeyType.ModeChange,
+                        Key.KeyType.Space,
+                        Key.KeyType.Return:
+                            keyView.keyView.label.adjustsFontSizeToFitWidth = false
+                            keyView.keyView.label.minimumScaleFactor = 0.1
+                            keyView.keyView.label.font = keyView.keyView.label.font.fontWithSize(16)
+                        default:
+                            break
+                        }
+                        
+                        switch key.type {
                         case Key.KeyType.KeyboardChange:
                             keyView.addTarget(self, action: "advanceToNextInputMode", forControlEvents: .TouchUpInside)
                         case Key.KeyType.Backspace:

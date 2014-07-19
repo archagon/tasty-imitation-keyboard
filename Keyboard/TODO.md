@@ -1,3 +1,9 @@
+next up:
+    seamless popup
+    horizontal popups & auto popup positioning
+    key autolayout and other autolayout things
+    translit
+
 ** make ui match
     * shadows
     * dark/light keys

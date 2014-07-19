@@ -72,7 +72,7 @@ func defaultKeyboard() -> Keyboard {
     }
     
     var keyModel = Key(type: .Shift)
-    keyModel.keyCap = "⇧"
+    keyModel.keyCap = "⇪"
     defaultKeyboard.addKey(keyModel, row: 2)
     
     for key in ["Z", "X", "C", "V", "B", "N", "M"] {
