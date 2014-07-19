@@ -34,6 +34,9 @@ class KeyboardConnector: UIView, KeyboardView {
     var borderColor: UIColor { didSet { self.setNeedsDisplay() }}
     var drawUnder: Bool { didSet { self.setNeedsDisplay() }}
     var drawBorder: Bool { didSet { self.setNeedsDisplay() }}
+    var drawShadow: Bool { didSet { self.setNeedsDisplay() }}
+    
+    var _offset: CGPoint
     
     // TODO: until bug is fixed, make sure start/end and startConnectable/endConnectable are the same object
     init(start: UIView, end: UIView, startConnectable: Connectable, endConnectable: Connectable, startDirection: Direction, endDirection: Direction) {
@@ -49,6 +52,9 @@ class KeyboardConnector: UIView, KeyboardView {
         self.borderColor = UIColor.blackColor()
         self.drawUnder = true
         self.drawBorder = true
+        self.drawShadow = true
+        
+        self._offset = CGPointZero
         
         super.init(frame: CGRectZero)
         
@@ -84,14 +90,17 @@ class KeyboardConnector: UIView, KeyboardView {
     func resizeFrame() {
         generateConvertedPoints()
         
+        let buffer: CGFloat = 32
+        self._offset = CGPointMake(buffer/2, buffer/2)
+        
         let minX = min(convertedStartPoints.0.x, convertedStartPoints.1.x, convertedEndPoints.0.x, convertedEndPoints.1.x)
         let minY = min(convertedStartPoints.0.y, convertedStartPoints.1.y, convertedEndPoints.0.y, convertedEndPoints.1.y)
         let maxX = max(convertedStartPoints.0.x, convertedStartPoints.1.x, convertedEndPoints.0.x, convertedEndPoints.1.x)
         let maxY = max(convertedStartPoints.0.y, convertedStartPoints.1.y, convertedEndPoints.0.y, convertedEndPoints.1.y)
         let width = maxX - minX
-        let height = maxY - minY + 5 // TODO: hack for under visibility
+        let height = maxY - minY
         
-        self.frame = CGRectMake(minX, minY, width, height)
+        self.frame = CGRectMake(minX - buffer/2, minY - buffer/2, width + buffer, height + buffer)
     }
     
     override func drawRect(rect: CGRect) {
@@ -154,8 +163,37 @@ class KeyboardConnector: UIView, KeyboardView {
         bezierPath.addLineToPoint(myConvertedStartPoints.0)
         bezierPath.closePath()
         
-        self.borderColor.setStroke()
-        CGContextSetLineWidth(ctx, 1)
+        let shadow = UIColor.blackColor().colorWithAlphaComponent(0.35)
+        let shadowOffset = CGSizeMake(0, 1.5)
+        let shadowBlurRadius: CGFloat = 12
+        
+        // shadow is drawn separate from the fill
+        // http://stackoverflow.com/questions/6709064/coregraphics-quartz-drawing-shadow-on-transparent-alpha-path
+//        CGContextSaveGState(ctx)
+//        self.color.setFill()
+//        CGContextSetShadowWithColor(ctx, shadowOffset, shadowBlurRadius, shadow.CGColor)
+//        CGContextMoveToPoint(ctx, 0, 0);
+//        CGContextAddLineToPoint(ctx, self.bounds.width, 0);
+//        CGContextAddLineToPoint(ctx, self.bounds.width, self.bounds.height);
+//        CGContextAddLineToPoint(ctx, 0, self.bounds.height);
+//        CGContextClosePath(ctx);
+//        CGContextAddPath(ctx, bezierPath.CGPath)
+//        CGContextClip(ctx)
+//        CGContextAddPath(ctx, bezierPath.CGPath)
+//        CGContextDrawPath(ctx, kCGPathFillStroke)
+//        CGContextRestoreGState(ctx)
+        
+//        CGContextAddPath(ctx, bezierPath.CGPath)
+//        CGContextClip(ctx)
+        
+        CGContextSaveGState(ctx)
+        UIColor.blackColor().setFill()
+        CGContextSetShadowWithColor(ctx, shadowOffset, shadowBlurRadius, shadow.CGColor)
+        bezierPath.fill()
+        CGContextRestoreGState(ctx)
+        
+        self.color.setFill()
+        bezierPath.fill()
         
         if self.drawUnder {
             CGContextTranslateCTM(ctx, 0, 1)
@@ -165,13 +203,10 @@ class KeyboardConnector: UIView, KeyboardView {
             CGContextTranslateCTM(ctx, 0, -1)
         }
         
-        self.color.setFill()
-        CGContextAddPath(ctx, bezierPath.CGPath)
-        CGContextClip(ctx)
-        CGContextAddPath(ctx, bezierPath.CGPath)
-        CGContextFillPath(ctx)
-        
         if self.drawBorder {
+            self.borderColor.setStroke()
+            CGContextSetLineWidth(ctx, 0.5)
+            
             CGContextMoveToPoint(ctx, myConvertedStartPoints.0.x, myConvertedStartPoints.0.y)
             CGContextAddCurveToPoint(
                 ctx,

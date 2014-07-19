@@ -33,7 +33,7 @@ let colors: [String:UIColor] = [
     "darkTextColor": UIColor.whiteColor(),
     "blueColor": UIColor(hue: (211/360.0), saturation: 1.0, brightness: 1.0, alpha: 1),
     "blueShadowColor": UIColor(hue: (216/360.0), saturation: 0.05, brightness: 0.43, alpha: 1),
-    "borderColor": UIColor(hue: 0, saturation: 0, brightness: 0.68, alpha: 1.0)
+    "borderColor": UIColor(hue: (214/360.0), saturation: 0.04, brightness: 0.65, alpha: 1.0)
 ]
 
 // shift/backspace: 72x78, but shrinks to 48x78

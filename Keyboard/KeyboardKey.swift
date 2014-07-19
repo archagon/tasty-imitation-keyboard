@@ -187,6 +187,11 @@ class KeyboardKey: UIControl, KeyboardView {
             self.connector!.layer.zPosition = -1
 
             self.drawBorder = true
+            
+            if direction == Direction.Up {
+                self.popup!.drawUnder = false
+                self.connector!.drawUnder = false
+            }
         }
     }
     
