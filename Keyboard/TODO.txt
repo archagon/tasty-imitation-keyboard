@@ -1,12 +1,12 @@
 next up:
-    seamless popup
+    seamless popup drag selection
     popup shadow
     horizontal popups & auto popup positioning
         horizontal layout
         correct spacing
         alignment to borders
     key autolayout and other autolayout things
-    translit
+    translit hookin
 
 ** make ui match
     * shadows

@@ -72,7 +72,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		4E00A6E619719175009414F2 /* TODO.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = TODO.md; sourceTree = "<group>"; };
 		4E5B67A1196E03B700114361 /* KeyboardModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyboardModel.swift; sourceTree = "<group>"; };
 		4E60A1391979FA5C00854CC8 /* KeyboardKeyBackground.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyboardKeyBackground.swift; sourceTree = "<group>"; };
 		4E60A13B1979FA8E00854CC8 /* KeyboardConnector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyboardConnector.swift; sourceTree = "<group>"; };
@@ -187,7 +186,6 @@
 				4E60A13B1979FA8E00854CC8 /* KeyboardConnector.swift */,
 				4E60A1441979FEFC00854CC8 /* KeyboardViewProtocol.swift */,
 				4E60A13D1979FB2E00854CC8 /* DirectionEnum.swift */,
-				4E00A6E619719175009414F2 /* TODO.md */,
 				4E807DBB19461DC700D875D1 /* Supporting Files */,
 			);
 			path = Keyboard;
