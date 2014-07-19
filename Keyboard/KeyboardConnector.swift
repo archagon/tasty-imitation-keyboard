@@ -58,6 +58,7 @@ class KeyboardConnector: UIView, KeyboardView {
         
         super.init(frame: CGRectZero)
         
+        self.userInteractionEnabled = false // TODO: why is this even necessary if it's under all the other views?
         self.backgroundColor = UIColor.clearColor()
     }
     
