@@ -193,9 +193,6 @@ class KeyboardConnector: UIView, KeyboardView {
         bezierPath.fill()
         CGContextRestoreGState(ctx)
         
-        self.color.setFill()
-        bezierPath.fill()
-        
         if self.drawUnder {
             CGContextTranslateCTM(ctx, 0, 1)
             self.underColor.setFill()
@@ -203,6 +200,9 @@ class KeyboardConnector: UIView, KeyboardView {
             CGContextFillPath(ctx)
             CGContextTranslateCTM(ctx, 0, -1)
         }
+        
+        self.color.setFill()
+        bezierPath.fill()
         
         if self.drawBorder {
             self.borderColor.setStroke()
