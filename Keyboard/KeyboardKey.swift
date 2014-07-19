@@ -49,8 +49,18 @@ class KeyboardKey: UIControl, KeyboardView {
     var downTextColor: UIColor? { didSet { updateColors() }}
     
     override var enabled: Bool { didSet { updateColors() }}
-    override var selected: Bool { didSet { updateColors() }}
-    override var highlighted: Bool { didSet { updateColors() }}
+    override var selected: Bool
+    {
+    didSet
+    {
+        updateColors()
+    }}
+    override var highlighted: Bool
+    {
+    didSet
+    {
+        updateColors()
+    }}
     
     var text: String! {
     didSet {
@@ -111,18 +121,20 @@ class KeyboardKey: UIControl, KeyboardView {
         if self.popup { keyboardViews += self.popup! }
         if self.connector { keyboardViews += self.connector! }
         
+        var switchColors = self.highlighted || self.selected
+        
         for kv in keyboardViews {
             var keyboardView = kv
-            keyboardView.color = (self.highlighted && self.downColor ? self.downColor! : self.color)
-            keyboardView.underColor = (self.highlighted && self.downUnderColor ? self.downUnderColor! : self.underColor)
-            keyboardView.borderColor = (self.highlighted && self.downBorderColor ? self.downBorderColor! : self.borderColor)
+            keyboardView.color = (switchColors && self.downColor ? self.downColor! : self.color)
+            keyboardView.underColor = (switchColors && self.downUnderColor ? self.downUnderColor! : self.underColor)
+            keyboardView.borderColor = (switchColors && self.downBorderColor ? self.downBorderColor! : self.borderColor)
             keyboardView.drawUnder = self.drawUnder
             keyboardView.drawBorder = self.drawBorder
         }
         
-        self.keyView.label.textColor = (self.highlighted && self.downTextColor ? self.downTextColor! : self.textColor)
+        self.keyView.label.textColor = (switchColors && self.downTextColor ? self.downTextColor! : self.textColor)
         if self.popup {
-            self.popup!.label.textColor = (self.highlighted && self.downTextColor ? self.downTextColor! : self.textColor)
+            self.popup!.label.textColor = (switchColors && self.downTextColor ? self.downTextColor! : self.textColor)
         }
     }
     

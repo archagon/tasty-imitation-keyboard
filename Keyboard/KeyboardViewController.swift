@@ -168,7 +168,7 @@ class KeyboardViewController: UIInputViewController {
     */
     
     func createViews(keyboard: Keyboard) {
-        func setColorsForKey(key: KeyboardKey, dark: Bool) {
+        func setColorsForKey(key: KeyboardKey, model: Key) {
             let lightColor = UIColor.whiteColor()
             let lightShadowColor = UIColor(hue: (220/360.0), saturation: 0.04, brightness: 0.56, alpha: 1)
             let lightTextColor = UIColor.blackColor()
@@ -179,13 +179,42 @@ class KeyboardViewController: UIInputViewController {
             let blueShadowColor = UIColor(hue: (216/360.0), saturation: 0.05, brightness: 0.43, alpha: 1)
             let borderColor = UIColor(hue: 0, saturation: 0, brightness: 0.68, alpha: 1.0)
             
-            key.color = (dark ? darkColor : lightColor)
-            key.underColor = (dark ? darkShadowColor : lightShadowColor)
-            key.borderColor = borderColor
-            key.textColor = (dark ? darkTextColor : lightTextColor)
-            key.downColor = (dark ? lightColor : darkColor)
-            key.downUnderColor = (dark ? lightShadowColor : darkShadowColor)
-            key.downTextColor = (dark ? lightTextColor : darkTextColor)
+            switch model.type {
+            case
+            Key.KeyType.Character,
+            Key.KeyType.SpecialCharacter,
+            Key.KeyType.Space,
+            Key.KeyType.Period:
+                key.color = lightColor
+                key.underColor = lightShadowColor
+                key.borderColor = borderColor
+                key.textColor = lightTextColor
+            case
+            Key.KeyType.Shift,
+            Key.KeyType.Backspace:
+                key.color = darkColor
+                key.underColor = darkShadowColor
+                key.borderColor = borderColor
+                key.textColor = darkTextColor
+                key.downColor = lightColor
+                key.downUnderColor = lightShadowColor
+                key.downTextColor = lightTextColor
+            case
+            Key.KeyType.ModeChange:
+                key.color = darkColor
+                key.underColor = darkShadowColor
+                key.borderColor = borderColor
+                key.textColor = lightTextColor
+            case
+            Key.KeyType.Return,
+            Key.KeyType.KeyboardChange:
+                key.color = darkColor
+                key.underColor = darkShadowColor
+                key.borderColor = borderColor
+                key.textColor = lightTextColor
+                key.downColor = lightColor
+                key.downUnderColor = lightShadowColor
+            }
         }
         
         let numRows = keyboard.rows.count
@@ -224,21 +253,7 @@ class KeyboardViewController: UIInputViewController {
                         self.elements[keyViewName] = keyView
                         self.keyViewToKey[keyView] = key
                         
-                        switch key.type {
-                        case
-                        Key.KeyType.Character,
-                        Key.KeyType.SpecialCharacter,
-                        Key.KeyType.Space,
-                        Key.KeyType.Period:
-                            setColorsForKey(keyView, false)
-                        case
-                        Key.KeyType.Shift,
-                        Key.KeyType.Backspace,
-                        Key.KeyType.ModeChange,
-                        Key.KeyType.KeyboardChange,
-                        Key.KeyType.Return:
-                            setColorsForKey(keyView, true)
-                        }
+                        setColorsForKey(keyView, key)
                         
                         switch key.type {
                         case Key.KeyType.KeyboardChange:

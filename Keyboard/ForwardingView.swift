@@ -9,6 +9,7 @@
 import UIKit
 
 class ForwardingView: UIView {
+    
     init(frame: CGRect) {
         super.init(frame: frame)
         self.multipleTouchEnabled = false
@@ -32,15 +33,31 @@ class ForwardingView: UIView {
         
         let control = view! as UIControl
         
-        let controlEvents = [
-            UIControlEvents.TouchDownRepeat,
-            UIControlEvents.TouchDragInside,
-            UIControlEvents.TouchDragOutside,
-            UIControlEvents.TouchDragEnter,
-            UIControlEvents.TouchDragExit,
-            UIControlEvents.TouchUpInside,
-            UIControlEvents.TouchUpOutside,
-            UIControlEvents.TouchCancel]
+//        let controlEvents = [
+//            UIControlEvents.TouchDown,
+//            UIControlEvents.TouchDownRepeat,
+//            UIControlEvents.TouchDragInside,
+//            UIControlEvents.TouchDragOutside,
+//            UIControlEvents.TouchDragEnter,
+//            UIControlEvents.TouchDragExit,
+//            UIControlEvents.TouchUpInside,
+//            UIControlEvents.TouchUpOutside,
+//            UIControlEvents.TouchCancel]
+        
+        switch controlEvent {
+        case
+        UIControlEvents.TouchDown,
+        UIControlEvents.TouchDragEnter:
+            control.highlighted = true
+        case
+        UIControlEvents.TouchDragExit,
+        UIControlEvents.TouchUpInside,
+        UIControlEvents.TouchUpOutside,
+        UIControlEvents.TouchCancel:
+            control.highlighted = false
+        default:
+            break
+        }
         
         let targets = control.allTargets()
         if targets {
