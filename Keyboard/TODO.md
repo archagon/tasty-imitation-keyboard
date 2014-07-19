@@ -2,6 +2,9 @@ next up:
     seamless popup
     popup shadow
     horizontal popups & auto popup positioning
+        horizontal layout
+        correct spacing
+        alignment to borders
     key autolayout and other autolayout things
     translit
 

@@ -134,13 +134,19 @@ class KeyboardKey: UIControl, KeyboardView {
     
     func showPopup() {
         if !self.popup {
-            let gap = 4.5 // should be 9
-            
+            var gap = 4.5 // should be 9
             var popupFrame = CGRectMake(0, 0, 52, 52)
             var direction: Direction = .Up
             
-            if (self.frame.origin.y - self.frame.height - CGFloat(gap) - popupFrame.height) <= 0.0 {
-                direction = Direction.Right
+            let coordinate = self.keyView.convertPoint(CGPointMake(self.keyView.bounds.width, 0), toView: self.superview)
+            if (coordinate.y - CGFloat(gap) - popupFrame.height) <= 0.0 {
+                gap = 9
+                if (coordinate.x + CGFloat(gap) + popupFrame.width) >= self.superview.bounds.width {
+                    direction = Direction.Left
+                }
+                else {
+                    direction = Direction.Right
+                }
             }
             
             switch direction {
