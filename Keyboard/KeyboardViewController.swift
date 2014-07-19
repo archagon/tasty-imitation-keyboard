@@ -177,13 +177,15 @@ class KeyboardViewController: UIInputViewController {
             let darkTextColor = lightColor
             let blueColor = UIColor(hue: (211/360.0), saturation: 1.0, brightness: 1.0, alpha: 1)
             let blueShadowColor = UIColor(hue: (216/360.0), saturation: 0.05, brightness: 0.43, alpha: 1)
+            let borderColor = UIColor(hue: 0, saturation: 0, brightness: 0.68, alpha: 1.0)
             
-            key.keyView.color = (dark ? darkColor : lightColor)
-            key.keyView.underColor = (dark ? darkShadowColor : lightShadowColor)
-//            key.keyView.textColor = (dark ? darkTextColor : lightTextColor)
-//            key.keyView.downColor = (dark ? lightColor : darkColor)
-//            key.keyView.downShadowColor = (dark ? lightShadowColor : darkShadowColor)
-//            key.keyView.downTextColor = (dark ? lightTextColor : darkTextColor)
+            key.color = (dark ? darkColor : lightColor)
+            key.underColor = (dark ? darkShadowColor : lightShadowColor)
+            key.borderColor = borderColor
+            key.textColor = (dark ? darkTextColor : lightTextColor)
+            key.downColor = (dark ? lightColor : darkColor)
+            key.downUnderColor = (dark ? lightShadowColor : darkShadowColor)
+            key.downTextColor = (dark ? lightTextColor : darkTextColor)
         }
         
         let numRows = keyboard.rows.count
@@ -209,7 +211,7 @@ class KeyboardViewController: UIInputViewController {
                     if (j < numKeys) {
                         var key = keyboard.rows[i][j]
                         
-                        var keyView = KeyboardKey(frame: CGRectZero) // TODO:
+                        var keyView = KeyboardKey(frame: CGRectZero, model: key) // TODO:
                         let keyViewName = "key\(j)x\(i)"
                         keyView.enabled = true
                         keyView.setTranslatesAutoresizingMaskIntoConstraints(false)

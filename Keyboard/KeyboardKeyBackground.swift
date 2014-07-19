@@ -8,7 +8,7 @@
 
 import UIKit
 
-class KeyboardKeyBackground: UIControl, KeyboardView, Connectable {
+class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
     
     var shadowOffset: Double { didSet { self.setNeedsDisplay() }}
     var cornerRadius: Double {
@@ -42,12 +42,6 @@ class KeyboardKeyBackground: UIControl, KeyboardView, Connectable {
     }
     
     var label: UILabel
-    
-    override var highlighted: Bool {
-    didSet {
-        self.setNeedsDisplay()
-    }
-    }
     
     init(frame: CGRect) {
         text = "" // TODO: does this call the setter?
@@ -84,12 +78,6 @@ class KeyboardKeyBackground: UIControl, KeyboardView, Connectable {
         
         generatePointsForDrawing()
     }
-    
-//    func setDefaultColors() {
-//        self.color = UIColor(red: 0.98, green: 1.0, blue: 0.98, alpha: 1.0)
-//        self.textColor = UIColor(red: 0.25, green: 0.25, blue: 0.5, alpha: 1.0)
-//        self.borderColor = UIColor(hue: 0, saturation: 0, brightness: 0.68, alpha: 1.0)
-//    }
     
     override func layoutSubviews() {
         super.layoutSubviews()

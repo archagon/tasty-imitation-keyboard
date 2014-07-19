@@ -27,11 +27,30 @@ import UIKit
 
 let debugHorizontal = false
 
-class KeyboardKey: UIControl {
+// this is more of a view controller than a view, so we'll let the model stuff slide for now
+class KeyboardKey: UIControl, KeyboardView {
+    
+    let model: Key
     
     var keyView: KeyboardKeyBackground
     var popup: KeyboardKeyBackground?
     var connector: KeyboardConnector?
+    
+    var color: UIColor { didSet { updateColors() }}
+    var underColor: UIColor { didSet { updateColors() }}
+    var borderColor: UIColor { didSet { updateColors() }}
+    var drawUnder: Bool { didSet { updateColors() }}
+    var drawBorder: Bool { didSet { updateColors() }}
+    
+    var textColor: UIColor { didSet { updateColors() }}
+    var downColor: UIColor? { didSet { updateColors() }}
+    var downUnderColor: UIColor? { didSet { updateColors() }}
+    var downBorderColor: UIColor? { didSet { updateColors() }}
+    var downTextColor: UIColor? { didSet { updateColors() }}
+    
+    override var enabled: Bool { didSet { updateColors() }}
+    override var selected: Bool { didSet { updateColors() }}
+    override var highlighted: Bool { didSet { updateColors() }}
     
     var text: String! {
     didSet {
@@ -45,35 +64,16 @@ class KeyboardKey: UIControl {
     }
     }
     
-    override var enabled: Bool {
-    didSet {
-        self.keyView.enabled = enabled
-    }
-    }
-    
-    override var selected: Bool {
-    didSet {
-        self.keyView.selected = selected
-    }
-    }
-    
-    override var highlighted: Bool {
-    didSet {
-//        self.layer.backgroundColor = (highlighted ? UIColor.blueColor().CGColor : UIColor.redColor().CGColor)
-        self.keyView.highlighted = highlighted
-    }
-    }
-    
-    init(coder aDecoder: NSCoder!) {
+    init(frame: CGRect, model: Key) {
+        self.model = model
         self.keyView = KeyboardKeyBackground(frame: CGRectZero)
         
-        super.init(coder: aDecoder)
-        
-        self.addSubview(self.keyView)
-    }
-    
-    init(frame: CGRect) {
-        self.keyView = KeyboardKeyBackground(frame: CGRectZero)
+        self.color = UIColor.whiteColor()
+        self.underColor = UIColor.grayColor()
+        self.borderColor = UIColor.blackColor()
+        self.drawUnder = true
+        self.drawBorder = false
+        self.textColor = UIColor.blackColor()
         
         super.init(frame: frame)
         
@@ -82,8 +82,11 @@ class KeyboardKey: UIControl {
         
         let showOptions: UIControlEvents = .TouchDown | .TouchDragInside | .TouchDragEnter
         let hideOptions: UIControlEvents = .TouchUpInside | .TouchUpOutside | .TouchDragOutside
-        self.addTarget(self, action: Selector("showPopup"), forControlEvents: showOptions)
-        self.addTarget(self, action: Selector("hidePopup"), forControlEvents: hideOptions)
+        
+        if model.type == Key.KeyType.Character || model.type == Key.KeyType.Period {
+            self.addTarget(self, action: Selector("showPopup"), forControlEvents: showOptions)
+            self.addTarget(self, action: Selector("hidePopup"), forControlEvents: hideOptions)
+        }
     }
     
 //    override func sizeThatFits(size: CGSize) -> CGSize {
@@ -102,6 +105,27 @@ class KeyboardKey: UIControl {
         self.keyView.text = (self.text ? self.text : "")
     }
     
+    // TODO: StyleKit?
+    func updateColors() {
+        var keyboardViews: [KeyboardView] = [self.keyView]
+        if self.popup { keyboardViews += self.popup! }
+        if self.connector { keyboardViews += self.connector! }
+        
+        for kv in keyboardViews {
+            var keyboardView = kv
+            keyboardView.color = (self.highlighted && self.downColor ? self.downColor! : self.color)
+            keyboardView.underColor = (self.highlighted && self.downUnderColor ? self.downUnderColor! : self.underColor)
+            keyboardView.borderColor = (self.highlighted && self.downBorderColor ? self.downBorderColor! : self.borderColor)
+            keyboardView.drawUnder = self.drawUnder
+            keyboardView.drawBorder = self.drawBorder
+        }
+        
+        self.keyView.label.textColor = (self.highlighted && self.downTextColor ? self.downTextColor! : self.textColor)
+        if self.popup {
+            self.popup!.label.textColor = (self.highlighted && self.downTextColor ? self.downTextColor! : self.textColor)
+        }
+    }
+    
     override func drawRect(rect: CGRect) {
 //        super.drawRect(rect)
     }
@@ -110,7 +134,7 @@ class KeyboardKey: UIControl {
         if !self.popup {
             let gap = 9
 
-            var popupFrame = CGRectMake(0, 0, 52, 54)
+            var popupFrame = CGRectMake(0, 0, 52, 52)
 
             if !debugHorizontal {
                 popupFrame.origin = CGPointMake(
@@ -151,12 +175,10 @@ class KeyboardKey: UIControl {
             else {
                 self.connector = KeyboardConnector(start: kv, end: p, startConnectable: kv, endConnectable: p, startDirection: .Right, endDirection: .Left)
             }
-
             self.addSubview(self.connector)
             self.connector!.layer.zPosition = -1
 
-            self.popup!.drawBorder = true
-            self.keyView.drawBorder = true
+            self.drawBorder = true
         }
     }
     

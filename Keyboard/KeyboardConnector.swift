@@ -154,7 +154,7 @@ class KeyboardConnector: UIView, KeyboardView {
         bezierPath.addLineToPoint(myConvertedStartPoints.0)
         bezierPath.closePath()
         
-        CGContextSetStrokeColorWithColor(ctx, self.borderColor.CGColor)
+        self.borderColor.setStroke()
         CGContextSetLineWidth(ctx, 1)
         
         if self.drawUnder {
@@ -165,7 +165,7 @@ class KeyboardConnector: UIView, KeyboardView {
             CGContextTranslateCTM(ctx, 0, -1)
         }
         
-        CGContextSetFillColorWithColor(ctx, UIColor.whiteColor().CGColor)
+        self.color.setFill()
         CGContextAddPath(ctx, bezierPath.CGPath)
         CGContextClip(ctx)
         CGContextAddPath(ctx, bezierPath.CGPath)
