@@ -8,7 +8,7 @@
 
 import UIKit
 
-let layout: Dictionary<String, Double> = [
+let layout: [String:Double] = [
     "leftGap": 3,
     "rightGap": 3,
     "topGap": 9,
@@ -22,6 +22,18 @@ let layout: Dictionary<String, Double> = [
     "doneKeyWidth": 50,
     "spaceWidth": 138,
     "debugWidth": 2
+]
+
+let colors: [String:UIColor] = [
+    "lightColor": UIColor.whiteColor(),
+    "lightShadowColor": UIColor(hue: (220/360.0), saturation: 0.04, brightness: 0.56, alpha: 1),
+    "lightTextColor": UIColor.blackColor(),
+    "darkColor": UIColor(hue: (217/360.0), saturation: 0.09, brightness: 0.75, alpha: 1),
+    "darkShadowColor": UIColor(hue: (220/360.0), saturation: 0.04, brightness: 0.56, alpha: 1),
+    "darkTextColor": UIColor.whiteColor(),
+    "blueColor": UIColor(hue: (211/360.0), saturation: 1.0, brightness: 1.0, alpha: 1),
+    "blueShadowColor": UIColor(hue: (216/360.0), saturation: 0.05, brightness: 0.43, alpha: 1),
+    "borderColor": UIColor(hue: 0, saturation: 0, brightness: 0.68, alpha: 1.0)
 ]
 
 // shift/backspace: 72x78, but shrinks to 48x78
@@ -169,51 +181,41 @@ class KeyboardViewController: UIInputViewController {
     
     func createViews(keyboard: Keyboard) {
         func setColorsForKey(key: KeyboardKey, model: Key) {
-            let lightColor = UIColor.whiteColor()
-            let lightShadowColor = UIColor(hue: (220/360.0), saturation: 0.04, brightness: 0.56, alpha: 1)
-            let lightTextColor = UIColor.blackColor()
-            let darkColor = UIColor(hue: (217/360.0), saturation: 0.09, brightness: 0.75, alpha: 1)
-            let darkShadowColor = lightShadowColor
-            let darkTextColor = lightColor
-            let blueColor = UIColor(hue: (211/360.0), saturation: 1.0, brightness: 1.0, alpha: 1)
-            let blueShadowColor = UIColor(hue: (216/360.0), saturation: 0.05, brightness: 0.43, alpha: 1)
-            let borderColor = UIColor(hue: 0, saturation: 0, brightness: 0.68, alpha: 1.0)
-            
             switch model.type {
             case
             Key.KeyType.Character,
             Key.KeyType.SpecialCharacter,
             Key.KeyType.Space,
             Key.KeyType.Period:
-                key.color = lightColor
-                key.underColor = lightShadowColor
-                key.borderColor = borderColor
-                key.textColor = lightTextColor
+                key.color = colors["lightColor"]!
+                key.underColor = colors["lightShadowColor"]!
+                key.borderColor = colors["borderColor"]!
+                key.textColor = colors["lightTextColor"]!
             case
             Key.KeyType.Shift,
             Key.KeyType.Backspace:
-                key.color = darkColor
-                key.underColor = darkShadowColor
-                key.borderColor = borderColor
-                key.textColor = darkTextColor
-                key.downColor = lightColor
-                key.downUnderColor = lightShadowColor
-                key.downTextColor = lightTextColor
+                key.color = colors["darkColor"]!
+                key.underColor = colors["darkShadowColor"]!
+                key.borderColor = colors["borderColor"]!
+                key.textColor = colors["darkTextColor"]!
+                key.downColor = colors["lightColor"]!
+                key.downUnderColor = colors["lightShadowColor"]!
+                key.downTextColor = colors["lightTextColor"]!
             case
             Key.KeyType.ModeChange:
-                key.color = darkColor
-                key.underColor = darkShadowColor
-                key.borderColor = borderColor
-                key.textColor = lightTextColor
+                key.color = colors["darkColor"]!
+                key.underColor = colors["darkShadowColor"]!
+                key.borderColor = colors["borderColor"]!
+                key.textColor = colors["lightTextColor"]!
             case
             Key.KeyType.Return,
             Key.KeyType.KeyboardChange:
-                key.color = darkColor
-                key.underColor = darkShadowColor
-                key.borderColor = borderColor
-                key.textColor = lightTextColor
-                key.downColor = lightColor
-                key.downUnderColor = lightShadowColor
+                key.color = colors["darkColor"]!
+                key.underColor = colors["darkShadowColor"]!
+                key.borderColor = colors["borderColor"]!
+                key.textColor = colors["lightTextColor"]!
+                key.downColor = colors["lightColor"]!
+                key.downUnderColor = colors["lightShadowColor"]!
             }
         }
         
@@ -414,13 +416,14 @@ class KeyboardViewController: UIInputViewController {
             // TODO: both of these should be determined based on the model data, not the row #
             let isSideButtonRow = (i == 2)
             let isEquallySpacedRow = (i == 3)
+            let rowsCount = keyboard.rows[i].count
             
             if isSideButtonRow {
                 addGapPair(
                     "keyGap%dx%d",
                     row: i,
                     startIndex: 0,
-                    endIndex: keyboard.rows[i].count,
+                    endIndex: rowsCount,
                     leftAnchor: "leftSpacer",
                     rightAnchor: "rightSpacer",
                     vertical: false,
@@ -429,7 +432,7 @@ class KeyboardViewController: UIInputViewController {
                     "keyGap%dx%d",
                     row: i,
                     startIndex: 1,
-                    endIndex: keyboard.rows[i].count - 1,
+                    endIndex: rowsCount - 1,
                     leftAnchor: nil,
                     rightAnchor: nil,
                     vertical: false,
@@ -438,7 +441,7 @@ class KeyboardViewController: UIInputViewController {
                     "keyGap%dx%d",
                     row: i,
                     startIndex: 2,
-                    endIndex: keyboard.rows[i].count - 2,
+                    endIndex: rowsCount - 2,
                     vertical: false,
                     width: layout["keyGap"]!)
             }
@@ -456,7 +459,7 @@ class KeyboardViewController: UIInputViewController {
                     "keyGap%dx%d",
                     row: i,
                     startIndex: 1,
-                    endIndex: keyboard.rows[i].count - 1,
+                    endIndex: rowsCount - 1,
                     vertical: false,
                     width: nil)
             }
@@ -465,7 +468,7 @@ class KeyboardViewController: UIInputViewController {
                     "keyGap%dx%d",
                     row: i,
                     startIndex: 0,
-                    endIndex: keyboard.rows[i].count,
+                    endIndex: rowsCount,
                     leftAnchor: "leftSpacer",
                     rightAnchor: "rightSpacer",
                     vertical: false,
@@ -474,7 +477,7 @@ class KeyboardViewController: UIInputViewController {
                     "keyGap%dx%d",
                     row: i,
                     startIndex: 1,
-                    endIndex: keyboard.rows[i].count - 1,
+                    endIndex: rowsCount - 1,
                     vertical: false,
                     width: layout["keyGap"]!)
             }
