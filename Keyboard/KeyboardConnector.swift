@@ -16,7 +16,7 @@ protocol Connectable {
 
 // TODO: Xcode crashes
 // <ConnectableView: UIView where ConnectableView: Connectable>
-class KeyboardConnector: UIView {
+class KeyboardConnector: UIView, KeyboardView {
     
     var start: UIView
     var end: UIView
@@ -29,17 +29,26 @@ class KeyboardConnector: UIView {
     var convertedStartPoints: (CGPoint, CGPoint)!
     var convertedEndPoints: (CGPoint, CGPoint)!
     
+    var color: UIColor
+    var underColor: UIColor
+    var borderColor: UIColor
+    var drawUnder: Bool
+    var drawBorder: Bool
+    
     // TODO: until bug is fixed, make sure start/end and startConnectable/endConnectable are the same object
     init(start: UIView, end: UIView, startConnectable: Connectable, endConnectable: Connectable, startDirection: Direction, endDirection: Direction) {
-        assert(startConnectable.attachmentDirection() == Direction.Up, "not up")
-        assert(endConnectable.attachmentDirection() == Direction.Down, "not down")
-        
         self.start = start
         self.end = end
         self.startDir = startDirection
         self.endDir = endDirection
         self.startConnectable = startConnectable
         self.endConnectable = endConnectable
+        
+        self.color = UIColor.whiteColor()
+        self.underColor = UIColor.grayColor()
+        self.borderColor = UIColor.blackColor()
+        self.drawUnder = true
+        self.drawBorder = false
         
         super.init(frame: CGRectZero)
         
@@ -112,7 +121,7 @@ class KeyboardConnector: UIView {
         
         // for now, assuming axis-aligned attachment points
         
-        let isVertical = (self.startDir == .Up || self.startDir == .Down) && (self.endDir == .Up || self.endDir == .Down)
+        let isVertical = (self.startDir == Direction.Up || self.startDir == Direction.Down) && (self.endDir == Direction.Up || self.endDir == Direction.Down)
         
         var midpoint: CGFloat
         if  isVertical {
@@ -144,17 +153,16 @@ class KeyboardConnector: UIView {
         bezierPath.addLineToPoint(myConvertedStartPoints.0)
         bezierPath.closePath()
         
-        let borderColor = UIColor(hue: 0, saturation: 0, brightness: 0.68, alpha: 1.0).CGColor
-        let shadowColor = UIColor(hue: (220/360.0), saturation: 0.04, brightness: 0.56, alpha: 1)
-        
-        CGContextSetStrokeColorWithColor(ctx, borderColor)
+        CGContextSetStrokeColorWithColor(ctx, self.borderColor.CGColor)
         CGContextSetLineWidth(ctx, 1)
         
-        CGContextTranslateCTM(ctx, 0, 1)
-        shadowColor.setFill()
-        CGContextAddPath(ctx, bezierPath.CGPath)
-        CGContextFillPath(ctx)
-        CGContextTranslateCTM(ctx, 0, -1)
+        if self.drawUnder {
+            CGContextTranslateCTM(ctx, 0, 1)
+            self.underColor.setFill()
+            CGContextAddPath(ctx, bezierPath.CGPath)
+            CGContextFillPath(ctx)
+            CGContextTranslateCTM(ctx, 0, -1)
+        }
         
         CGContextSetFillColorWithColor(ctx, UIColor.whiteColor().CGColor)
         CGContextAddPath(ctx, bezierPath.CGPath)
@@ -162,26 +170,28 @@ class KeyboardConnector: UIView {
         CGContextAddPath(ctx, bezierPath.CGPath)
         CGContextFillPath(ctx)
         
-        CGContextMoveToPoint(ctx, myConvertedStartPoints.0.x, myConvertedStartPoints.0.y)
-        CGContextAddCurveToPoint(
-            ctx,
-            (isVertical ? myConvertedStartPoints.0.x : midpoint),
-            (isVertical ? midpoint : myConvertedStartPoints.0.y),
-            (isVertical ? myConvertedEndPoints.1.x : midpoint),
-            (isVertical ? midpoint : myConvertedEndPoints.1.y),
-            myConvertedEndPoints.1.x,
-            myConvertedEndPoints.1.y)
-        CGContextStrokePath(ctx)
-        
-        CGContextMoveToPoint(ctx, myConvertedEndPoints.0.x, myConvertedEndPoints.0.y)
-        CGContextAddCurveToPoint(
-            ctx,
-            (isVertical ? myConvertedEndPoints.0.x : midpoint),
-            (isVertical ? midpoint : myConvertedEndPoints.0.y),
-            (isVertical ? myConvertedStartPoints.1.x : midpoint),
-            (isVertical ? midpoint : myConvertedStartPoints.1.y),
-            myConvertedStartPoints.1.x,
-            myConvertedStartPoints.1.y)
-        CGContextStrokePath(ctx)
+        if self.drawBorder {
+            CGContextMoveToPoint(ctx, myConvertedStartPoints.0.x, myConvertedStartPoints.0.y)
+            CGContextAddCurveToPoint(
+                ctx,
+                (isVertical ? myConvertedStartPoints.0.x : midpoint),
+                (isVertical ? midpoint : myConvertedStartPoints.0.y),
+                (isVertical ? myConvertedEndPoints.1.x : midpoint),
+                (isVertical ? midpoint : myConvertedEndPoints.1.y),
+                myConvertedEndPoints.1.x,
+                myConvertedEndPoints.1.y)
+            CGContextStrokePath(ctx)
+            
+            CGContextMoveToPoint(ctx, myConvertedEndPoints.0.x, myConvertedEndPoints.0.y)
+            CGContextAddCurveToPoint(
+                ctx,
+                (isVertical ? myConvertedEndPoints.0.x : midpoint),
+                (isVertical ? midpoint : myConvertedEndPoints.0.y),
+                (isVertical ? myConvertedStartPoints.1.x : midpoint),
+                (isVertical ? midpoint : myConvertedStartPoints.1.y),
+                myConvertedStartPoints.1.x,
+                myConvertedStartPoints.1.y)
+            CGContextStrokePath(ctx)
+        }
     }
 }

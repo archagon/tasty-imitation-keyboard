@@ -7,10 +7,6 @@
 //
 
 import UIKit
-//import KeyboardFramework
-
-let DEBUG = false
-var DEBUG_SAVED_SCREENSHOT = false
 
 let layout: Dictionary<String, Double> = [
     "leftGap": 3,
@@ -75,13 +71,6 @@ class KeyboardViewController: UIInputViewController {
         super.viewDidLayoutSubviews()
         
         self.forwardingView.frame = self.view.bounds
-        
-        // this code grabs a screenshot of the keyboard and puts it in the project directory
-        // source: http://stackoverflow.com/questions/2214957/how-do-i-take-a-screen-shot-of-a-uiview
-        if DEBUG && !DEBUG_SAVED_SCREENSHOT {
-            takeScreenshot()
-            DEBUG_SAVED_SCREENSHOT = true
-        }
     }
     
     func takeScreenshot() {
