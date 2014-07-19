@@ -25,13 +25,15 @@ import UIKit
 //      - inability to use method generics without compiler crashes when using -O
 //      - framework (?) compiler crashes when using -Ofast
 
-@IBDesignable class KeyboardKey: UIControl {
+let debugHorizontal = false
+
+class KeyboardKey: UIControl {
     
     var keyView: KeyboardKeyBackground
     var popup: KeyboardKeyBackground?
     var connector: KeyboardConnector?
     
-    @IBInspectable var text: String! {
+    var text: String! {
     didSet {
         self.redrawText()
     }
@@ -55,7 +57,7 @@ import UIKit
     }
     }
     
-    @IBInspectable override var highlighted: Bool {
+    override var highlighted: Bool {
     didSet {
 //        self.layer.backgroundColor = (highlighted ? UIColor.blueColor().CGColor : UIColor.redColor().CGColor)
         self.keyView.highlighted = highlighted
@@ -109,12 +111,17 @@ import UIKit
             let gap = 9
 
             var popupFrame = CGRectMake(0, 0, 52, 54)
-            popupFrame.origin = CGPointMake(
-                (self.bounds.size.width - popupFrame.size.width)/2.0,
-                -popupFrame.size.height - CGFloat(gap))
-//            popupFrame.origin = CGPointMake(
-//                self.bounds.size.width + CGFloat(Double(gap) / 2.0),
-//                (self.bounds.size.height - popupFrame.size.height)/2.0)
+
+            if !debugHorizontal {
+                popupFrame.origin = CGPointMake(
+                    (self.bounds.size.width - popupFrame.size.width)/2.0,
+                    -popupFrame.size.height - CGFloat(gap))
+            }
+            else {
+                popupFrame.origin = CGPointMake(
+                    self.bounds.size.width + CGFloat(Double(gap) / 2.0),
+                    (self.bounds.size.height - popupFrame.size.height)/2.0)
+            }
             
             self.layer.zPosition = 1000
             
@@ -126,19 +133,30 @@ import UIKit
             self.keyView.label.hidden = true
             self.popup!.label.font = self.popup!.label.font.fontWithSize(22 * 2.0)
             
-            self.popup!.attach(Direction.Down)
-            self.keyView.attach(Direction.Up)
-//            self.popup!.attach(Direction.Left)
-//            self.keyView.attach(Direction.Right)
+            if !debugHorizontal {
+                self.popup!.attach(Direction.Down)
+                self.keyView.attach(Direction.Up)
+            }
+            else {
+                self.popup!.attach(Direction.Left)
+                self.keyView.attach(Direction.Right)
+            }
             
             let kv = self.keyView
             let p = self.popup!
-            self.connector = KeyboardConnector(start: kv, end: p, startConnectable: kv, endConnectable: p, startDirection: .Up, endDirection: .Down)
+
+            if !debugHorizontal {
+                self.connector = KeyboardConnector(start: kv, end: p, startConnectable: kv, endConnectable: p, startDirection: .Up, endDirection: .Down)
+            }
+            else {
+                self.connector = KeyboardConnector(start: kv, end: p, startConnectable: kv, endConnectable: p, startDirection: .Right, endDirection: .Left)
+            }
+
             self.addSubview(self.connector)
             self.connector!.layer.zPosition = -1
 
-            self.popup!.border = true
-            self.keyView.border = true
+            self.popup!.drawBorder = true
+            self.keyView.drawBorder = true
         }
     }
     
@@ -153,7 +171,7 @@ import UIKit
             self.keyView.label.hidden = false
             self.keyView.attach(nil)
             
-            self.keyView.border = false
+            self.keyView.drawBorder = false
             
             self.layer.zPosition = 0
         }

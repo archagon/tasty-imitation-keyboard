@@ -179,11 +179,11 @@ class KeyboardViewController: UIInputViewController {
             let blueShadowColor = UIColor(hue: (216/360.0), saturation: 0.05, brightness: 0.43, alpha: 1)
             
             key.keyView.color = (dark ? darkColor : lightColor)
-            key.keyView.shadowColor = (dark ? darkShadowColor : lightShadowColor)
-            key.keyView.textColor = (dark ? darkTextColor : lightTextColor)
-            key.keyView.downColor = (dark ? lightColor : darkColor)
-            key.keyView.downShadowColor = (dark ? lightShadowColor : darkShadowColor)
-            key.keyView.downTextColor = (dark ? lightTextColor : darkTextColor)
+            key.keyView.underColor = (dark ? darkShadowColor : lightShadowColor)
+//            key.keyView.textColor = (dark ? darkTextColor : lightTextColor)
+//            key.keyView.downColor = (dark ? lightColor : darkColor)
+//            key.keyView.downShadowColor = (dark ? lightShadowColor : darkShadowColor)
+//            key.keyView.downTextColor = (dark ? lightTextColor : darkTextColor)
         }
         
         let numRows = keyboard.rows.count

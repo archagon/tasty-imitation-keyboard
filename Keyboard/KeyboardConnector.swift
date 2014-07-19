@@ -29,11 +29,11 @@ class KeyboardConnector: UIView, KeyboardView {
     var convertedStartPoints: (CGPoint, CGPoint)!
     var convertedEndPoints: (CGPoint, CGPoint)!
     
-    var color: UIColor
-    var underColor: UIColor
-    var borderColor: UIColor
-    var drawUnder: Bool
-    var drawBorder: Bool
+    var color: UIColor { didSet { self.setNeedsDisplay() }}
+    var underColor: UIColor { didSet { self.setNeedsDisplay() }}
+    var borderColor: UIColor { didSet { self.setNeedsDisplay() }}
+    var drawUnder: Bool { didSet { self.setNeedsDisplay() }}
+    var drawBorder: Bool { didSet { self.setNeedsDisplay() }}
     
     // TODO: until bug is fixed, make sure start/end and startConnectable/endConnectable are the same object
     init(start: UIView, end: UIView, startConnectable: Connectable, endConnectable: Connectable, startDirection: Direction, endDirection: Direction) {
@@ -48,7 +48,7 @@ class KeyboardConnector: UIView, KeyboardView {
         self.underColor = UIColor.grayColor()
         self.borderColor = UIColor.blackColor()
         self.drawUnder = true
-        self.drawBorder = false
+        self.drawBorder = true
         
         super.init(frame: CGRectZero)
         
@@ -89,12 +89,13 @@ class KeyboardConnector: UIView, KeyboardView {
         let maxX = max(convertedStartPoints.0.x, convertedStartPoints.1.x, convertedEndPoints.0.x, convertedEndPoints.1.x)
         let maxY = max(convertedStartPoints.0.y, convertedStartPoints.1.y, convertedEndPoints.0.y, convertedEndPoints.1.y)
         let width = maxX - minX
-        let height = maxY - minY + 5
+        let height = maxY - minY + 5 // TODO: hack for under visibility
         
         self.frame = CGRectMake(minX, minY, width, height)
     }
     
     override func drawRect(rect: CGRect) {
+        // TODO: quick hack
         resizeFrame()
         
         let startPoints = self.startConnectable.attachmentPoints(self.startDir)

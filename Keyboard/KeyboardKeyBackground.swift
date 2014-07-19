@@ -8,35 +8,23 @@
 
 import UIKit
 
-class KeyboardKeyBackground: UIControl, Connectable {
+class KeyboardKeyBackground: UIControl, KeyboardView, Connectable {
     
-    var shadowOffset: Double
-    var cornerRadius: Double
-    var border: Bool {
-    didSet {
-        generatePointsForDrawing() // TODO: add this elsewhere as well
-        self.setNeedsDisplay()
-    }
-    }
+    var shadowOffset: Double { didSet { self.setNeedsDisplay() }}
+    var cornerRadius: Double { didSet { self.setNeedsDisplay() }}
     
-    var color: UIColor!
-    var shadowColor: UIColor!
-    var textColor: UIColor!
-    var downColor: UIColor!
-    var downShadowColor: UIColor!
-    var downTextColor: UIColor!
-    var borderColor: UIColor!
+    var color: UIColor { didSet { self.setNeedsDisplay() }}
+    var underColor: UIColor { didSet { self.setNeedsDisplay() }}
+    var borderColor: UIColor { didSet { self.setNeedsDisplay() }}
+    var drawUnder: Bool { didSet { self.setNeedsDisplay() }}
+    var drawBorder: Bool { didSet { self.setNeedsDisplay() }}
     
     var _startingPoints: [CGPoint]
     var _segmentPoints: [(CGPoint, CGPoint)]
     var _arcCenters: [CGPoint]
     var _arcStartingAngles: [CGFloat]
     
-    var _attached: Direction? {
-    didSet {
-        self.setNeedsDisplay()
-    }
-    }
+    var _attached: Direction? { didSet { self.setNeedsDisplay() }}
     
     let arcHeightPercentageRadius = 0.15
     
@@ -52,12 +40,6 @@ class KeyboardKeyBackground: UIControl, Connectable {
     
     override var highlighted: Bool {
     didSet {
-        if highlighted {
-            self.label.textColor = self.downTextColor
-        }
-        else {
-            self.label.textColor = self.textColor
-        }
         self.setNeedsDisplay()
     }
     }
@@ -74,11 +56,14 @@ class KeyboardKeyBackground: UIControl, Connectable {
         
         shadowOffset = 1.0
         cornerRadius = 3.0
-        border = false
+        
+        self.color = UIColor.whiteColor()
+        self.underColor = UIColor.grayColor()
+        self.borderColor = UIColor.blackColor()
+        self.drawUnder = true
+        self.drawBorder = false
         
         super.init(frame: frame)
-        
-        self.setDefaultColors()
         
         self.contentMode = UIViewContentMode.Redraw
         self.opaque = false
@@ -95,15 +80,11 @@ class KeyboardKeyBackground: UIControl, Connectable {
         generatePointsForDrawing()
     }
     
-    func setDefaultColors() {
-        self.color = UIColor(red: 0.98, green: 1.0, blue: 0.98, alpha: 1.0)
-        self.shadowColor = UIColor(red: 0.98 * 0.4, green: 1.0 * 0.4, blue: 0.98 * 0.4, alpha: 1.0)
-        self.textColor = UIColor(red: 0.25, green: 0.25, blue: 0.5, alpha: 1.0)
-        self.downColor = UIColor(red: 0.98 * 0.85, green: 1.0 * 0.85, blue: 0.98 * 0.85, alpha: 1.0)
-        self.downShadowColor = UIColor(red: 0.98 * 0.4 * 0.85, green: 1.0 * 0.4 * 0.85, blue: 0.98 * 0.4 * 0.85, alpha: 1.0)
-        self.downTextColor = UIColor(red: 0.25 * 0.75, green: 0.25 * 0.75, blue: 0.5 * 0.75, alpha: 1.0)
-        self.borderColor = UIColor(hue: 0, saturation: 0, brightness: 0.68, alpha: 1.0)
-    }
+//    func setDefaultColors() {
+//        self.color = UIColor(red: 0.98, green: 1.0, blue: 0.98, alpha: 1.0)
+//        self.textColor = UIColor(red: 0.25, green: 0.25, blue: 0.5, alpha: 1.0)
+//        self.borderColor = UIColor(hue: 0, saturation: 0, brightness: 0.68, alpha: 1.0)
+//    }
     
     override func layoutSubviews() {
         super.layoutSubviews()
@@ -172,16 +153,13 @@ class KeyboardKeyBackground: UIControl, Connectable {
             edgePaths += edgePath
         }
         
-        let mainColor = (self.highlighted ? self.downColor : self.color).CGColor
-        let shadowColor = (self.highlighted ? self.downShadowColor : self.shadowColor).CGColor
-        
-        if self._attached != Direction.Down {
-            CGContextSetFillColorWithColor(ctx, shadowColor)
+        if self.drawUnder && self._attached != Direction.Down {
+            CGContextSetFillColorWithColor(ctx, self.underColor.CGColor)
             CGContextAddPath(ctx, fillPath)
             CGContextFillPath(ctx)
         }
         
-        CGContextSetFillColorWithColor(ctx, mainColor)
+        CGContextSetFillColorWithColor(ctx, self.color.CGColor)
         CGContextSetStrokeColorWithColor(ctx, self.borderColor.CGColor)
         CGContextSetLineWidth(ctx, 1)
         
@@ -192,7 +170,7 @@ class KeyboardKeyBackground: UIControl, Connectable {
         CGContextClip(ctx)
         CGContextAddPath(ctx, fillPath)
         CGContextFillPath(ctx)
-        if self.border {
+        if self.drawBorder {
             for path in edgePaths {
                 CGContextAddPath(ctx, path)
                 CGContextStrokePath(ctx)
