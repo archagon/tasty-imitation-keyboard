@@ -8,6 +8,7 @@
 
 import UIKit
 
+// views that conform to this protocol follow the keyboard style
 protocol KeyboardView {
     var color: UIColor { get set }
     var underColor: UIColor { get set }

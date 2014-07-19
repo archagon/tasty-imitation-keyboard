@@ -11,7 +11,12 @@ import UIKit
 class KeyboardKeyBackground: UIControl, KeyboardView, Connectable {
     
     var shadowOffset: Double { didSet { self.setNeedsDisplay() }}
-    var cornerRadius: Double { didSet { self.setNeedsDisplay() }}
+    var cornerRadius: Double {
+    didSet {
+        self.generatePointsForDrawing()
+        self.setNeedsDisplay()
+    }
+    }
     
     var color: UIColor { didSet { self.setNeedsDisplay() }}
     var underColor: UIColor { didSet { self.setNeedsDisplay() }}
