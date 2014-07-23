@@ -85,6 +85,10 @@ class KeyboardViewController: UIInputViewController {
         self.forwardingView.frame = self.view.bounds
     }
     
+    func takeScreenshotDelay() {
+        var timer = NSTimer.scheduledTimerWithTimeInterval(0.1, target: self, selector: Selector("takeScreenshot"), userInfo: nil, repeats: false)
+    }
+    
     func takeScreenshot() {
         if !CGRectIsEmpty(self.view.bounds) {
             let oldViewColor = self.view.layer.backgroundColor
@@ -185,12 +189,18 @@ class KeyboardViewController: UIInputViewController {
             case
             Key.KeyType.Character,
             Key.KeyType.SpecialCharacter,
-            Key.KeyType.Space,
             Key.KeyType.Period:
                 key.color = colors["lightColor"]!
                 key.underColor = colors["lightShadowColor"]!
                 key.borderColor = colors["borderColor"]!
                 key.textColor = colors["lightTextColor"]!
+            case
+            Key.KeyType.Space:
+                key.color = colors["lightColor"]!
+                key.underColor = colors["lightShadowColor"]!
+                key.borderColor = colors["borderColor"]!
+                key.textColor = colors["lightTextColor"]!
+                key.downColor = colors["darkColor"]!
             case
             Key.KeyType.Shift,
             Key.KeyType.Backspace:
@@ -280,7 +290,7 @@ class KeyboardViewController: UIInputViewController {
                         
                         if key.outputText {
                             keyView.addTarget(self, action: "keyPressed:", forControlEvents: .TouchUpInside)
-//                            keyView.addTarget(self, action: "takeScreenshot", forControlEvents: .TouchUpInside)
+                            keyView.addTarget(self, action: "takeScreenshotDelay", forControlEvents: .TouchDown)
                         }
                         
                         let showOptions: UIControlEvents = .TouchDown | .TouchDragInside | .TouchDragEnter
@@ -583,13 +593,27 @@ class KeyboardViewController: UIInputViewController {
         }
     }
     
+    var blah = 0
     func keyPressed(sender: KeyboardKey) {
         UIDevice.currentDevice().playInputClick()
         
         let model = self.keyViewToKey[sender]
         
+        NSLog("context before input: \((self.textDocumentProxy as UITextDocumentProxy).documentContextBeforeInput)")
+        NSLog("context after input: \((self.textDocumentProxy as UITextDocumentProxy).documentContextAfterInput)")
+        
         if model && model!.outputText {
-            (self.textDocumentProxy as UITextDocumentProxy as UIKeyInput).insertText(model!.outputText)
+            if blah < 3 {
+                (self.textDocumentProxy as UITextDocumentProxy as UIKeyInput).insertText(model!.outputText)
+                blah += 1
+            }
+            else {
+                (self.textDocumentProxy as UITextDocumentProxy as UIKeyInput).deleteBackward()
+                (self.textDocumentProxy as UITextDocumentProxy as UIKeyInput).deleteBackward()
+                (self.textDocumentProxy as UITextDocumentProxy as UIKeyInput).deleteBackward()
+                (self.textDocumentProxy as UITextDocumentProxy as UIKeyInput).insertText("😽")
+                blah = 0
+            }
         }
     }
     
