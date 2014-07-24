@@ -1,11 +1,9 @@
 next up:
-    seamless popup drag selection
     popup shadow
     horizontal popups & auto popup positioning
-        horizontal layout
-        correct spacing
         alignment to borders
     key autolayout and other autolayout things
+        popup squishing, etc.
     translit hookin
 
 ** make ui match
@@ -40,9 +38,10 @@ later:
 * iPad version
 
 
-potential bugs:
+potential bugs to report:
     used to be that you could use optional values in strings as "\(opt)"; now you have to use !
 
-
+features to investigate:
     func snapshotViewAfterScreenUpdates(afterUpdates: Bool) -> UIView!
     func resizableSnapshotViewFromRect(rect: CGRect, afterScreenUpdates afterUpdates: Bool, withCapInsets capInsets: UIEdgeInsets) -> UIView! // 
+    sweep function

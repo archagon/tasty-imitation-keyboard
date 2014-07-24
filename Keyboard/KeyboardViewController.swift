@@ -309,6 +309,99 @@ class KeyboardViewController: UIInputViewController {
         }
     }
     
+    func centerItems(item1: UIView, item2: UIView, vertical: Bool) {
+        self.view.addConstraint(NSLayoutConstraint(
+            item: item1,
+            attribute: (vertical ? NSLayoutAttribute.CenterX : NSLayoutAttribute.CenterY),
+            relatedBy: NSLayoutRelation.Equal,
+            toItem: item2,
+            attribute: (vertical ? NSLayoutAttribute.CenterX : NSLayoutAttribute.CenterY),
+            multiplier: 1,
+            constant: 0))
+    }
+    
+    func addGapPair(nameFormat: String, row: Int, startIndex: Int, endIndex: Int, leftAnchor: String?, rightAnchor: String?, vertical: Bool, width: Double?) {
+        var allConstraints: Array<String> = []
+        
+        var leftGapName = String(format: nameFormat, startIndex, row)
+        var rightGapName = String(format: nameFormat, endIndex, row)
+        var verticalFlag = (vertical ? "V:" : "")
+        var inverseVerticalFlag = (!vertical ? "V:" : "")
+        
+        if leftAnchor {
+            allConstraints += "\(verticalFlag)[\(leftAnchor!)][\(leftGapName)]"
+        }
+        
+        if rightAnchor {
+            allConstraints += "\(verticalFlag)[\(rightGapName)][\(rightAnchor!)]"
+        }
+        
+        if width {
+            allConstraints += "\(verticalFlag)[\(leftGapName)(\(width!))]"
+        }
+        
+        allConstraints += "\(verticalFlag)[\(rightGapName)(\(leftGapName))]"
+        
+        allConstraints += "\(inverseVerticalFlag)[\(leftGapName)(debugWidth)]"
+        allConstraints += "\(inverseVerticalFlag)[\(rightGapName)(debugWidth)]"
+        
+        if vertical {
+            centerItems(self.elements[leftGapName]!, item2: self.elements["superview"]!, vertical: true)
+            centerItems(self.elements[rightGapName]!, item2: self.elements["superview"]!, vertical: true)
+        }
+        else {
+            centerItems(self.elements[leftGapName]!, item2: self.elements["key\(0)x\(row)"]!, vertical: false)
+            centerItems(self.elements[rightGapName]!, item2: self.elements["key\(0)x\(row)"]!, vertical: false)
+        }
+        
+        for constraint in allConstraints {
+            let generatedConstraints = NSLayoutConstraint.constraintsWithVisualFormat(
+                constraint,
+                options: NSLayoutFormatOptions(0),
+                metrics: layout,
+                views: elements)
+            self.view.addConstraints(generatedConstraints)
+        }
+    }
+    
+    func addGapsInRange(nameFormat: String, row: Int, startIndex: Int, endIndex: Int, vertical: Bool, width: Double?) {
+        var allConstraints: Array<String> = []
+        
+        var firstGapName = String(format: nameFormat, startIndex, row)
+        var verticalFlag = (vertical ? "V:" : "")
+        var inverseVerticalFlag = (!vertical ? "V:" : "")
+        
+        if width {
+            allConstraints +=  "\(verticalFlag)[\(firstGapName)(\(width!))]"
+        }
+        
+        for i in startIndex...endIndex {
+            var gapName = String(format: nameFormat, i, row)
+            
+            if i > 0 {
+                allConstraints += "\(verticalFlag)[\(gapName)(\(firstGapName))]"
+            }
+            
+            allConstraints += "\(inverseVerticalFlag)[\(gapName)(debugWidth)]"
+            
+            if vertical {
+                centerItems(self.elements[gapName]!, item2: self.elements["superview"]!, vertical: true)
+            }
+            else {
+                centerItems(self.elements[gapName]!, item2: self.elements["key\(0)x\(row)"]!, vertical: false)
+            }
+        }
+        
+        for constraint in allConstraints {
+            let generatedConstraints = NSLayoutConstraint.constraintsWithVisualFormat(
+                constraint,
+                options: NSLayoutFormatOptions(0),
+                metrics: layout,
+                views: elements)
+            self.view.addConstraints(generatedConstraints)
+        }
+    }
+    
     func createRowGapConstraints(keyboard: Keyboard) {
         var allConstraints: Array<String> = []
         
@@ -352,82 +445,6 @@ class KeyboardViewController: UIInputViewController {
                 attribute: NSLayoutAttribute.CenterX,
                 multiplier: 1,
                 constant: 0))
-        }
-        
-        for constraint in allConstraints {
-            let generatedConstraints = NSLayoutConstraint.constraintsWithVisualFormat(
-                constraint,
-                options: NSLayoutFormatOptions(0),
-                metrics: layout,
-                views: elements)
-            self.view.addConstraints(generatedConstraints)
-        }
-    }
-    
-    func centerItems(item1: UIView, item2: UIView) {
-        self.view.addConstraint(NSLayoutConstraint(
-            item: item1,
-            attribute: NSLayoutAttribute.CenterY,
-            relatedBy: NSLayoutRelation.Equal,
-            toItem: item2,
-            attribute: NSLayoutAttribute.CenterY,
-            multiplier: 1,
-            constant: 0))
-    }
-    
-    func addGapPair(nameFormat: String, row: Int, startIndex: Int, endIndex: Int, leftAnchor: String?, rightAnchor: String?, vertical: Bool, width: Double?) {
-        var allConstraints: Array<String> = []
-        
-        var leftGapName = String(format: nameFormat, startIndex, row)
-        var rightGapName = String(format: nameFormat, endIndex, row)
-        
-        if leftAnchor {
-            allConstraints += "[\(leftAnchor!)][\(leftGapName)]"
-        }
-        
-        if rightAnchor {
-            allConstraints += "[\(rightGapName)][\(rightAnchor!)]"
-        }
-        
-        if width {
-            allConstraints += "[\(leftGapName)(\(width!))]"
-        }
-        
-        allConstraints += "[\(rightGapName)(\(leftGapName))]"
-        
-        allConstraints += "V:[\(leftGapName)(debugWidth)]"
-        allConstraints += "V:[\(rightGapName)(debugWidth)]"
-        centerItems(self.elements[leftGapName]!, item2: self.elements["key\(0)x\(row)"]!)
-        centerItems(self.elements[rightGapName]!, item2: self.elements["key\(0)x\(row)"]!)
-        
-        for constraint in allConstraints {
-            let generatedConstraints = NSLayoutConstraint.constraintsWithVisualFormat(
-                constraint,
-                options: NSLayoutFormatOptions(0),
-                metrics: layout,
-                views: elements)
-            self.view.addConstraints(generatedConstraints)
-        }
-    }
-    
-    func addGapsInRange(nameFormat: String, row: Int, startIndex: Int, endIndex: Int, vertical: Bool, width: Double?) {
-        var allConstraints: Array<String> = []
-        
-        var firstGapName = String(format: nameFormat, startIndex, row)
-        
-        if width {
-            allConstraints += "[\(firstGapName)(\(width!))]"
-        }
-        
-        for i in startIndex...endIndex {
-            var gapName = String(format: nameFormat, i, row)
-            
-            if i > 0 {
-                allConstraints += "[\(gapName)(\(firstGapName))]"
-            }
-            
-            allConstraints += "V:[\(gapName)(debugWidth)]"
-            centerItems(self.elements[gapName]!, item2: self.elements["key\(0)x\(row)"]!)
         }
         
         for constraint in allConstraints {
