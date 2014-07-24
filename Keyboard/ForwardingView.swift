@@ -117,9 +117,9 @@ class ForwardingView: UIView {
             closest.y = point.y
         }
         
-        let a: CGFloat = powf(closest.y - point.y, 2)
-        let b: CGFloat = powf(closest.x - point.x, 2)
-        return sqrtf(a + b);
+        let a = pow(Double(closest.y - point.y), 2)
+        let b = pow(Double(closest.x - point.x), 2)
+        return CGFloat(sqrt(a + b));
     }
     
     override func touchesBegan(touches: NSSet!, withEvent event: UIEvent!) {
