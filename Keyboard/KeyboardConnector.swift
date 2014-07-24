@@ -122,7 +122,6 @@ class KeyboardConnector: UIView, KeyboardView {
         let csp = CGColorSpaceCreateDeviceRGB()
         
         var path = CGPathCreateMutable();
-        CGPathRetain(path)
         
         CGPathMoveToPoint(path, nil, myConvertedStartPoints.0.x, myConvertedStartPoints.0.y)
         CGPathAddLineToPoint(path, nil, myConvertedEndPoints.1.x, myConvertedEndPoints.1.y)
