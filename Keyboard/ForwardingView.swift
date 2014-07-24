@@ -165,4 +165,8 @@ class ForwardingView: UIView {
         
         self.handleControl(view, controlEvent: .TouchUpInside)
     }
+
+    override func touchesCancelled(touches: NSSet!, withEvent event: UIEvent!) {
+        self.handleControl(self.myView, controlEvent: .TouchCancel)
+    }
 }
