@@ -38,3 +38,11 @@ next up:
 later:
 * keyboard layout language
 * iPad version
+
+
+potential bugs:
+    used to be that you could use optional values in strings as "\(opt)"; now you have to use !
+
+
+    func snapshotViewAfterScreenUpdates(afterUpdates: Bool) -> UIView!
+    func resizableSnapshotViewFromRect(rect: CGRect, afterScreenUpdates afterUpdates: Bool, withCapInsets capInsets: UIEdgeInsets) -> UIView! // 

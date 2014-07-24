@@ -327,7 +327,7 @@ class KeyboardViewController: UIInputViewController {
                 allConstraints += "V:[topSpacer][\(rowGapName)(0)]"
             }
             else if isBottomMarginGap {
-                allConstraints += "V:[key\(0)x\(i-1)][\(rowGapName)(\(canonicalMarginGap))][bottomSpacer]"
+                allConstraints += "V:[key\(0)x\(i-1)][\(rowGapName)(\(canonicalMarginGap!))][bottomSpacer]"
             }
             else {
                 if !canonicalRowGap {
@@ -336,7 +336,7 @@ class KeyboardViewController: UIInputViewController {
                     canonicalRowGap = rowGapName
                 }
                 else {
-                    allConstraints += "V:[key\(0)x\(i-1)][\(rowGapName)(\(canonicalRowGap))]"
+                    allConstraints += "V:[key\(0)x\(i-1)][\(rowGapName)(\(canonicalRowGap!))]"
                 }
             }
             
@@ -382,15 +382,15 @@ class KeyboardViewController: UIInputViewController {
         var rightGapName = String(format: nameFormat, endIndex, row)
         
         if leftAnchor {
-            allConstraints += "[\(leftAnchor)][\(leftGapName)]"
+            allConstraints += "[\(leftAnchor!)][\(leftGapName)]"
         }
         
         if rightAnchor {
-            allConstraints += "[\(rightGapName)][\(rightAnchor)]"
+            allConstraints += "[\(rightGapName)][\(rightAnchor!)]"
         }
         
         if width {
-            allConstraints += "[\(leftGapName)(\(width))]"
+            allConstraints += "[\(leftGapName)(\(width!))]"
         }
         
         allConstraints += "[\(rightGapName)(\(leftGapName))]"
@@ -416,7 +416,7 @@ class KeyboardViewController: UIInputViewController {
         var firstGapName = String(format: nameFormat, startIndex, row)
         
         if width {
-            allConstraints += "[\(firstGapName)(\(width))]"
+            allConstraints += "[\(firstGapName)(\(width!))]"
         }
         
         for i in startIndex...endIndex {
