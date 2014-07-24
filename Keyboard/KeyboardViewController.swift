@@ -641,7 +641,7 @@ class Spacer: UIView {
     init(frame: CGRect) {
         super.init(frame: frame)
         self.hidden = true
-        self.userInteractionEnabled = true
+        self.userInteractionEnabled = false
     }
     convenience init() {
         return self.init(frame: CGRectZero)

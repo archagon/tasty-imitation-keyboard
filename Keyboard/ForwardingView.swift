@@ -12,9 +12,18 @@ class ForwardingView: UIView {
     
     init(frame: CGRect) {
         super.init(frame: frame)
+        
+        self.contentMode = UIViewContentMode.Redraw
         self.multipleTouchEnabled = false
-        self.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.1) // QQQ: temp fix for missed touches
+        self.userInteractionEnabled = true
+        self.opaque = false
     }
+    
+    // Why have this useless drawRect? Well, if we just set the backgroundColor to clearColor,
+    // then some weird optimization happens on UIKit's side where tapping down on a transparent pixel will
+    // not actually recognize the touch. Having a manual drawRect fixes this behavior, even though it doesn't
+    // actually do anything.
+    override func drawRect(rect: CGRect) {}
     
     override func hitTest(point: CGPoint, withEvent event: UIEvent!) -> UIView! {
         return self
