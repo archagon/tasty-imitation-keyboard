@@ -22,8 +22,8 @@ let layout: [String:Double] = [
     "shiftAndBackspaceMaxWidth": 36,
     "specialKeyWidth": 34,
     "doneKeyWidth": 50,
-    "spaceWidth": 138,
-    "debugWidth": 2
+//    "spaceWidth": 138,
+    "debugWidth": (DEBUG_SHOW_SPACERS ? 2 : 0)
 ]
 
 let colors: [String:UIColor] = [
@@ -259,8 +259,6 @@ class KeyboardViewController: UIInputViewController {
                         keyView.enabled = true
                         keyView.setTranslatesAutoresizingMaskIntoConstraints(false)
                         keyView.text = key.keyCap
-//                        // should be UILayoutPriorityDefaultHigh
-//                        keyView.setContentCompressionResistancePriority(1000, forAxis: .Vertical)
                         
                         self.forwardingView.addSubview(keyView)
                         
@@ -269,6 +267,7 @@ class KeyboardViewController: UIInputViewController {
                         
                         setColorsForKey(keyView, key)
                         
+                        // font sizing
                         switch key.type {
                         case
                         Key.KeyType.ModeChange,
@@ -482,7 +481,7 @@ class KeyboardViewController: UIInputViewController {
                     startIndex: 1,
                     endIndex: rowsCount - 1,
                     vertical: false,
-                    width: nil)
+                    width: "7") // TODO:
             }
             else {
                 addGapPair(
@@ -509,39 +508,71 @@ class KeyboardViewController: UIInputViewController {
     func createKeyConstraints(keyboard: Keyboard) {
         var allConstraints: Array<String> = []
         
+        let hasPeriod = false
+        let canonicalKey = elements["key0x0"]
+        var canonicalSpecialSameWidth: String? = nil
+        
+        // setup special widths
         for i in 0..<keyboard.rows.count {
+            for j in 0..<keyboard.rows[i].count {
+                let keyModel = keyboard.rows[i][j]
+                let keyName = "key\(j)x\(i)"
+                
+                if keyModel.type == Key.KeyType.ModeChange
+                    || keyModel.type == Key.KeyType.KeyboardChange
+                    || keyModel.type == Key.KeyType.Period {
+                        if !canonicalSpecialSameWidth {
+                            canonicalSpecialSameWidth = keyName
+                            let widthConstraint = NSLayoutConstraint(
+                                item: self.elements[keyName]!,
+                                attribute: NSLayoutAttribute.Width,
+                                relatedBy: NSLayoutRelation.Equal,
+                                toItem: self.elements["superview"]!,
+                                attribute: NSLayoutAttribute.Width,
+                                multiplier: CGFloat(0.1),
+                                constant: CGFloat(2))
+                            self.view.addConstraint(widthConstraint)
+                        } else {
+                            allConstraints += "[\(keyName)(\(canonicalSpecialSameWidth!))]"
+                        }
+                }
+            }
+        }
+        
+        // setup return key
+        for i in 0..<keyboard.rows.count {
+            for j in 0..<keyboard.rows[i].count {
+                let keyModel = keyboard.rows[i][j]
+                let keyName = "key\(j)x\(i)"
+                
+                if keyModel.type == Key.KeyType.Return {
+                    assert(canonicalSpecialSameWidth, "canonical special key not found")
+                    let widthConstraint = NSLayoutConstraint(
+                        item: self.elements[keyName]!,
+                        attribute: NSLayoutAttribute.Width,
+                        relatedBy: NSLayoutRelation.Equal,
+                        toItem: self.elements[canonicalSpecialSameWidth!]!,
+                        attribute: NSLayoutAttribute.Width,
+                        multiplier: CGFloat(2.875),
+                        constant: CGFloat(-47.75))
+                    self.view.addConstraint(widthConstraint)
+                }
+            }
+        }
+        
+        for i in 0..<keyboard.rows.count {
+            let canonicalRowKey = elements["key0x\(i)"]
+            
             for j in 0..<keyboard.rows[i].count {
                 let keyModel = keyboard.rows[i][j]
                 
                 let keyName = "key\(j)x\(i)"
                 let key = self.elements[keyName]
                 
-                let canonicalKey = elements["key0x0"]
-                let canonicalRowKey = elements["key0x\(i)"]
                 let isCanonicalKey = (key == canonicalKey) // TODO:
                 let isCanonicalRowKey = (key == canonicalRowKey) // TODO:
                 
-                var width = ""
-                
-                switch keyModel.type {
-                case Key.KeyType.KeyboardChange, Key.KeyType.ModeChange, Key.KeyType.SpecialCharacter, Key.KeyType.Period:
-                    width = "(specialKeyWidth)"
-                case Key.KeyType.Space:
-                    width = "(spaceWidth)"
-                case Key.KeyType.Return:
-                    width = "(doneKeyWidth)"
-                default:
-                    break
-                }
-                
-                allConstraints += "[keyGap\(j)x\(i)][\(keyName)\(width)][keyGap\(j+1)x\(i)]"
-                
-                if isCanonicalRowKey {
-                    allConstraints += "V:[rowGap\(i)][\(keyName)][rowGap\(i+1)]"
-                }
-                else {
-                    self.centerItems(key!, item2: canonicalRowKey!, vertical: false)
-                }
+                allConstraints += "[keyGap\(j)x\(i)][\(keyName)][keyGap\(j+1)x\(i)]"
                 
                 // only the canonical key has a constant width
                 if isCanonicalKey {
@@ -551,6 +582,7 @@ class KeyboardViewController: UIInputViewController {
                     allConstraints += "V:[\(keyName)(<=keyHeight@100,>=5@100)]"
                 }
                 else {
+                    // all keys are the same height
                     allConstraints += "V:[\(keyName)(key0x0)]"
                     
                     switch keyModel.type {
@@ -579,6 +611,13 @@ class KeyboardViewController: UIInputViewController {
                     default:
                         break
                     }
+                }
+                
+                if isCanonicalRowKey {
+                    allConstraints += "V:[rowGap\(i)][\(keyName)][rowGap\(i+1)]"
+                }
+                else {
+                    self.centerItems(key!, item2: canonicalRowKey!, vertical: false)
                 }
             }
         }
