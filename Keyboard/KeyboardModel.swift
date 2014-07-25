@@ -99,10 +99,10 @@ func defaultKeyboard() -> Keyboard {
     keyModel5.outputText = " "
     defaultKeyboard.addKey(keyModel5, row: 3)
     
-    var keyModel7 = Key(type: .Period)
-    keyModel7.keyCap = "."
-    keyModel7.outputText = "."
-    defaultKeyboard.addKey(keyModel7, row: 3)
+//    var keyModel7 = Key(type: .Period)
+//    keyModel7.keyCap = "."
+//    keyModel7.outputText = "."
+//    defaultKeyboard.addKey(keyModel7, row: 3)
     
     var keyModel6 = Key(type: .Return)
     keyModel6.keyCap = "return"

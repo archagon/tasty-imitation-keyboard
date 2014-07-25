@@ -553,8 +553,8 @@ class KeyboardViewController: UIInputViewController {
                         relatedBy: NSLayoutRelation.Equal,
                         toItem: self.elements[canonicalSpecialSameWidth!]!,
                         attribute: NSLayoutAttribute.Width,
-                        multiplier: CGFloat(2.875),
-                        constant: CGFloat(-47.75))
+                        multiplier: CGFloat(2.0625),
+                        constant: CGFloat(3.875))
                     self.view.addConstraint(widthConstraint)
                 }
             }
