@@ -320,13 +320,16 @@ class KeyboardViewController: UIInputViewController {
             constant: 0))
     }
     
-    func addGapPair(nameFormat: String, row: Int, startIndex: Int, endIndex: Int, leftAnchor: String?, rightAnchor: String?, vertical: Bool, width: Double?) {
+    func addGapPair(nameFormat: String, row: Int, startIndex: Int, endIndex: Int, leftAnchor: String?, rightAnchor: String?, vertical: Bool, width: String?) {
         var allConstraints: Array<String> = []
         
         var leftGapName = String(format: nameFormat, startIndex, row)
         var rightGapName = String(format: nameFormat, endIndex, row)
+        
         var verticalFlag = (vertical ? "V:" : "")
         var inverseVerticalFlag = (!vertical ? "V:" : "")
+        
+        // anchoring
         
         if leftAnchor {
             allConstraints += "\(verticalFlag)[\(leftAnchor!)][\(leftGapName)]"
@@ -335,6 +338,8 @@ class KeyboardViewController: UIInputViewController {
         if rightAnchor {
             allConstraints += "\(verticalFlag)[\(rightGapName)][\(rightAnchor!)]"
         }
+        
+        // size and centering
         
         if width {
             allConstraints += "\(verticalFlag)[\(leftGapName)(\(width!))]"
@@ -364,10 +369,11 @@ class KeyboardViewController: UIInputViewController {
         }
     }
     
-    func addGapsInRange(nameFormat: String, row: Int, startIndex: Int, endIndex: Int, vertical: Bool, width: Double?) {
+    func addGapsInRange(nameFormat: String, row: Int, startIndex: Int, endIndex: Int, vertical: Bool, width: String?) {
         var allConstraints: Array<String> = []
         
         var firstGapName = String(format: nameFormat, startIndex, row)
+        
         var verticalFlag = (vertical ? "V:" : "")
         var inverseVerticalFlag = (!vertical ? "V:" : "")
         
@@ -377,6 +383,8 @@ class KeyboardViewController: UIInputViewController {
         
         for i in startIndex...endIndex {
             var gapName = String(format: nameFormat, i, row)
+            
+            // size and centering
             
             if i > 0 {
                 allConstraints += "\(verticalFlag)[\(gapName)(\(firstGapName))]"
@@ -403,58 +411,21 @@ class KeyboardViewController: UIInputViewController {
     }
     
     func createRowGapConstraints(keyboard: Keyboard) {
-        var allConstraints: Array<String> = []
-        
-        var canonicalMarginGap: String? = nil
-        var canonicalRowGap: String? = nil
-        
-        for i in 0...keyboard.rows.count {
-            let rowGapName = "rowGap\(i)"
-            let rowGap = self.elements[rowGapName]
-            
-            let isTopMarginGap = (i == 0)
-            let isBottomMarginGap = (i == keyboard.rows.count)
-            
-            if isTopMarginGap {
-                canonicalMarginGap = rowGapName
-                allConstraints += "V:[topSpacer][\(rowGapName)(0)]"
-            }
-            else if isBottomMarginGap {
-                allConstraints += "V:[key\(0)x\(i-1)][\(rowGapName)(\(canonicalMarginGap!))][bottomSpacer]"
-            }
-            else {
-                if !canonicalRowGap {
-                    allConstraints += "V:[key\(0)x\(i-1)][\(rowGapName)]"
-                    allConstraints += "V:[\(rowGapName)(>=5@50)]" // QQQ:
-                    canonicalRowGap = rowGapName
-                }
-                else {
-                    allConstraints += "V:[key\(0)x\(i-1)][\(rowGapName)(\(canonicalRowGap!))]"
-                }
-            }
-            
-            // each row has the same width
-            allConstraints += "[\(rowGapName)(debugWidth)]"
-            
-            // and the same centering
-            self.view.addConstraint(NSLayoutConstraint(
-                item: rowGap,
-                attribute: NSLayoutAttribute.CenterX,
-                relatedBy: NSLayoutRelation.Equal,
-                toItem: self.view,
-                attribute: NSLayoutAttribute.CenterX,
-                multiplier: 1,
-                constant: 0))
-        }
-        
-        for constraint in allConstraints {
-            let generatedConstraints = NSLayoutConstraint.constraintsWithVisualFormat(
-                constraint,
-                options: NSLayoutFormatOptions(0),
-                metrics: layout,
-                views: elements)
-            self.view.addConstraints(generatedConstraints)
-        }
+        self.addGapPair(
+            "rowGap%d",
+            row: 0,
+            startIndex: 0,
+            endIndex: keyboard.rows.count,
+            leftAnchor: "topSpacer",
+            rightAnchor: "bottomSpacer",
+            vertical: true,
+            width: "0")
+        self.addGapsInRange("rowGap%d",
+            row: 0,
+            startIndex: 1,
+            endIndex: keyboard.rows.count - 1,
+            vertical: true,
+            width: ">=5@50")
     }
     
     // TODO: make this a single constraint string??
@@ -474,7 +445,7 @@ class KeyboardViewController: UIInputViewController {
                     leftAnchor: "leftSpacer",
                     rightAnchor: "rightSpacer",
                     vertical: false,
-                    width: 0)
+                    width: "0")
                 addGapPair(
                     "keyGap%dx%d",
                     row: i,
@@ -484,13 +455,14 @@ class KeyboardViewController: UIInputViewController {
                     rightAnchor: nil,
                     vertical: false,
                     width: nil)
+                let keyGap = layout["keyGap"]!
                 addGapsInRange(
                     "keyGap%dx%d",
                     row: i,
                     startIndex: 2,
                     endIndex: rowsCount - 2,
                     vertical: false,
-                    width: layout["keyGap"]!)
+                    width: "\(keyGap)")
             }
             else if isEquallySpacedRow {
                 addGapPair(
@@ -501,7 +473,7 @@ class KeyboardViewController: UIInputViewController {
                     leftAnchor: "leftSpacer",
                     rightAnchor: "rightSpacer",
                     vertical: false,
-                    width: 0)
+                    width: "0")
                 addGapsInRange(
                     "keyGap%dx%d",
                     row: i,
@@ -520,13 +492,14 @@ class KeyboardViewController: UIInputViewController {
                     rightAnchor: "rightSpacer",
                     vertical: false,
                     width: nil)
+                let keyGap = layout["keyGap"]!
                 addGapsInRange(
                     "keyGap%dx%d",
                     row: i,
                     startIndex: 1,
                     endIndex: rowsCount - 1,
                     vertical: false,
-                    width: layout["keyGap"]!)
+                    width: "\(keyGap)")
             }
         }
     }
@@ -540,6 +513,11 @@ class KeyboardViewController: UIInputViewController {
                 
                 let keyName = "key\(j)x\(i)"
                 let key = self.elements[keyName]
+                
+                let canonicalKey = elements["key0x0"]
+                let canonicalRowKey = elements["key0x\(i)"]
+                let isCanonicalKey = (key == canonicalKey) // TODO:
+                let isCanonicalRowKey = (key == canonicalRowKey) // TODO:
                 
                 var width = ""
                 
@@ -555,10 +533,13 @@ class KeyboardViewController: UIInputViewController {
                 }
                 
                 allConstraints += "[keyGap\(j)x\(i)][\(keyName)\(width)][keyGap\(j+1)x\(i)]"
-                allConstraints += "V:[rowGap\(i)][\(keyName)]"
                 
-                let canonicalKey = elements["key0x0"]
-                let isCanonicalKey = (key == canonicalKey) // TODO:
+                if isCanonicalRowKey {
+                    allConstraints += "V:[rowGap\(i)][\(keyName)][rowGap\(i+1)]"
+                }
+                else {
+                    self.centerItems(key!, item2: canonicalRowKey!, vertical: false)
+                }
                 
                 // only the canonical key has a constant width
                 if isCanonicalKey {
