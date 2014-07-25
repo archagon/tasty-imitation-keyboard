@@ -44,10 +44,6 @@ class KeyboardViewController: UIInputViewController {
         self.forwardingView.frame = self.view.bounds
     }
     
-    func takeScreenshotDelay() {
-        var timer = NSTimer.scheduledTimerWithTimeInterval(0.1, target: self, selector: Selector("takeScreenshot"), userInfo: nil, repeats: false)
-    }
-    
     func setupKeys() {
         for rowKeys in self.keyboard.rows {
             for key in rowKeys {
@@ -81,21 +77,28 @@ class KeyboardViewController: UIInputViewController {
         }
     }
     
+    func takeScreenshotDelay() {
+        var timer = NSTimer.scheduledTimerWithTimeInterval(0.1, target: self, selector: Selector("takeScreenshot"), userInfo: nil, repeats: false)
+    }
+    
     func takeScreenshot() {
         if !CGRectIsEmpty(self.view.bounds) {
-            let oldViewColor = self.view.layer.backgroundColor
-            self.view.layer.backgroundColor = UIColor(hue: (216/360.0), saturation: 0.05, brightness: 0.86, alpha: 1).CGColor
+            UIDevice.currentDevice().beginGeneratingDeviceOrientationNotifications()
+            
+            let oldViewColor = self.view.backgroundColor
+            self.view.backgroundColor = UIColor(hue: (216/360.0), saturation: 0.05, brightness: 0.86, alpha: 1)
             
             var rect = self.view.bounds
             UIGraphicsBeginImageContextWithOptions(rect.size, true, 0)
             var context = UIGraphicsGetCurrentContext()
-            self.view.layer.renderInContext(context)
+            self.view.drawViewHierarchyInRect(self.view.bounds, afterScreenUpdates: true)
             var capturedImage = UIGraphicsGetImageFromCurrentImageContext()
             UIGraphicsEndImageContext()
-            var imagePath = "/Users/archagon/Documents/Programming/OSX/TransliteratingKeyboard/Screenshot.png"
+            let name = (self.interfaceOrientation.isPortrait ? "Screenshot-Portrait" : "Screenshot-Landscape")
+            var imagePath = "/Users/archagon/Documents/Programming/OSX/TransliteratingKeyboard/\(name).png"
             UIImagePNGRepresentation(capturedImage).writeToFile(imagePath, atomically: true)
             
-            self.view.layer.backgroundColor = oldViewColor
+            self.view.backgroundColor = oldViewColor
         }
     }
     

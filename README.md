@@ -15,6 +15,7 @@ Learning goals for this project:
 
 The actual keyboard is under the `Keyboard` directory. `TransliteratingKeyboard` is the hosting app. Everything else is garbage. (I'll clean it up later.)
 
-Here's a screenshot generated from a recent build:
+Here's a pair of screenshots generated from a recent build:
 
-![](Screenshot.png)
+<img width="320px" src="./Screenshot-Portrait.png"></img>
+<img width="568px" src="./Screenshot-Landscape.png"></img>
