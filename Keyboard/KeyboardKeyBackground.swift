@@ -8,6 +8,8 @@
 
 import UIKit
 
+// TODO: CAShapeLayer
+// TODO: dark keys semi-transparent, pass through blur; dark theme?
 class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
     
     var shadowOffset: Double { didSet { self.setNeedsDisplay() }}

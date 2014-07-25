@@ -75,6 +75,9 @@ class KeyboardKey: UIControl, KeyboardView {
     init(frame: CGRect, model: Key) {
         self.model = model
         self.keyView = KeyboardKeyBackground(frame: CGRectZero)
+        let blurEffect = UIBlurEffect(style: UIBlurEffectStyle.Dark)
+//        self.holder0 = UIVisualEffectView(effect: blurEffect)
+//        self.holder = UIVisualEffectView(effect: UIVibrancyEffect(forBlurEffect: blurEffect))
         
         self.color = UIColor.whiteColor()
         self.underColor = UIColor.grayColor()
@@ -87,6 +90,14 @@ class KeyboardKey: UIControl, KeyboardView {
         
         self.clipsToBounds = false
         self.addSubview(self.keyView)
+        
+//        self.holder0.contentView.addSubview(self.holder)
+//        self.holder0.clipsToBounds = false
+//        self.holder0.contentView.clipsToBounds = false
+//        self.addSubview(self.holder0)
+//        self.holder.contentView.addSubview(self.keyView)
+//        self.holder.clipsToBounds = false
+//        self.holder.contentView.clipsToBounds = false
     }
     
 //    override func sizeThatFits(size: CGSize) -> CGSize {
@@ -94,6 +105,9 @@ class KeyboardKey: UIControl, KeyboardView {
 //    }
     
     override func layoutSubviews() {
+        super.layoutSubviews()
+//        self.holder.frame = self.bounds
+//        self.holder0.frame = self.bounds
         self.redrawText()
     }
     
@@ -126,10 +140,6 @@ class KeyboardKey: UIControl, KeyboardView {
         if self.popup {
             self.popup!.label.textColor = (switchColors && self.downTextColor ? self.downTextColor! : self.textColor)
         }
-    }
-    
-    override func drawRect(rect: CGRect) {
-//        super.drawRect(rect)
     }
     
     func showPopup() {
