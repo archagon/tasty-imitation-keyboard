@@ -14,6 +14,8 @@
 
 import Foundation
 
+var counter = 0
+
 class Keyboard {
     var rows: Array<Array<Key>>
     
@@ -32,7 +34,7 @@ class Keyboard {
     }
 }
 
-class Key {
+class Key: Hashable {
     enum KeyType {
         case Character
         case SpecialCharacter
@@ -49,9 +51,17 @@ class Key {
     var outputText: String?
     var keyCap: String?
     
+    var hashValue: Int
+    
     init(type: KeyType) {
         self.type = type
+        self.hashValue = counter
+        counter += 1
     }
+}
+
+func ==(lhs: Key, rhs: Key) -> Bool {
+    return lhs.hashValue == rhs.hashValue
 }
 
 func defaultKeyboard() -> Keyboard {
