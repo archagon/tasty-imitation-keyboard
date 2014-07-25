@@ -1,0 +1,132 @@
+#68 px side buttons
+308/2
+12/2
+148/2
+
+#50px side buttons
+670/2
+14/2 #10 elsewhere
+214/2
+
+148/308 => 0.4805
+214/670 => 0.3194
+
+188/320 => 0.5875
+314/480 => 0.6542
+
+two important measurements.
+key width = related to what.
+right key position = related to what.
+
+landscape small
+41 + 8 + 41 + 8 + 280 + 8 + 89 => 475
+41 + 8 + 41 + 8 + 242 + 7 + 41 + 7 + 80 => 475
+
+landscape
+50 + 7 + 50 + 7 + 335 + 7 + 107 => 563
+50 + 7 + 50 + 7 + 289 + 7 + 50 + 7 + 96 => 563
+
+portrait
+34 + 6 + 34 + 6 + 154 + 6 + 74 => 314
+34 + 6 + 34 + 6 + 138 + 6 + 34 + 6 + 50 => 314
+
+long landscape and width.
+e = 0.0645
+r = 13.37
+568e + r => 50.006
+320e + r => 34.01
+
+different constraints between portrait and landscape.
+
+width landscape.
+q = 0.1023
+w = -8.0909
+
+width portrait until further notice:
+34/320 => 0.1063
+
+
+
+
+
+50 - 568x = 34 - 320x
+x = 0.0645
+#y = 13.364
+x = 0.062
+y = 13.397
+568x + y => 48.613
+320x + y => 33.237
+480x + y => 43.157
+
+563a + b = 50
+314a + b = 34
+50 - 563a = 34 - 314a
+a = 0.0643
+b = 50 - 563a => 13.7991
+475a + b => 44.3416
+
+
+IF EXTRA KEY
+    right edge spacing with ratio
+IF NO EXTRA KEY
+    left edge spacing with ratio
+    
+#107/335 => 0.3194
+#74/154 => 0.4805
+#107-335x = 74 - 154x
+#x = (74-107)/(154-335) => 0.1823
+#c = 107 - 335x => 45.9227
+#335x + c => 107
+#154x + c => 74
+#(that's for enter/space ratio w/o extra button.)
+
+#480j + k = 50
+#320j + k = 34
+#50 - 480j = 34 - 320j
+#j = 0.1
+#k = 50 - 480j => 2
+
+#1. width of return button vs widht of key (extra button).
+#50x + c = 96
+#34x + c = 50
+#96 - 50x = 50 - 34x
+#x = 2.875
+#c = 96 - 50x => -47.75
+#50x + c => 96
+#34x + c => 50
+
+#2. width of return button vs widht of key.
+#50a + b = 107
+#34a + b = 74
+#107 - 50a = 74 - 34a
+#a = 2.0625
+#b = 107 - 50a => 3.875
+#50a + b => 107
+#34a + b => 74
+
+
+#1. width of return button vs. width of view.
+#107 - 480x = 74 - 320x
+#x = 0.2063
+#c = 107 - 480x => 7.976
+#480x + c => 107
+#320x + c => 73.992
+
+#2. width of total right section vs. width of view.
+#153 - 480a = 90 - 320a
+#a = 0.3938
+#b = 153 - 480a => -36.024
+#480a + b => 153
+#320a + b => 89.992
+
+#3. width of return button vs. width of view.
+#480j + k = 96
+#320j + k = 50
+#96 - 480j = 50 - 320j
+#j = 0.2875
+#k = 96 - 480j => -42
+#480j + k => 96
+#320j + k => 50
+
+
+
