@@ -8,6 +8,8 @@
 
 import UIKit
 
+var DEBUG_SHOW_SPACERS = false
+
 let layout: [String:Double] = [
     "leftGap": 3,
     "rightGap": 3,
@@ -638,6 +640,7 @@ class KeyboardViewController: UIInputViewController {
 class Spacer: UIView {
     init(frame: CGRect) {
         super.init(frame: frame)
+        
         self.hidden = true
         self.userInteractionEnabled = false
     }
@@ -646,8 +649,11 @@ class Spacer: UIView {
     }
     convenience init(color: UIColor) {
         self.init()
-//        self.layer.backgroundColor = color.CGColor
-//        self.hidden = false
+        
+        if DEBUG_SHOW_SPACERS {
+            self.layer.backgroundColor = color.CGColor
+            self.hidden = false
+        }
     }
 //    override class func requiresConstraintBasedLayout() -> Bool {
 //        return true
