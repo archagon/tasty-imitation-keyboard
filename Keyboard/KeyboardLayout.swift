@@ -13,8 +13,8 @@ var DEBUG_SHOW_SPACERS = false
 let layout: [String:Double] = [
     "leftGap": 3,
     "rightGap": 3,
-    "topGap": 9,
-    "bottomGap": 7,
+    "topGap": 12,
+    "bottomGap": 3,
     "keyWidth": 26,
     "keyHeight": 39,
     "popupKeyHeight": 53,
