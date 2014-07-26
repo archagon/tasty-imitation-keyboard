@@ -27,6 +27,10 @@ class KeyboardViewController: UIInputViewController {
     override func updateViewConstraints() {
         super.updateViewConstraints()
     }
+    
+    override func willRotateToInterfaceOrientation(toInterfaceOrientation: UIInterfaceOrientation, duration: NSTimeInterval) {
+        self.layout.updateForOrientation(toInterfaceOrientation.isPortrait)
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()

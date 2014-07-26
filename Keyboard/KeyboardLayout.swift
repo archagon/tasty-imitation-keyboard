@@ -15,8 +15,10 @@ let layout: [String:Double] = [
     "rightGap": 3,
     "topGap": 12,
     "bottomGap": 3,
-    "keyWidth": 26,
-    "keyHeight": 39,
+    "keyWidthRatio": (26 / 320.0),
+    "keyHeightRatio": (39 / 216.0),
+    "landscapeKeyWidthRatio": (52 / 568.0),
+    "landscapeKeyHeightRatio": (33 / 162.0),
     "popupKeyHeight": 53,
     "keyGap": 6, // 5 for russian, though still 6 on lower row
     "shiftAndBackspaceMaxWidth": 36,
@@ -25,6 +27,8 @@ let layout: [String:Double] = [
     //    "spaceWidth": 138,
     "debugWidth": (DEBUG_SHOW_SPACERS ? 2 : 0)
 ]
+
+// 216; 162
 
 let colors: [String:UIColor] = [
     "lightColor": UIColor.whiteColor(),
@@ -49,12 +53,20 @@ class KeyboardLayout {
     private var viewToModel: [KeyboardKey:Key] = [:]
     private var elements: [String:UIView] = [:]
     
+    private var initialized: Bool
+    
+    private var keyWidthConstraint: NSLayoutConstraint!
+    private var keyHeightConstraint: NSLayoutConstraint!
+    
     init(model: Keyboard, superview: UIView) {
+        self.initialized = false
         self.model = model
         self.superview = superview
     }
     
     func initialize() {
+        assert(!self.initialized, "already initialized")
+        
         self.elements["superview"] = self.superview
         
         self.createViews(self.model)
@@ -64,6 +76,27 @@ class KeyboardLayout {
         self.createRowGapConstraints(self.model)
         self.createKeyGapConstraints(self.model)
         self.createKeyConstraints(self.model)
+        
+        self.initialized = true
+    }
+    
+    func updateForOrientation(portrait: Bool) {
+        assert(self.initialized, "not initialized")
+        
+        var widthConstraint: NSLayoutConstraint = self.keyWidthConstraint
+        var heightConstraint: NSLayoutConstraint = self.keyHeightConstraint
+        
+        if portrait {
+            self.updateConstraintMultiplier(&widthConstraint, multiplier: CGFloat(layout["keyWidthRatio"]!))
+            self.updateConstraintMultiplier(&heightConstraint, multiplier: CGFloat(layout["keyHeightRatio"]!))
+        }
+        else {
+            self.updateConstraintMultiplier(&widthConstraint, multiplier: CGFloat(layout["landscapeKeyWidthRatio"]!))
+            self.updateConstraintMultiplier(&heightConstraint, multiplier: CGFloat(layout["landscapeKeyHeightRatio"]!))
+        }
+        
+        self.keyWidthConstraint = widthConstraint
+        self.keyHeightConstraint = heightConstraint
     }
     
     func viewForKey(model: Key) -> KeyboardKey? {
@@ -87,6 +120,26 @@ class KeyboardLayout {
     
     The keys are labeled "key<x>x<y>".
     */
+    
+    private func updateConstraintMultiplier(inout constraint: NSLayoutConstraint, multiplier: CGFloat) {
+        // TODO: generalize
+        constraint.secondItem?.removeConstraint(constraint)
+//        constraint.secondItem?.removeConstraint(constraint)
+        
+        let newConstraint = NSLayoutConstraint(
+            item: constraint.firstItem,
+            attribute: constraint.firstAttribute,
+            relatedBy: constraint.relation,
+            toItem: constraint.secondItem,
+            attribute: constraint.secondAttribute,
+            multiplier: multiplier,
+            constant: constraint.constant)
+        newConstraint.priority = constraint.priority
+        
+        constraint.secondItem?.addConstraint(newConstraint)
+        
+        constraint = newConstraint
+    }
     
     private func setColorsForKey(key: KeyboardKey, model: Key) {
         switch model.type {
@@ -517,10 +570,37 @@ class KeyboardLayout {
                 
                 // only the canonical key has a constant width
                 if isCanonicalKey {
-                    let keyWidth = layout["keyWidth"]!
-                    allConstraints += "[\(keyName)(\(keyWidth)@19)]"
-                    allConstraints += "[\(keyName)(\(keyWidth*2)@20)]"
-                    allConstraints += "V:[\(keyName)(<=keyHeight@100,>=5@100)]"
+//                    let keyWidth = layout["keyWidth"]!
+//                    
+//                    allConstraints += "[\(keyName)(\(keyWidth)@19)]"
+//                    allConstraints += "[\(keyName)(\(keyWidth*2)@20)]"
+//                    allConstraints += "V:[\(keyName)(<=keyHeight@100,>=5@100)]"
+                        
+                    let widthConstraint = NSLayoutConstraint(
+                        item: key!,
+                        attribute: NSLayoutAttribute.Width,
+                        relatedBy: NSLayoutRelation.Equal,
+                        toItem: elements["superview"]!,
+                        attribute: NSLayoutAttribute.Width,
+                        multiplier: CGFloat(layout["keyWidthRatio"]!),
+                        constant: 0)
+                    widthConstraint.priority = 1000
+                    
+                    let heightConstraint = NSLayoutConstraint(
+                        item: key!,
+                        attribute: NSLayoutAttribute.Height,
+                        relatedBy: NSLayoutRelation.Equal,
+                        toItem: elements["superview"]!,
+                        attribute: NSLayoutAttribute.Height,
+                        multiplier: CGFloat(layout["keyHeightRatio"]!),
+                        constant: 0)
+                    heightConstraint.priority = 1000
+                    
+                    elements["superview"]?.addConstraint(widthConstraint)
+                    elements["superview"]?.addConstraint(heightConstraint)
+                    
+                    self.keyWidthConstraint = widthConstraint
+                    self.keyHeightConstraint = heightConstraint
                 }
                 else {
                     // all keys are the same height
@@ -539,16 +619,16 @@ class KeyboardLayout {
                         self.superview.addConstraint(constraint0)
                     case Key.KeyType.Shift, Key.KeyType.Backspace:
                         let shiftAndBackspaceMaxWidth = layout["shiftAndBackspaceMaxWidth"]!
-                        let keyWidth = layout["keyWidth"]!
-                        var constraint = NSLayoutConstraint(
-                            item: key,
-                            attribute: NSLayoutAttribute.Width,
-                            relatedBy: NSLayoutRelation.Equal,
-                            toItem: canonicalKey,
-                            attribute: NSLayoutAttribute.Width,
-                            multiplier: CGFloat(shiftAndBackspaceMaxWidth/keyWidth),
-                            constant: 0)
-                        self.superview.addConstraint(constraint)
+//                        let keyWidth = layout["keyWidth"]!
+//                        var constraint = NSLayoutConstraint(
+//                            item: key,
+//                            attribute: NSLayoutAttribute.Width,
+//                            relatedBy: NSLayoutRelation.Equal,
+//                            toItem: canonicalKey,
+//                            attribute: NSLayoutAttribute.Width,
+//                            multiplier: CGFloat(shiftAndBackspaceMaxWidth/keyWidth),
+//                            constant: 0)
+//                        self.superview.addConstraint(constraint)
                     default:
                         break
                     }
