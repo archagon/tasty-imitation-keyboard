@@ -1,10 +1,16 @@
 next up:
-    popup shadow
+    horizontal sizes
     horizontal popups & auto popup positioning
         alignment to borders
     key autolayout and other autolayout things
         popup squishing, etc.
     translit hookin
+    
+    spacebar period
+    shift key
+    delete autorepeat
+    correct art
+    alternate characters
 
 ** make ui match
     * shadows
@@ -17,23 +23,23 @@ next up:
     * add correct art
 ** touch down allows you to slide on keys
     * add nearest key detection
-** pulling data from model thru controller
+    + stickiness
 ** make keys use autolayout as well
-
-*** alternate character ui
-** landscape mode
+** blur effect
 * import transliterator
     * fix trie
 *** make multiple screens
+* doubletap space for period
 * delete autorepeat
-** multitouch + shift key
+*** multitouch + shift key
 * add sounds
-** make main app ui
-*** performance concerns
+*** make main app ui
+** performance concerns
     * bake in?
 * font size scaling
 
 later:
+* alternate character ui
 * keyboard layout language
 * iPad version
 

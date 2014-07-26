@@ -1,3 +1,18 @@
+intended behavior:
+* first, shrink gap down to 20
+* after that, shrink both height and gap proportionally down until gap is 10
+* finally, shrink letter until etc.
+
+
+136.5o + p = 88
+80o + p = 10
+88 - 136.5o = 10 - 80o
+o = 1.3805
+p = 88 - 136.5o => -100.4383
+
+
+
+
 # Key Size and Popup Notes
 
 key width p = 26
