@@ -144,8 +144,8 @@ class KeyboardKey: UIControl, KeyboardView {
     
     func showPopup() {
         if !self.popup {
-            var gap: CGFloat = 8
-//            var popupFrame = CGRectMake(0, 0, 52, 52)
+            let gap: CGFloat = 8
+            let gapMinimum: CGFloat = 3
             var direction: Direction = .Up
             
 //            let coordinate = self.keyView.convertPoint(CGPointMake(self.keyView.bounds.width, 0), toView: self.superview)
@@ -183,6 +183,8 @@ class KeyboardKey: UIControl, KeyboardView {
             self.popup!.cornerRadius = 9.0
             self.addSubview(self.popup)
             
+            // size ratios
+            
             self.addConstraint(NSLayoutConstraint(
                 item: self.popup,
                 attribute: NSLayoutAttribute.Width,
@@ -193,23 +195,43 @@ class KeyboardKey: UIControl, KeyboardView {
                 constant: 26))
 
             // TODO: is this order right???
-            self.addConstraint(NSLayoutConstraint(
+            let heightConstraint = NSLayoutConstraint(
                 item: self.popup,
                 attribute: NSLayoutAttribute.Height,
                 relatedBy: NSLayoutRelation.Equal,
                 toItem: self.keyView,
                 attribute: NSLayoutAttribute.Height,
                 multiplier: -1,
-                constant: 94))
+                constant: 94)
+            heightConstraint.priority = 750
             
-            self.addConstraint(NSLayoutConstraint(
+            self.addConstraint(heightConstraint)
+            
+            // gap from key
+            
+            let gapConstraint = NSLayoutConstraint(
                 item: self.keyView,
                 attribute: NSLayoutAttribute.Top,
                 relatedBy: NSLayoutRelation.LessThanOrEqual,
                 toItem: self.popup,
                 attribute: NSLayoutAttribute.Bottom,
                 multiplier: 1,
-                constant: gap))
+                constant: gap)
+            gapConstraint.priority = 750
+            
+            let gapMinConstraint = NSLayoutConstraint(
+                item: self.keyView,
+                attribute: NSLayoutAttribute.Top,
+                relatedBy: NSLayoutRelation.GreaterThanOrEqual,
+                toItem: self.popup,
+                attribute: NSLayoutAttribute.Bottom,
+                multiplier: 1,
+                constant: gapMinimum)
+            gapMinConstraint.priority = 1000
+            
+            self.addConstraints([gapConstraint, gapMinConstraint])
+            
+            // can't touch top
             
             self.superview.addConstraint(NSLayoutConstraint(
                 item: self.popup,
@@ -218,7 +240,9 @@ class KeyboardKey: UIControl, KeyboardView {
                 toItem: self.superview,
                 attribute: NSLayoutAttribute.Top,
                 multiplier: 1,
-                constant: 0))
+                constant: 1))
+            
+            // centering
             
             self.addConstraint(NSLayoutConstraint(
                 item: self.keyView,
