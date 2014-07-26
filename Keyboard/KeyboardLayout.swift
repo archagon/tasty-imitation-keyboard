@@ -619,16 +619,15 @@ class KeyboardLayout {
                         self.superview.addConstraint(constraint0)
                     case Key.KeyType.Shift, Key.KeyType.Backspace:
                         let shiftAndBackspaceMaxWidth = layout["shiftAndBackspaceMaxWidth"]!
-//                        let keyWidth = layout["keyWidth"]!
-//                        var constraint = NSLayoutConstraint(
-//                            item: key,
-//                            attribute: NSLayoutAttribute.Width,
-//                            relatedBy: NSLayoutRelation.Equal,
-//                            toItem: canonicalKey,
-//                            attribute: NSLayoutAttribute.Width,
-//                            multiplier: CGFloat(shiftAndBackspaceMaxWidth/keyWidth),
-//                            constant: 0)
-//                        self.superview.addConstraint(constraint)
+                        var constraint = NSLayoutConstraint(
+                            item: key,
+                            attribute: NSLayoutAttribute.Width,
+                            relatedBy: NSLayoutRelation.Equal,
+                            toItem: elements["superview"],
+                            attribute: NSLayoutAttribute.Width,
+                            multiplier: CGFloat(layout["keyWidthRatio"]! * (shiftAndBackspaceMaxWidth / 26)), // TODO:
+                            constant: 0)
+                        self.superview.addConstraint(constraint)
                     default:
                         break
                     }
