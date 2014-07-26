@@ -1,3 +1,39 @@
+# Key Size and Popup Notes
+
+key width p = 26
+key height p = 39
+key width l = 52
+key height l = 33
+# note: this can be different depending on the language
+
+popup width p = 52
+popup height p = 55
+popup gap p = 8
+popup width l = 78
+popup height l = 61
+popup gap l = 8
+
+width ratio p = popup width p/key width p => 2
+height ratio p = popup height p/key height p => 1.4103
+width ratio l = popup width l/key width l => 1.5
+height ratio l = popup height l/key height l => 1.8485
+
+#width
+52 - 26z = 78 - 52z
+z = 1
+x = 52 - 26z => 26
+26z + x => 52
+52z + x => 78
+
+#height
+55 - 39c = 61 - 33c
+c = -1
+v = 55 - 39c => 94
+39c + v => 55
+33c + v => 61
+
+# Last Row Notes
+
 #68 px side buttons
 308/2
 12/2

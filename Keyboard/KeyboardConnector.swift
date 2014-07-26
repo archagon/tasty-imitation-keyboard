@@ -69,7 +69,8 @@ class KeyboardConnector: UIView, KeyboardView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        resizeFrame()
+        self.resizeFrame()
+        self.setNeedsDisplay()
     }
     
     func generateConvertedPoints() {

@@ -144,43 +144,90 @@ class KeyboardKey: UIControl, KeyboardView {
     
     func showPopup() {
         if !self.popup {
-            var gap: CGFloat = 9
-            var popupFrame = CGRectMake(0, 0, 52, 52)
+            var gap: CGFloat = 8
+//            var popupFrame = CGRectMake(0, 0, 52, 52)
             var direction: Direction = .Up
             
-            let coordinate = self.keyView.convertPoint(CGPointMake(self.keyView.bounds.width, 0), toView: self.superview)
-            if (coordinate.y - CGFloat(gap) - popupFrame.height) <= 0.0 {
-                gap = 4.5
-                if (coordinate.x + CGFloat(gap) + popupFrame.width) >= self.superview.bounds.width {
-                    direction = Direction.Left
-                }
-                else {
-                    direction = Direction.Right
-                }
-            }
+//            let coordinate = self.keyView.convertPoint(CGPointMake(self.keyView.bounds.width, 0), toView: self.superview)
+//            if (coordinate.y - CGFloat(gap) - popupFrame.height) <= 0.0 {
+//                gap = 4.5
+//                if (coordinate.x + CGFloat(gap) + popupFrame.width) >= self.superview.bounds.width {
+//                    direction = Direction.Left
+//                }
+//                else {
+//                    direction = Direction.Right
+//                }
+//            }
             
-            switch direction {
-            case .Up:
-                popupFrame.origin = CGPointMake(
-                    (self.bounds.size.width - popupFrame.size.width)/2.0,
-                    -popupFrame.size.height - CGFloat(gap))
-            case .Right:
-                popupFrame.origin = CGPointMake(
-                    self.bounds.size.width + CGFloat(gap),
-                    (self.bounds.size.height - popupFrame.size.height)/2.0)
-            case .Left:
-                popupFrame.origin = CGPointMake(
-                    CGFloat(0.0) - CGFloat(gap) - popupFrame.width,
-                    (self.bounds.size.height - popupFrame.size.height)/2.0)
-            case .Down:
-                assert(false, "can't show down yet")
-            }
+//            switch direction {
+//            case .Up:
+//                popupFrame.origin = CGPointMake(
+//                    (self.bounds.size.width - popupFrame.size.width)/2.0,
+//                    -popupFrame.size.height - CGFloat(gap))
+//            case .Right:
+//                popupFrame.origin = CGPointMake(
+//                    self.bounds.size.width + CGFloat(gap),
+//                    (self.bounds.size.height - popupFrame.size.height)/2.0)
+//            case .Left:
+//                popupFrame.origin = CGPointMake(
+//                    CGFloat(0.0) - CGFloat(gap) - popupFrame.width,
+//                    (self.bounds.size.height - popupFrame.size.height)/2.0)
+//            case .Down:
+//                assert(false, "can't show down yet")
+//            }
             
             self.layer.zPosition = 1000
             
-            self.popup = KeyboardKeyBackground(frame: popupFrame)
+            self.popup = KeyboardKeyBackground(frame: CGRectZero)
+            self.popup!.setTranslatesAutoresizingMaskIntoConstraints(false)
             self.popup!.cornerRadius = 9.0
             self.addSubview(self.popup)
+            
+            self.addConstraint(NSLayoutConstraint(
+                item: self.popup,
+                attribute: NSLayoutAttribute.Width,
+                relatedBy: NSLayoutRelation.Equal,
+                toItem: self.keyView,
+                attribute: NSLayoutAttribute.Width,
+                multiplier: 1,
+                constant: 26))
+
+            // TODO: is this order right???
+            self.addConstraint(NSLayoutConstraint(
+                item: self.popup,
+                attribute: NSLayoutAttribute.Height,
+                relatedBy: NSLayoutRelation.Equal,
+                toItem: self.keyView,
+                attribute: NSLayoutAttribute.Height,
+                multiplier: -1,
+                constant: 94))
+            
+            self.addConstraint(NSLayoutConstraint(
+                item: self.keyView,
+                attribute: NSLayoutAttribute.Top,
+                relatedBy: NSLayoutRelation.LessThanOrEqual,
+                toItem: self.popup,
+                attribute: NSLayoutAttribute.Bottom,
+                multiplier: 1,
+                constant: gap))
+            
+            self.superview.addConstraint(NSLayoutConstraint(
+                item: self.popup,
+                attribute: NSLayoutAttribute.Top,
+                relatedBy: NSLayoutRelation.GreaterThanOrEqual,
+                toItem: self.superview,
+                attribute: NSLayoutAttribute.Top,
+                multiplier: 1,
+                constant: 0))
+            
+            self.addConstraint(NSLayoutConstraint(
+                item: self.keyView,
+                attribute: NSLayoutAttribute.CenterX,
+                relatedBy: NSLayoutRelation.Equal,
+                toItem: self.popup,
+                attribute: NSLayoutAttribute.CenterX,
+                multiplier: 1,
+                constant: 0))
             
             self.popup!.text = self.keyView.text
             self.keyView.label.hidden = true
