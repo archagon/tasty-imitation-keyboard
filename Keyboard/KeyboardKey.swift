@@ -94,7 +94,13 @@ class KeyboardKey: UIControl, KeyboardView {
         super.init(frame: frame)
         
         self.clipsToBounds = false
+        self.keyView.setTranslatesAutoresizingMaskIntoConstraints(false)
         self.addSubview(self.keyView)
+        
+        self.addConstraint(NSLayoutConstraint(item: self, attribute: NSLayoutAttribute.Width, relatedBy: NSLayoutRelation.Equal, toItem: self.keyView, attribute: NSLayoutAttribute.Width, multiplier: 1, constant: 0))
+        self.addConstraint(NSLayoutConstraint(item: self, attribute: NSLayoutAttribute.Height, relatedBy: NSLayoutRelation.Equal, toItem: self.keyView, attribute: NSLayoutAttribute.Height, multiplier: 1, constant: 0))
+        self.addConstraint(NSLayoutConstraint(item: self, attribute: NSLayoutAttribute.Bottom, relatedBy: NSLayoutRelation.Equal, toItem: self.keyView, attribute: NSLayoutAttribute.Bottom, multiplier: 1, constant: 0))
+        self.addConstraint(NSLayoutConstraint(item: self, attribute: NSLayoutAttribute.Left, relatedBy: NSLayoutRelation.Equal, toItem: self.keyView, attribute: NSLayoutAttribute.Left, multiplier: 1, constant: 0))
         
         self.ambiguityTimer = NSTimer.scheduledTimerWithTimeInterval(0.1, target: self, selector: "timerLoop", userInfo: nil, repeats: true)
         
@@ -129,30 +135,22 @@ class KeyboardKey: UIControl, KeyboardView {
             self.popupDirection = Direction.Up
             self.setupPopupConstraints(self.popupDirection)
             self.configurePopup(self.popupDirection)
+            super.layoutSubviews()
             
-//            if self.popup!.frame.height < 20 {
-//            NSLog("popup frame is \(NSStringFromCGRect(self.popup!.frame))")
+            var upperLeftCorner = self.popup!.frame.origin
+            var popupPosition = self.superview.convertPoint(upperLeftCorner, fromView: self)
             
-            var popupPosition = self.superview.convertPoint(self.popup!.frame.origin, fromView: self)
-            popupPosition.y = popupPosition.y - self.popup!.frame.height
-            NSLog("popup positio is \(NSStringFromCGPoint(popupPosition))")
-            
-            if popupPosition.y < 13 {
+//            if popupPosition.y < 0 {
+            if self.popup!.bounds.height < 10 {
                 if self.frame.origin.x < self.superview.bounds.width/2 {
                     self.popupDirection = Direction.Right
                 }
                 else {
                     self.popupDirection = Direction.Left
                 }
-                
                 self.setupPopupConstraints(self.popupDirection)
                 self.configurePopup(self.popupDirection)
-                
                 super.layoutSubviews()
-                
-                var popupPosition = self.superview.convertPoint(self.popup!.frame.origin, fromView: self)
-                popupPosition.y = popupPosition.y - self.popup!.frame.height
-                NSLog("popup positio is \(NSStringFromCGPoint(popupPosition))")
             }
         }
         
@@ -163,10 +161,11 @@ class KeyboardKey: UIControl, KeyboardView {
     }
     
     func redrawText() {
-        self.keyView.frame = self.bounds
+//        self.keyView.frame = self.bounds
 //        self.button.frame = self.bounds
-        
+//        
 //        self.button.setTitle(self.text, forState: UIControlState.Normal)
+        
         self.keyView.text = (self.text ? self.text : "")
     }
     
@@ -263,20 +262,55 @@ class KeyboardKey: UIControl, KeyboardView {
         
         // can't touch top
         
-//        var cantTouchTopConstraint = NSLayoutConstraint(
-//            item: self.popup,
-//            attribute: directionToAttribute[dir]!,
-//            relatedBy: NSLayoutRelation.GreaterThanOrEqual,
-//            toItem: self.superview,
-//            attribute: directionToAttribute[dir]!,
-//            multiplier: 1,
-//            constant: 2) // TODO: layout
-//        cantTouchTopConstraint.priority = 1000
-//        self.constraintStore += (self.superview, cantTouchTopConstraint)
+        var cantTouchTopConstraint = NSLayoutConstraint(
+            item: self.popup,
+            attribute: directionToAttribute[dir]!,
+            relatedBy: (dir == Direction.Right ? NSLayoutRelation.LessThanOrEqual : NSLayoutRelation.GreaterThanOrEqual),
+            toItem: self.superview,
+            attribute: directionToAttribute[dir]!,
+            multiplier: 1,
+            constant: 2) // TODO: layout
+        cantTouchTopConstraint.priority = 1000
+        self.constraintStore += (self.superview, cantTouchTopConstraint)
+        
+        if dir.horizontal() {
+            var cantTouchTopConstraint = NSLayoutConstraint(
+                item: self.popup,
+                attribute: directionToAttribute[Direction.Up]!,
+                relatedBy: NSLayoutRelation.GreaterThanOrEqual,
+                toItem: self.superview,
+                attribute: directionToAttribute[Direction.Up]!,
+                multiplier: 1,
+                constant: 5) // TODO: layout
+            cantTouchTopConstraint.priority = 1000
+            self.constraintStore += (self.superview, cantTouchTopConstraint)
+        }
+        else {
+            var cantTouchSideConstraint = NSLayoutConstraint(
+                item: self.superview,
+                attribute: directionToAttribute[Direction.Right]!,
+                relatedBy: NSLayoutRelation.GreaterThanOrEqual,
+                toItem: self.popup,
+                attribute: directionToAttribute[Direction.Right]!,
+                multiplier: 1,
+                constant: 17) // TODO: layout
+            cantTouchSideConstraint.priority = 1000
+            var cantTouchSideConstraint2 = NSLayoutConstraint(
+                item: self.superview,
+                attribute: directionToAttribute[Direction.Left]!,
+                relatedBy: NSLayoutRelation.LessThanOrEqual,
+                toItem: self.popup,
+                attribute: directionToAttribute[Direction.Left]!,
+                multiplier: 1,
+                constant: 17) // TODO: layout
+            cantTouchSideConstraint2.priority = 1000
+            self.constraintStore += (self.superview, cantTouchSideConstraint)
+            self.constraintStore += (self.superview, cantTouchSideConstraint2)
+        }
         
         // centering
         
-        let centerConstraint = NSLayoutConstraint(
+        var centerConstraint = NSLayoutConstraint(
             item: self.keyView,
             attribute: (dir.horizontal() ? NSLayoutAttribute.CenterY : NSLayoutAttribute.CenterX),
             relatedBy: NSLayoutRelation.Equal,
@@ -284,6 +318,7 @@ class KeyboardKey: UIControl, KeyboardView {
             attribute: (dir.horizontal() ? NSLayoutAttribute.CenterY : NSLayoutAttribute.CenterX),
             multiplier: 1,
             constant: 0)
+        centerConstraint.priority = 500
         self.constraintStore += (self, centerConstraint)
         
         for (view, constraint) in self.constraintStore {
