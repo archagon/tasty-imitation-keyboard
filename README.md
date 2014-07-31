@@ -1,10 +1,27 @@
 # Tasty Imitation Keyboard
 
+I'm working on a 3rd party keyboard for iOS8 and I want it to look and feel as close as possible to Apple's keyboard. Unfortunately, it's not possible to access the keyboard view through code, so this is my attempt to imitate it by hand. (I'm sure there are ways to get even more accuracy via reverse engineering, but that's too much work for me!) In the end, I hope to produce a coherent and robust baseline for creating custom 3rd party keybards — at least, until Apple decides to fully open up their keyboard API.
+
+## Recent Screenshots
+
+<img width="320px" src="./Screenshot-Portrait.png"></img>
+<img width="568px" src="./Screenshot-Landscape.png"></img>
+
+## Fantastic Features
+
+* No bitmaps! Everything is rendered using CoreGraphics.
+* Autolayout galore! All the keys are laid out using autolayout constraints, meaning that the keyboard is much easier to extend.
+* This keyboard is an iOS8 extension.
+
+## Current State
+
 ![](UnderConstruction.gif)
 
-I'm working on a 3rd party keyboard and I want it to look and feel as close as possible to Apple's keyboard. Unfortunately, to my knowledge, it's not possible to access the keyboard view through code, so I have to imitate it by hand. (I'm sure there are ways to get even more accuracy via reverse engineering, but that's too much work for me!)
+The development of this keyboard is fully open-source, so the project may not work at all times. At the present moment, the baseline functionality is there. Left to implement are special characters, Shift, multitouch, and improved graphics (including translucenty and dark mode).
 
-Learning goals for this project:
+Hold-to-select-alternate-characters will be implemented at a later time.
+
+## Learning goals for this project:
 
 * Swift
 * 3rd party extensions
@@ -12,10 +29,3 @@ Learning goals for this project:
 * autolayout
 * CoreGraphics
 * finally release an app on the App Store, darn it
-
-The actual keyboard is under the `Keyboard` directory. `TransliteratingKeyboard` is the hosting app. Everything else is garbage. (I'll clean it up later.)
-
-Here's a pair of screenshots generated from a recent build:
-
-<img width="320px" src="./Screenshot-Portrait.png"></img>
-<img width="568px" src="./Screenshot-Landscape.png"></img>
