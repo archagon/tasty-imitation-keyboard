@@ -14,15 +14,9 @@ class KeyboardViewController: UIInputViewController {
     var forwardingView: ForwardingView
     var layout: KeyboardLayout
 
-    override init() {
-        self.keyboard = defaultKeyboard()
-        self.forwardingView = ForwardingView(frame: CGRectZero)
-        self.layout = KeyboardLayout(model: self.keyboard, superview: self.forwardingView)
-        
-        super.init()
-        
-        NSUserDefaults.standardUserDefaults().setBool(true, forKey: "NSConstraintBasedLayoutVisualizeMutuallyExclusiveConstraints")
-        self.view.addSubview(self.forwardingView)
+    // TODO: why does the app crash if this isn't here?
+    convenience override init() {
+        self.init(nibName: nil, bundle: nil)
     }
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
