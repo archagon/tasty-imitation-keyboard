@@ -14,7 +14,18 @@ class KeyboardViewController: UIInputViewController {
     var forwardingView: ForwardingView
     var layout: KeyboardLayout
 
-    init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
+    override init() {
+        self.keyboard = defaultKeyboard()
+        self.forwardingView = ForwardingView(frame: CGRectZero)
+        self.layout = KeyboardLayout(model: self.keyboard, superview: self.forwardingView)
+        
+        super.init()
+        
+        NSUserDefaults.standardUserDefaults().setBool(true, forKey: "NSConstraintBasedLayoutVisualizeMutuallyExclusiveConstraints")
+        self.view.addSubview(self.forwardingView)
+    }
+    
+    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
         self.keyboard = defaultKeyboard()
         self.forwardingView = ForwardingView(frame: CGRectZero)
         self.layout = KeyboardLayout(model: self.keyboard, superview: self.forwardingView)
@@ -22,6 +33,10 @@ class KeyboardViewController: UIInputViewController {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
         
         self.view.addSubview(self.forwardingView)
+    }
+    
+    required init(coder: NSCoder) {
+        fatalError("NSCoding not supported")
     }
 
     override func updateViewConstraints() {
@@ -62,7 +77,7 @@ class KeyboardViewController: UIInputViewController {
                     break
                 }
                 
-                if key.outputText {
+                if key.outputText != nil {
                     keyView.addTarget(self, action: "keyPressed:", forControlEvents: .TouchUpInside)
                     keyView.addTarget(self, action: "takeScreenshotDelay", forControlEvents: .TouchDown)
                 }
@@ -115,7 +130,8 @@ class KeyboardViewController: UIInputViewController {
         NSLog("context before input: \((self.textDocumentProxy as UITextDocumentProxy).documentContextBeforeInput)")
         NSLog("context after input: \((self.textDocumentProxy as UITextDocumentProxy).documentContextAfterInput)")
         
-        if model && model!.outputText {
+        // TODO: if let chain
+        if model != nil && model!.outputText != nil {
             if blah < 3 {
                 (self.textDocumentProxy as UITextDocumentProxy as UIKeyInput).insertText(model!.outputText)
                 blah += 1

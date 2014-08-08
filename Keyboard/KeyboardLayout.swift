@@ -264,24 +264,24 @@ class KeyboardLayout {
         
         // anchoring
         
-        if leftAnchor {
-            allConstraints += "\(verticalFlag)[\(leftAnchor!)][\(leftGapName)]"
+        if leftAnchor != nil {
+            allConstraints.append("\(verticalFlag)[\(leftAnchor!)][\(leftGapName)]")
         }
         
-        if rightAnchor {
-            allConstraints += "\(verticalFlag)[\(rightGapName)][\(rightAnchor!)]"
+        if rightAnchor != nil {
+            allConstraints.append("\(verticalFlag)[\(rightGapName)][\(rightAnchor!)]")
         }
         
         // size and centering
         
-        if width {
-            allConstraints += "\(verticalFlag)[\(leftGapName)(\(width!))]"
+        if width != nil {
+            allConstraints.append("\(verticalFlag)[\(leftGapName)(\(width!))]")
         }
         
-        allConstraints += "\(verticalFlag)[\(rightGapName)(\(leftGapName))]"
+        allConstraints.append("\(verticalFlag)[\(rightGapName)(\(leftGapName))]")
         
-        allConstraints += "\(inverseVerticalFlag)[\(leftGapName)(debugWidth)]"
-        allConstraints += "\(inverseVerticalFlag)[\(rightGapName)(debugWidth)]"
+        allConstraints.append("\(inverseVerticalFlag)[\(leftGapName)(debugWidth)]")
+        allConstraints.append("\(inverseVerticalFlag)[\(rightGapName)(debugWidth)]")
         
         if vertical {
             centerItems(self.elements[leftGapName]!, item2: self.elements["superview"]!, vertical: true)
@@ -310,8 +310,8 @@ class KeyboardLayout {
         var verticalFlag = (vertical ? "V:" : "")
         var inverseVerticalFlag = (!vertical ? "V:" : "")
         
-        if width {
-            allConstraints +=  "\(verticalFlag)[\(firstGapName)(\(width!))]"
+        if width != nil {
+            allConstraints.append("\(verticalFlag)[\(firstGapName)(\(width!))]")
         }
         
         for i in startIndex...endIndex {
@@ -320,10 +320,10 @@ class KeyboardLayout {
             // size and centering
             
             if i > 0 {
-                allConstraints += "\(verticalFlag)[\(gapName)(\(firstGapName))]"
+                allConstraints.append("\(verticalFlag)[\(gapName)(\(firstGapName))]")
             }
             
-            allConstraints += "\(inverseVerticalFlag)[\(gapName)(debugWidth)]"
+            allConstraints.append("\(inverseVerticalFlag)[\(gapName)(debugWidth)]")
             
             if vertical {
                 centerItems(self.elements[gapName]!, item2: self.elements["superview"]!, vertical: true)
@@ -515,7 +515,7 @@ class KeyboardLayout {
                 if keyModel.type == Key.KeyType.ModeChange
                     || keyModel.type == Key.KeyType.KeyboardChange
                     || keyModel.type == Key.KeyType.Period {
-                        if !canonicalSpecialSameWidth {
+                        if canonicalSpecialSameWidth == nil {
                             canonicalSpecialSameWidth = keyName
                             let widthConstraint = NSLayoutConstraint(
                                 item: self.elements[keyName]!,
@@ -527,7 +527,7 @@ class KeyboardLayout {
                                 constant: CGFloat(13.37))
                             self.superview.addConstraint(widthConstraint)
                         } else {
-                            allConstraints += "[\(keyName)(\(canonicalSpecialSameWidth!))]"
+                            allConstraints.append("[\(keyName)(\(canonicalSpecialSameWidth!))]")
                         }
                 }
             }
@@ -540,7 +540,7 @@ class KeyboardLayout {
                 let keyName = "key\(j)x\(i)"
                 
                 if keyModel.type == Key.KeyType.Return {
-                    assert(canonicalSpecialSameWidth, "canonical special key not found")
+                    assert(canonicalSpecialSameWidth != nil, "canonical special key not found")
                     let widthConstraint = NSLayoutConstraint(
                         item: self.elements[keyName]!,
                         attribute: NSLayoutAttribute.Width,
@@ -566,7 +566,7 @@ class KeyboardLayout {
                 let isCanonicalKey = (key == canonicalKey) // TODO:
                 let isCanonicalRowKey = (key == canonicalRowKey) // TODO:
                 
-                allConstraints += "[keyGap\(j)x\(i)][\(keyName)][keyGap\(j+1)x\(i)]"
+                allConstraints.append("[keyGap\(j)x\(i)][\(keyName)][keyGap\(j+1)x\(i)]")
                 
                 // only the canonical key has a constant width
                 if isCanonicalKey {
@@ -604,7 +604,7 @@ class KeyboardLayout {
                 }
                 else {
                     // all keys are the same height
-                    allConstraints += "V:[\(keyName)(key0x0)]"
+                    allConstraints.append("V:[\(keyName)(key0x0)]")
                     
                     switch keyModel.type {
                     case Key.KeyType.Character:
@@ -634,7 +634,7 @@ class KeyboardLayout {
                 }
                 
                 if isCanonicalRowKey {
-                    allConstraints += "V:[rowGap\(i)][\(keyName)][rowGap\(i+1)]"
+                    allConstraints.append("V:[rowGap\(i)][\(keyName)][rowGap\(i+1)]")
                 }
                 else {
                     self.centerItems(key!, item2: canonicalRowKey!, vertical: false)
@@ -653,15 +653,22 @@ class KeyboardLayout {
     }
 
     private class Spacer: UIView {
-        init(frame: CGRect) {
+        
+        override init(frame: CGRect) {
             super.init(frame: frame)
             
             self.hidden = true
             self.userInteractionEnabled = false
         }
-        convenience init() {
+        
+        override convenience init() {
             return self.init(frame: CGRectZero)
         }
+        
+        required init(coder: NSCoder) {
+            fatalError("NSCoding not supported")
+        }
+        
         convenience init(color: UIColor) {
             self.init()
             
@@ -670,6 +677,7 @@ class KeyboardLayout {
                 self.hidden = false
             }
         }
+        
         //    override class func requiresConstraintBasedLayout() -> Bool {
         //        return true
         //    }

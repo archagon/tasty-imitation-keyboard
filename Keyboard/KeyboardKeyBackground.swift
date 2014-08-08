@@ -45,7 +45,7 @@ class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
     
     var label: UILabel
     
-    init(frame: CGRect) {
+    override init(frame: CGRect) {
         text = "" // TODO: does this call the setter?
         label = UILabel()
         _attached = nil
@@ -79,6 +79,10 @@ class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
         self.addSubview(self.label)
         
         generatePointsForDrawing()
+    }
+    
+    required init(coder: NSCoder) {
+        fatalError("NSCoding not supported")
     }
     
     override func layoutSubviews() {
@@ -119,7 +123,7 @@ class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
         var firstEdge = false
         
         for i in 0..<4 {
-            if self._attached && self._attached!.toRaw() == i {
+            if self._attached != nil && self._attached!.toRaw() == i {
                 continue
             }
             
@@ -138,14 +142,14 @@ class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
             }
             CGPathAddLineToPoint(fillPath, nil, self._segmentPoints[i].1.x, self._segmentPoints[i].1.y)
             
-            if (self._attached && self._attached!.toRaw() == ((i + 1) % 4)) {
+            if (self._attached != nil && self._attached!.toRaw() == ((i + 1) % 4)) {
                 // do nothing
             } else {
                 CGPathAddRelativeArc(edgePath, nil, self._arcCenters[(i + 1) % 4].x, self._arcCenters[(i + 1) % 4].y, CGFloat(self.cornerRadius), self._arcStartingAngles[(i + 1) % 4], CGFloat(M_PI/2.0))
                 CGPathAddRelativeArc(fillPath, nil, self._arcCenters[(i + 1) % 4].x, self._arcCenters[(i + 1) % 4].y, CGFloat(self.cornerRadius), self._arcStartingAngles[(i + 1) % 4], CGFloat(M_PI/2.0))
             }
             
-            edgePaths += edgePath
+            edgePaths.append(edgePath)
         }
         
         if self.drawUnder && self._attached != Direction.Down {
@@ -210,20 +214,20 @@ class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
             
             if (i == 1) {
                 xDir = 1.0
-                self._arcStartingAngles += CGFloat(M_PI)
+                self._arcStartingAngles.append(CGFloat(M_PI))
             }
             else if (i == 3) {
                 xDir = -1.0
-                self._arcStartingAngles += CGFloat(0)
+                self._arcStartingAngles.append(CGFloat(0))
             }
             
             if (i == 0) {
                 yDir = -1.0
-                self._arcStartingAngles += CGFloat(M_PI/2.0)
+                self._arcStartingAngles.append(CGFloat(M_PI/2.0))
             }
             else if (i == 2) {
                 yDir = 1.0
-                self._arcStartingAngles += CGFloat(-M_PI/2.0)
+                self._arcStartingAngles.append(CGFloat(-M_PI/2.0))
             }
             
             let p0 = CGPointMake(
@@ -233,13 +237,13 @@ class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
                 nextPoint.x - CGFloat(xDir * cornerRadius),
                 nextPoint.y + CGFloat(shadowOffset) - CGFloat(yDir * cornerRadius))
             
-            self._segmentPoints += (p0, p1)
+            self._segmentPoints.append((p0, p1))
             
             let c = CGPointMake(
                 p0.x - CGFloat(yDir * cornerRadius),
                 p0.y + CGFloat(xDir * cornerRadius))
             
-            self._arcCenters += c
+            self._arcCenters.append(c)
         }
     }
     

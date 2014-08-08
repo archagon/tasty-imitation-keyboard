@@ -26,11 +26,11 @@ class Keyboard {
     func addKey(key: Key, row: Int) {
         if self.rows.count <= row {
             for i in self.rows.count...row {
-                self.rows += Array<Key>()
+                self.rows.append(Array<Key>())
             }
         }
         
-        self.rows[row] += key
+        self.rows[row].append(key)
     }
 }
 

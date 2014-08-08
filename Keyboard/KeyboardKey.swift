@@ -113,6 +113,10 @@ class KeyboardKey: UIControl, KeyboardView {
 //        self.holder.contentView.clipsToBounds = false
     }
     
+    required init(coder: NSCoder) {
+        fatalError("NSCoding not supported")
+    }
+    
 //    override func sizeThatFits(size: CGSize) -> CGSize {
 //        return super.sizeThatFits(size)
 //    }
@@ -122,7 +126,7 @@ class KeyboardKey: UIControl, KeyboardView {
 //    }
 
     func timerLoop() {
-        if self.popup && self.popup!.hasAmbiguousLayout() {
+        if self.popup != nil && self.popup!.hasAmbiguousLayout() {
             NSLog("exercising ambiguity...")
             self.popup!.exerciseAmbiguityInLayout()
         }
@@ -131,18 +135,18 @@ class KeyboardKey: UIControl, KeyboardView {
     override func layoutSubviews() {
         super.layoutSubviews()
         
-        if self.popup {
+        if self.popup != nil {
             self.popupDirection = Direction.Up
             self.setupPopupConstraints(self.popupDirection)
             self.configurePopup(self.popupDirection)
             super.layoutSubviews()
             
             var upperLeftCorner = self.popup!.frame.origin
-            var popupPosition = self.superview.convertPoint(upperLeftCorner, fromView: self)
+            var popupPosition = self.superview!.convertPoint(upperLeftCorner, fromView: self) // TODO: hack
             
 //            if popupPosition.y < 0 {
             if self.popup!.bounds.height < 10 {
-                if self.frame.origin.x < self.superview.bounds.width/2 {
+                if self.frame.origin.x < self.superview!.bounds.width/2 { // TODO: hack
                     self.popupDirection = Direction.Right
                 }
                 else {
@@ -172,28 +176,30 @@ class KeyboardKey: UIControl, KeyboardView {
     // TODO: StyleKit?
     func updateColors() {
         var keyboardViews: [KeyboardView] = [self.keyView]
-        if self.popup { keyboardViews += self.popup! }
-        if self.connector { keyboardViews += self.connector! }
+        if self.popup != nil { keyboardViews.append(self.popup!) }
+        if self.connector != nil { keyboardViews.append(self.connector!) }
         
         var switchColors = self.highlighted || self.selected
         
         for kv in keyboardViews {
             var keyboardView = kv
-            keyboardView.color = (switchColors && self.downColor ? self.downColor! : self.color)
-            keyboardView.underColor = (switchColors && self.downUnderColor ? self.downUnderColor! : self.underColor)
-            keyboardView.borderColor = (switchColors && self.downBorderColor ? self.downBorderColor! : self.borderColor)
+            keyboardView.color = (switchColors && self.downColor != nil ? self.downColor! : self.color)
+            keyboardView.underColor = (switchColors && self.downUnderColor != nil ? self.downUnderColor! : self.underColor)
+            keyboardView.borderColor = (switchColors && self.downBorderColor != nil ? self.downBorderColor! : self.borderColor)
             keyboardView.drawUnder = self.drawUnder
             keyboardView.drawBorder = self.drawBorder
         }
         
-        self.keyView.label.textColor = (switchColors && self.downTextColor ? self.downTextColor! : self.textColor)
-        if self.popup {
-            self.popup!.label.textColor = (switchColors && self.downTextColor ? self.downTextColor! : self.textColor)
+        self.keyView.label.textColor = (switchColors && self.downTextColor != nil ? self.downTextColor! : self.textColor)
+        if self.popup != nil {
+            self.popup!.label.textColor = (switchColors && self.downTextColor != nil ? self.downTextColor! : self.textColor)
         }
     }
     
     func setupPopupConstraints(dir: Direction) {
-        assert(self.popup, "popup not found")
+        // TODO: superview optional
+        
+        assert(self.popup != nil, "popup not found")
         
         for (view, constraint) in self.constraintStore {
             view.removeConstraint(constraint)
@@ -215,7 +221,7 @@ class KeyboardKey: UIControl, KeyboardView {
             attribute: NSLayoutAttribute.Width,
             multiplier: 1,
             constant: 26)
-        self.constraintStore += (self, widthConstraint)
+        self.constraintStore.append((self, widthConstraint) as (UIView, NSLayoutConstraint))
         
         // TODO: is this order right???
         var heightConstraint = NSLayoutConstraint(
@@ -227,7 +233,7 @@ class KeyboardKey: UIControl, KeyboardView {
             multiplier: -1,
             constant: 94)
         heightConstraint.priority = 750
-        self.constraintStore += (self, heightConstraint)
+        self.constraintStore.append((self, heightConstraint) as (UIView, NSLayoutConstraint))
         
         // gap from key
         
@@ -247,7 +253,7 @@ class KeyboardKey: UIControl, KeyboardView {
             multiplier: 1,
             constant: gap)
         gapConstraint.priority = 700
-        self.constraintStore += (self, gapConstraint)
+        self.constraintStore.append((self, gapConstraint) as (UIView, NSLayoutConstraint))
         
         var gapMinConstraint = NSLayoutConstraint(
             item: self.keyView,
@@ -258,7 +264,7 @@ class KeyboardKey: UIControl, KeyboardView {
             multiplier: 1,
             constant: (dir.horizontal() ? -1 : 1) * gapMinimum)
         gapMinConstraint.priority = 1000
-        self.constraintStore += (self, gapMinConstraint)
+        self.constraintStore.append((self, gapMinConstraint) as (UIView, NSLayoutConstraint))
         
         // can't touch top
         
@@ -271,7 +277,7 @@ class KeyboardKey: UIControl, KeyboardView {
             multiplier: 1,
             constant: 2) // TODO: layout
         cantTouchTopConstraint.priority = 1000
-        self.constraintStore += (self.superview, cantTouchTopConstraint)
+        self.constraintStore.append((self.superview!, cantTouchTopConstraint) as (UIView, NSLayoutConstraint))
         
         if dir.horizontal() {
             var cantTouchTopConstraint = NSLayoutConstraint(
@@ -283,7 +289,7 @@ class KeyboardKey: UIControl, KeyboardView {
                 multiplier: 1,
                 constant: 5) // TODO: layout
             cantTouchTopConstraint.priority = 1000
-            self.constraintStore += (self.superview, cantTouchTopConstraint)
+            self.constraintStore.append((self.superview!, cantTouchTopConstraint) as (UIView, NSLayoutConstraint))
         }
         else {
             var cantTouchSideConstraint = NSLayoutConstraint(
@@ -304,8 +310,8 @@ class KeyboardKey: UIControl, KeyboardView {
                 multiplier: 1,
                 constant: 17) // TODO: layout
             cantTouchSideConstraint2.priority = 1000
-            self.constraintStore += (self.superview, cantTouchSideConstraint)
-            self.constraintStore += (self.superview, cantTouchSideConstraint2)
+            self.constraintStore.append((self.superview!, cantTouchSideConstraint) as (UIView, NSLayoutConstraint))
+            self.constraintStore.append((self.superview!, cantTouchSideConstraint2) as (UIView, NSLayoutConstraint))
         }
         
         // centering
@@ -319,7 +325,7 @@ class KeyboardKey: UIControl, KeyboardView {
             multiplier: 1,
             constant: 0)
         centerConstraint.priority = 500
-        self.constraintStore += (self, centerConstraint)
+        self.constraintStore.append((self, centerConstraint) as (UIView, NSLayoutConstraint))
         
         for (view, constraint) in self.constraintStore {
             view.addConstraint(constraint)
@@ -327,7 +333,7 @@ class KeyboardKey: UIControl, KeyboardView {
     }
     
     func configurePopup(direction: Direction) {
-        assert(self.popup, "popup not found")
+        assert(self.popup != nil, "popup not found")
         
         self.keyView.attach(direction)
         self.popup!.attach(direction.opposite())
@@ -338,7 +344,7 @@ class KeyboardKey: UIControl, KeyboardView {
         self.connector?.removeFromSuperview()
         self.connector = KeyboardConnector(start: kv, end: p, startConnectable: kv, endConnectable: p, startDirection: direction, endDirection: direction.opposite())
         self.connector!.layer.zPosition = -1
-        self.addSubview(self.connector)
+        self.addSubview(self.connector!)
         
         self.drawBorder = true
         
@@ -349,13 +355,13 @@ class KeyboardKey: UIControl, KeyboardView {
     }
     
     func showPopup() {
-        if !self.popup {
+        if self.popup == nil {
             self.layer.zPosition = 1000
             
             self.popup = KeyboardKeyBackground(frame: CGRectZero)
             self.popup!.setTranslatesAutoresizingMaskIntoConstraints(false)
             self.popup!.cornerRadius = 9.0
-            self.addSubview(self.popup)
+            self.addSubview(self.popup!)
             
             self.popup!.text = self.keyView.text
             self.keyView.label.hidden = true
@@ -364,7 +370,7 @@ class KeyboardKey: UIControl, KeyboardView {
     }
     
     func hidePopup() {
-        if self.popup {
+        if self.popup != nil {
             self.connector?.removeFromSuperview()
             self.connector = nil
             

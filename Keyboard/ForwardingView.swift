@@ -10,13 +10,17 @@ import UIKit
 
 class ForwardingView: UIView {
     
-    init(frame: CGRect) {
+    override init(frame: CGRect) {
         super.init(frame: frame)
         
         self.contentMode = UIViewContentMode.Redraw
         self.multipleTouchEnabled = false
         self.userInteractionEnabled = true
         self.opaque = false
+    }
+    
+    required init(coder: NSCoder) {
+        fatalError("NSCoding not supported")
     }
     
     // Why have this useless drawRect? Well, if we just set the backgroundColor to clearColor,
@@ -33,7 +37,7 @@ class ForwardingView: UIView {
     
     // TODO: drag up control centre from bottom == stuck
     func handleControl(view: UIView?, controlEvent: UIControlEvents) {
-        if !view {
+        if view == nil {
             return
         }
         
@@ -87,7 +91,7 @@ class ForwardingView: UIView {
             
             let distance = distanceBetween(view.frame, point: position)
             
-            if closest {
+            if closest != nil {
                 if distance < closest!.1 {
                     closest = (view, distance)
                 }
@@ -97,7 +101,7 @@ class ForwardingView: UIView {
             }
         }
         
-        if closest {
+        if closest != nil {
             return closest!.0
         }
         else {

@@ -62,6 +62,10 @@ class KeyboardConnector: UIView, KeyboardView {
         self.backgroundColor = UIColor.clearColor()
     }
     
+    required init(coder: NSCoder) {
+        fatalError("NSCoding not supported")
+    }
+    
     override func didMoveToSuperview() {
         super.didMoveToSuperview()
         self.resizeFrame()
@@ -74,7 +78,7 @@ class KeyboardConnector: UIView, KeyboardView {
     }
     
     func generateConvertedPoints() {
-        if !self.superview {
+        if self.superview == nil {
             return
         }
         
@@ -82,11 +86,11 @@ class KeyboardConnector: UIView, KeyboardView {
         let endPoints = self.endConnectable.attachmentPoints(self.endDir)
         
         self.convertedStartPoints = (
-            self.superview.convertPoint(startPoints.0, fromView: self.start),
-            self.superview.convertPoint(startPoints.1, fromView: self.start))
+            self.superview!.convertPoint(startPoints.0, fromView: self.start),
+            self.superview!.convertPoint(startPoints.1, fromView: self.start))
         self.convertedEndPoints = (
-            self.superview.convertPoint(endPoints.0, fromView: self.end),
-            self.superview.convertPoint(endPoints.1, fromView: self.end))
+            self.superview!.convertPoint(endPoints.0, fromView: self.end),
+            self.superview!.convertPoint(endPoints.1, fromView: self.end))
     }
     
     func resizeFrame() {
