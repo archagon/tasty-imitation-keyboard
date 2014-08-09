@@ -10,9 +10,12 @@ import UIKit
 
 var DEBUG_SHOW_SPACERS = false
 
-let layout: [String:Double] = [
+// TODO: create class from layout dictionary?
+
+let globalLayout: [String:Double] = [
     "leftGap": 3,
     "rightGap": 3,
+    "topBanner": 0,
     "topGap": 12,
     "bottomGap": 3,
     "keyWidthRatio": (26 / 320.0),
@@ -30,7 +33,7 @@ let layout: [String:Double] = [
 
 // 216; 162
 
-let colors: [String:UIColor] = [
+let globalColors: [String:UIColor] = [
     "lightColor": UIColor.whiteColor(),
     "lightShadowColor": UIColor(hue: (220/360.0), saturation: 0.04, brightness: 0.56, alpha: 1),
     "lightTextColor": UIColor.blackColor(),
@@ -46,6 +49,17 @@ let colors: [String:UIColor] = [
 // lower row: 68x78, 100x78, 276
 
 class KeyboardLayout {
+    
+    dynamic var colors: [String:UIColor] {
+        get {
+            return globalColors
+        }
+    }
+    dynamic var layout: [String:Double] {
+        get {
+            return globalLayout
+        }
+    }
     
     private var model: Keyboard
     private var superview: UIView
@@ -357,6 +371,7 @@ class KeyboardLayout {
             self.superview.addSubview(spacer)
         }
         
+        let total: CGFloat = CGFloat(layout["topBanner"]! + layout["topGap"]!)
         let constraints = [
             // left/right spacers
             "|[leftSpacer(leftGap)]",
@@ -365,7 +380,7 @@ class KeyboardLayout {
             "V:[rightSpacer(debugWidth)]",
             
             // top/bottom spacers
-            "V:|[topSpacer(topGap)]",
+            "V:|[topSpacer(\(total))]",
             "V:[bottomSpacer(bottomGap)]|",
             "[topSpacer(debugWidth)]",
             "[bottomSpacer(debugWidth)]"]

@@ -13,6 +13,7 @@ class KeyboardViewController: UIInputViewController {
     var keyboard: Keyboard
     var forwardingView: ForwardingView
     var layout: KeyboardLayout
+    var heightConstraint: NSLayoutConstraint?
 
     // TODO: why does the app crash if this isn't here?
     convenience override init() {
@@ -33,12 +34,19 @@ class KeyboardViewController: UIInputViewController {
         fatalError("NSCoding not supported")
     }
 
-    override func updateViewConstraints() {
-        super.updateViewConstraints()
-    }
+//    override func updateViewConstraints() {
+//        super.updateViewConstraints()
+//    }
     
     override func willRotateToInterfaceOrientation(toInterfaceOrientation: UIInterfaceOrientation, duration: NSTimeInterval) {
         self.layout.updateForOrientation(toInterfaceOrientation.isPortrait)
+        
+//        if toInterfaceOrientation.isLandscape {
+//            self.heightConstraint?.constant = 100
+//        }
+//        else {
+//            self.heightConstraint?.constant = 500
+//        }
     }
 
     override func viewDidLoad() {
@@ -54,6 +62,35 @@ class KeyboardViewController: UIInputViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        
+//        if self.view.frame.height != 0 {
+//            if self.heightConstraint == nil {
+//                let defaultHeightPortrait = 216.0
+//                let defaultHeightLandscape = 162.0
+//                let widthPortrait = 320.0
+//                let widthLandscape = 568.0
+//                
+//                // TODO: add layout binding
+//                let actualHeightPortrait = defaultHeightPortrait + 30.0
+//                let actualHeightLandscape = defaultHeightLandscape + 30.0
+//                
+//                let m = (actualHeightPortrait - actualHeightLandscape) / (widthPortrait - widthLandscape)
+//                let c = actualHeightPortrait - (widthPortrait * m)
+//                
+//                self.heightConstraint = NSLayoutConstraint(
+//                    item:self.view,
+//                    attribute:NSLayoutAttribute.Height,
+//                    relatedBy:NSLayoutRelation.Equal,
+//                    toItem:nil,
+//                    attribute:NSLayoutAttribute.NotAnAttribute,
+//                    multiplier:0,
+//                    constant:CGFloat(actualHeightPortrait))
+//                self.heightConstraint!.priority = 1000
+//                
+//                self.view.addConstraint(self.heightConstraint!) // TODO: what if view already has constraint added?
+//            }
+//        }
+        
         self.forwardingView.frame = self.view.bounds
     }
     
