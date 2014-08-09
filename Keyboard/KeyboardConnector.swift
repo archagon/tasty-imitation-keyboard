@@ -116,12 +116,18 @@ class KeyboardConnector: UIView, KeyboardView {
         let startPoints = self.startConnectable.attachmentPoints(self.startDir)
         let endPoints = self.endConnectable.attachmentPoints(self.endDir)
         
-        let myConvertedStartPoints = (
+        var myConvertedStartPoints = (
             self.convertPoint(startPoints.0, fromView: self.start),
             self.convertPoint(startPoints.1, fromView: self.start))
         let myConvertedEndPoints = (
             self.convertPoint(endPoints.0, fromView: self.end),
             self.convertPoint(endPoints.1, fromView: self.end))
+        
+        if self.startDir == self.endDir {
+            let tempPoint = myConvertedStartPoints.0
+            myConvertedStartPoints.0 = myConvertedStartPoints.1
+            myConvertedStartPoints.1 = tempPoint
+        }
         
         let ctx = UIGraphicsGetCurrentContext()
         let csp = CGColorSpaceCreateDeviceRGB()
