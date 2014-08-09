@@ -22,6 +22,7 @@
 		4E807DC119461DC700D875D1 /* Apple.TransliteratingKeyboard.Keyboard.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 4E807DB919461DC700D875D1 /* Apple.TransliteratingKeyboard.Keyboard.appex */; };
 		4EAAB700196E13FE005DE8F5 /* KeyboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E807DBD19461DC700D875D1 /* KeyboardViewController.swift */; };
 		4EADE3091981F5180011AA26 /* Test.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4EADE3081981F5180011AA26 /* Test.xib */; };
+		4ED9B8021996CB13005FFE41 /* asdf.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4ED9B8001996CAF2005FFE41 /* asdf.jpg */; };
 		4EF250C71986D460003BC484 /* KeyboardLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF250C61986D460003BC484 /* KeyboardLayout.swift */; };
 /* End PBXBuildFile section */
 
@@ -102,6 +103,7 @@
 		4E807DC81946209600D875D1 /* KeyboardKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyboardKey.swift; sourceTree = "<group>"; };
 		4EADE3081981F5180011AA26 /* Test.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = Test.xib; sourceTree = "<group>"; };
 		4EC3297C198030D6007B9BCB /* TODO.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = TODO.txt; sourceTree = "<group>"; };
+		4ED9B8001996CAF2005FFE41 /* asdf.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = asdf.jpg; sourceTree = SOURCE_ROOT; };
 		4EF250C61986D460003BC484 /* KeyboardLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyboardLayout.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -165,6 +167,7 @@
 		4E807D9619461D9000D875D1 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				4ED9B8001996CAF2005FFE41 /* asdf.jpg */,
 				4E807D9719461D9000D875D1 /* Info.plist */,
 			);
 			name = "Supporting Files";
@@ -321,6 +324,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4E807D9E19461D9000D875D1 /* Main.storyboard in Resources */,
+				4ED9B8021996CB13005FFE41 /* asdf.jpg in Resources */,
 				4E807DA019461D9000D875D1 /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
