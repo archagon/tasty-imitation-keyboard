@@ -21,6 +21,13 @@ The development of this keyboard is fully open-source, so the project may not wo
 
 Hold-to-select-alternate-characters will be implemented at a later time.
 
+## Build Instructions
+
+1. Build the Keyboard target.
+2. In the Simulator, go to Settings→General→Keyboard→Keyboards→Add New Keyboard and add the third-party keyboard.
+3. Edit Scheme for the Keyboard target and set the Executable to be TransliteratingKeyboard.app.
+4. Build and run the Keyboard target. The container app should open up, and you should be able to select the custom keyboard via the globe icon.
+
 ## Learning goals for this project:
 
 * Swift
