@@ -10,10 +10,21 @@ import UIKit
 
 class KeyboardViewController: UIInputViewController {
     
+    let backspaceDelay: NSTimeInterval = 0.5
+    let backspaceRepeat: NSTimeInterval = 0.075
+    
     var keyboard: Keyboard
     var forwardingView: ForwardingView
     var layout: KeyboardLayout
     var heightConstraint: NSLayoutConstraint?
+    
+    var backspaceActive: Bool {
+        get {
+            return (backspaceDelayTimer != nil) || (backspaceRepeatTimer != nil)
+        }
+    }
+    var backspaceDelayTimer: NSTimer?
+    var backspaceRepeatTimer: NSTimer?
 
     // TODO: why does the app crash if this isn't here?
     convenience override init() {
@@ -103,7 +114,10 @@ class KeyboardViewController: UIInputViewController {
                 case Key.KeyType.KeyboardChange:
                     keyView.addTarget(self, action: "advanceToNextInputMode", forControlEvents: .TouchUpInside)
                 case Key.KeyType.Backspace:
-                    keyView.addTarget(self, action: "backspacePressed:", forControlEvents: .TouchUpInside)
+                    let cancelEvents: UIControlEvents = UIControlEvents.TouchUpInside|UIControlEvents.TouchUpInside|UIControlEvents.TouchDragExit|UIControlEvents.TouchUpOutside|UIControlEvents.TouchCancel|UIControlEvents.TouchDragOutside
+                    
+                    keyView.addTarget(self, action: "backspaceDown:", forControlEvents: .TouchDown)
+                    keyView.addTarget(self, action: "backspaceUp:", forControlEvents: cancelEvents)
                 default:
                     break
                 }
@@ -177,9 +191,34 @@ class KeyboardViewController: UIInputViewController {
         }
     }
     
-    func backspacePressed(sender: KeyboardKey) {
-        UIDevice.currentDevice().playInputClick()
+    func cancelBackspaceTimers() {
+        self.backspaceDelayTimer?.invalidate()
+        self.backspaceRepeatTimer?.invalidate()
+        self.backspaceDelayTimer = nil
+        self.backspaceRepeatTimer = nil
+    }
+    
+    func backspaceDown(sender: KeyboardKey) {
+        self.cancelBackspaceTimers()
         
+        // first delete
+        UIDevice.currentDevice().playInputClick()
+        (self.textDocumentProxy as UITextDocumentProxy as UIKeyInput).deleteBackward()
+        
+        // trigger for subsequent deletes
+        self.backspaceDelayTimer = NSTimer.scheduledTimerWithTimeInterval(backspaceDelay - backspaceRepeat, target: self, selector: Selector("backspaceDelayCallback"), userInfo: nil, repeats: false)
+    }
+    
+    func backspaceUp(sender: KeyboardKey) {
+        self.cancelBackspaceTimers()
+    }
+    
+    func backspaceDelayCallback() {
+        self.backspaceDelayTimer = nil
+        self.backspaceRepeatTimer = NSTimer.scheduledTimerWithTimeInterval(backspaceRepeat, target: self, selector: Selector("backspaceRepeatCallback"), userInfo: nil, repeats: true)
+    }
+    
+    func backspaceRepeatCallback() {
         (self.textDocumentProxy as UITextDocumentProxy as UIKeyInput).deleteBackward()
     }
     
