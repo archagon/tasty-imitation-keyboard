@@ -164,7 +164,7 @@ class KeyboardViewController: UIInputViewController {
         // TODO: if let chain
         if model != nil && model!.outputText != nil {
             if blah < 3 {
-                (self.textDocumentProxy as UITextDocumentProxy as UIKeyInput).insertText(model!.outputText)
+                (self.textDocumentProxy as UITextDocumentProxy as UIKeyInput).insertText(model!.outputText!)
                 blah += 1
             }
             else {
