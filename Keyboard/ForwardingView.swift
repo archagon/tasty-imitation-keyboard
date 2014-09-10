@@ -29,7 +29,7 @@ class ForwardingView: UIView {
     // actually do anything.
     override func drawRect(rect: CGRect) {}
     
-    override func hitTest(point: CGPoint, withEvent event: UIEvent!) -> UIView! {
+    override func hitTest(point: CGPoint, withEvent event: UIEvent!) -> UIView? {
         return self
     }
     
@@ -63,14 +63,12 @@ class ForwardingView: UIView {
         }
         
         let targets = control.allTargets()
-        if targets {
-            for target in targets.allObjects { // TODO: Xcode crashes
-                var actions = control.actionsForTarget(target, forControlEvent: controlEvent)
-                if actions {
-                    for action in actions {
-                        let selector = Selector(action as String)
-                        control.sendAction(selector, to: target, forEvent: nil)
-                    }
+        for target in targets.allObjects { // TODO: Xcode crashes
+            var actions = control.actionsForTarget(target, forControlEvent: controlEvent)
+            if (actions != nil) {
+                for action in actions! {
+                    let selector = Selector(action as String)
+                    control.sendAction(selector, to: target, forEvent: nil)
                 }
             }
         }
@@ -135,7 +133,7 @@ class ForwardingView: UIView {
         return CGFloat(sqrt(a + b));
     }
     
-    override func touchesBegan(touches: NSSet!, withEvent event: UIEvent!) {
+    override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {
         let touch = touches.anyObject() as UITouch
         let position = touch.locationInView(self)
         var view = findNearestView(position)
@@ -145,7 +143,7 @@ class ForwardingView: UIView {
         self.handleControl(self.myView, controlEvent: .TouchDown)
     }
     
-    override func touchesMoved(touches: NSSet!, withEvent event: UIEvent!) {
+    override func touchesMoved(touches: NSSet, withEvent event: UIEvent) {
         let touch = touches.anyObject() as UITouch
         let position = touch.locationInView(self)
         var view = findNearestView(position)
@@ -162,10 +160,10 @@ class ForwardingView: UIView {
         }
     }
     
-    override func touchesEnded(touches: NSSet!, withEvent event: UIEvent!)  {
+    override func touchesEnded(touches: NSSet, withEvent event: UIEvent) {
         let touch = touches.anyObject() as UITouch
-        let position = touch.locationInView(self)
-        var view = findNearestView(position)
+        let pos = touch.locationInView(self)
+        var view = findNearestView(pos)
         
         self.handleControl(view, controlEvent: .TouchUpInside)
     }

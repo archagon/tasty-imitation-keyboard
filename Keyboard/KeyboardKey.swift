@@ -170,7 +170,7 @@ class KeyboardKey: UIControl, KeyboardView {
 //        
 //        self.button.setTitle(self.text, forState: UIControlState.Normal)
         
-        self.keyView.text = (self.text ? self.text : "")
+        self.keyView.text = ((self.text != nil) ? self.text : "")
     }
     
     // TODO: StyleKit?
@@ -214,7 +214,7 @@ class KeyboardKey: UIControl, KeyboardView {
         // TODO: fix for direction
         
         var widthConstraint = NSLayoutConstraint(
-            item: self.popup,
+            item: self.popup!,
             attribute: NSLayoutAttribute.Width,
             relatedBy: NSLayoutRelation.Equal,
             toItem: self.keyView,
@@ -225,7 +225,7 @@ class KeyboardKey: UIControl, KeyboardView {
         
         // TODO: is this order right???
         var heightConstraint = NSLayoutConstraint(
-            item: self.popup,
+            item: self.popup!,
             attribute: NSLayoutAttribute.Height,
             relatedBy: NSLayoutRelation.Equal,
             toItem: self.keyView,
@@ -269,7 +269,7 @@ class KeyboardKey: UIControl, KeyboardView {
         // can't touch top
         
         var cantTouchTopConstraint = NSLayoutConstraint(
-            item: self.popup,
+            item: self.popup!,
             attribute: directionToAttribute[dir]!,
             relatedBy: (dir == Direction.Right ? NSLayoutRelation.LessThanOrEqual : NSLayoutRelation.GreaterThanOrEqual),
             toItem: self.superview,
@@ -281,7 +281,7 @@ class KeyboardKey: UIControl, KeyboardView {
         
         if dir.horizontal() {
             var cantTouchTopConstraint = NSLayoutConstraint(
-                item: self.popup,
+                item: self.popup!,
                 attribute: directionToAttribute[Direction.Up]!,
                 relatedBy: NSLayoutRelation.GreaterThanOrEqual,
                 toItem: self.superview,
@@ -293,7 +293,7 @@ class KeyboardKey: UIControl, KeyboardView {
         }
         else {
             var cantTouchSideConstraint = NSLayoutConstraint(
-                item: self.superview,
+                item: self.superview!,
                 attribute: directionToAttribute[Direction.Right]!,
                 relatedBy: NSLayoutRelation.GreaterThanOrEqual,
                 toItem: self.popup,
@@ -302,7 +302,7 @@ class KeyboardKey: UIControl, KeyboardView {
                 constant: 17) // TODO: layout
             cantTouchSideConstraint.priority = 1000
             var cantTouchSideConstraint2 = NSLayoutConstraint(
-                item: self.superview,
+                item: self.superview!,
                 attribute: directionToAttribute[Direction.Left]!,
                 relatedBy: NSLayoutRelation.LessThanOrEqual,
                 toItem: self.popup,

@@ -624,7 +624,7 @@ class KeyboardLayout {
                     switch keyModel.type {
                     case Key.KeyType.Character:
                         var constraint0 = NSLayoutConstraint(
-                            item: key,
+                            item: key!,
                             attribute: NSLayoutAttribute.Width,
                             relatedBy: NSLayoutRelation.Equal,
                             toItem: canonicalKey,
@@ -635,7 +635,7 @@ class KeyboardLayout {
                     case Key.KeyType.Shift, Key.KeyType.Backspace:
                         let shiftAndBackspaceMaxWidth = layout["shiftAndBackspaceMaxWidth"]!
                         var constraint = NSLayoutConstraint(
-                            item: key,
+                            item: key!,
                             attribute: NSLayoutAttribute.Width,
                             relatedBy: NSLayoutRelation.Equal,
                             toItem: elements["superview"],

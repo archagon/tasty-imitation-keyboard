@@ -17,7 +17,7 @@ class ViewController: UIViewController {
         var textField = UITextField(frame: CGRect(x: 0, y: 0, width: 300, height: 400))
         textField.text = "try me!"
         
-        var image = UIImage(contentsOfFile: NSBundle.mainBundle().pathForResource("asdf", ofType: "jpg"))
+        var image = UIImage(contentsOfFile: NSBundle.mainBundle().pathForResource("asdf", ofType: "jpg")!)
         var asdf = UIImageView(image: image)
         asdf.frame = self.view.bounds
         
