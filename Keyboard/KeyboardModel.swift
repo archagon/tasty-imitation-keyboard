@@ -68,6 +68,16 @@ class Key: Hashable {
     var type: KeyType
     var outputText: String?
     var keyCap: String?
+    var lowercaseKeyCap: String? {
+        get {
+            if keyCap == nil {
+                return nil
+            }
+            else {
+                return (keyCap! as NSString).lowercaseString
+            }
+        }
+    }
     
     var hashValue: Int
     

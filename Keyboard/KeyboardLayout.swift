@@ -63,8 +63,8 @@ class KeyboardLayout {
     
     private var model: Keyboard
     private var superview: UIView
-    private var modelToView: [Key:KeyboardKey] = [:]
-    private var viewToModel: [KeyboardKey:Key] = [:]
+    var modelToView: [Key:KeyboardKey] = [:]
+    var viewToModel: [KeyboardKey:Key] = [:]
     private var elements: [String:UIView] = [:]
     
     private var initialized: Bool
@@ -228,7 +228,7 @@ class KeyboardLayout {
                         let keyViewName = "key\(j)x\(i)"
                         keyView.enabled = true
                         keyView.setTranslatesAutoresizingMaskIntoConstraints(false)
-                        keyView.text = key.keyCap
+                        keyView.text = key.lowercaseKeyCap
                         
                         self.superview.addSubview(keyView)
                         

@@ -11,7 +11,7 @@ import UIKit
 class KeyboardViewController: UIInputViewController {
     
     let backspaceDelay: NSTimeInterval = 0.5
-    let backspaceRepeat: NSTimeInterval = 0.075
+    let backspaceRepeat: NSTimeInterval = 0.05
     
     var keyboard: Keyboard
     var forwardingView: ForwardingView
@@ -25,6 +25,24 @@ class KeyboardViewController: UIInputViewController {
     }
     var backspaceDelayTimer: NSTimer?
     var backspaceRepeatTimer: NSTimer?
+    
+    enum ShiftState {
+        case Disabled
+        case Enabled
+        case Locked
+    }
+    var shiftState: ShiftState {
+        willSet {
+            switch newValue {
+            case .Disabled:
+                NSLog("shift disabled")
+            case .Enabled:
+                NSLog("shift enabled")
+            case .Locked:
+                NSLog("shift locked")
+            }
+        }
+    }
 
     // TODO: why does the app crash if this isn't here?
     convenience override init() {
@@ -35,6 +53,7 @@ class KeyboardViewController: UIInputViewController {
         self.keyboard = defaultKeyboard()
         self.forwardingView = ForwardingView(frame: CGRectZero)
         self.layout = KeyboardLayout(model: self.keyboard, superview: self.forwardingView)
+        self.shiftState = .Disabled
         
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
         
@@ -110,6 +129,9 @@ class KeyboardViewController: UIInputViewController {
             for key in rowKeys {
                 var keyView = self.layout.viewForKey(key)! // TODO: check
                 
+                let showOptions: UIControlEvents = .TouchDown | .TouchDragInside | .TouchDragEnter
+                let hideOptions: UIControlEvents = .TouchUpInside | .TouchUpOutside | .TouchDragOutside
+                
                 switch key.type {
                 case Key.KeyType.KeyboardChange:
                     keyView.addTarget(self, action: "advanceToNextInputMode", forControlEvents: .TouchUpInside)
@@ -118,17 +140,17 @@ class KeyboardViewController: UIInputViewController {
                     
                     keyView.addTarget(self, action: "backspaceDown:", forControlEvents: .TouchDown)
                     keyView.addTarget(self, action: "backspaceUp:", forControlEvents: cancelEvents)
+                case Key.KeyType.Shift:
+                    keyView.addTarget(self, action: Selector("shiftDown:"), forControlEvents: .TouchUpInside)
+                    keyView.addTarget(self, action: Selector("shiftDoubleTapped:"), forControlEvents: .TouchDownRepeat)
                 default:
                     break
                 }
                 
                 if key.outputText != nil {
                     keyView.addTarget(self, action: "keyPressed:", forControlEvents: .TouchUpInside)
-                    keyView.addTarget(self, action: "takeScreenshotDelay", forControlEvents: .TouchDown)
+//                    keyView.addTarget(self, action: "takeScreenshotDelay", forControlEvents: .TouchDown)
                 }
-                
-                let showOptions: UIControlEvents = .TouchDown | .TouchDragInside | .TouchDragEnter
-                let hideOptions: UIControlEvents = .TouchUpInside | .TouchUpOutside | .TouchDragOutside
                 
                 if key.type == Key.KeyType.Character || key.type == Key.KeyType.Period {
                     keyView.addTarget(keyView, action: Selector("showPopup"), forControlEvents: showOptions)
@@ -164,6 +186,19 @@ class KeyboardViewController: UIInputViewController {
             
             self.view.backgroundColor = oldViewColor
         }
+    }
+    
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        // Dispose of any resources that can be recreated
+    }
+    
+    override func textWillChange(textInput: UITextInput) {
+        // The app is about to change the document's contents. Perform any preparation here.
+    }
+    
+    override func textDidChange(textInput: UITextInput) {
+        // The app has just changed the document's contents, the document context has been updated.
     }
     
     var blah = 0
@@ -222,16 +257,47 @@ class KeyboardViewController: UIInputViewController {
         (self.textDocumentProxy as UITextDocumentProxy as UIKeyInput).deleteBackward()
     }
     
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated
+    func shiftDown(sender: KeyboardKey) {
+        switch self.shiftState {
+        case .Disabled:
+            self.shiftState = .Enabled
+            sender.highlighted = true
+            updateKeyCaps(false)
+        case .Enabled:
+            self.shiftState = .Disabled
+            sender.highlighted = false
+            updateKeyCaps(true)
+        case .Locked:
+            self.shiftState = .Disabled
+            sender.highlighted = false
+            updateKeyCaps(true)
+        }
+        
+        sender.text = "⇪"
     }
     
-    override func textWillChange(textInput: UITextInput) {
-        // The app is about to change the document's contents. Perform any preparation here.
+    func shiftDoubleTapped(sender: KeyboardKey) {
+        switch self.shiftState {
+        case .Disabled:
+            self.shiftState = .Locked
+            sender.highlighted = true
+            updateKeyCaps(false)
+        case .Enabled:
+            self.shiftState = .Locked
+            sender.highlighted = true
+            updateKeyCaps(false)
+        case .Locked:
+            self.shiftState = .Locked
+            sender.highlighted = true
+            updateKeyCaps(false)
+        }
+        
+        sender.text = "L"
     }
     
-    override func textDidChange(textInput: UITextInput) {
-        // The app has just changed the document's contents, the document context has been updated.
+    func updateKeyCaps(lowercase: Bool) {
+        for (model, key) in self.layout.modelToView {
+            key.text = (lowercase ? model.lowercaseKeyCap : model.keyCap)
+        }
     }
 }
