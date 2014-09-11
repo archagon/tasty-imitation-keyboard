@@ -17,19 +17,37 @@ import Foundation
 var counter = 0
 
 class Keyboard {
-    var rows: Array<Array<Key>>
+    var pages: [Page]
     
     init() {
-        self.rows = Array<Array<Key>>()
+        self.pages = []
+    }
+    
+    func addKey(key: Key, row: Int, page: Int) {
+        if self.pages.count <= page {
+            for i in self.pages.count...page {
+                self.pages.append(Page())
+            }
+        }
+        
+        self.pages[page].addKey(key, row: row)
+    }
+}
+
+class Page {
+    var rows: [[Key]]
+    
+    init() {
+        self.rows = []
     }
     
     func addKey(key: Key, row: Int) {
         if self.rows.count <= row {
             for i in self.rows.count...row {
-                self.rows.append(Array<Key>())
+                self.rows.append([])
             }
         }
-        
+
         self.rows[row].append(key)
     }
 }
@@ -71,43 +89,43 @@ func defaultKeyboard() -> Keyboard {
         var keyModel = Key(type: .Character)
         keyModel.keyCap = key
         keyModel.outputText = key
-        defaultKeyboard.addKey(keyModel, row: 0)
+        defaultKeyboard.addKey(keyModel, row: 0, page: 0)
     }
     
     for key in ["A", "S", "D", "F", "G", "H", "J", "K", "L"] {
         var keyModel = Key(type: .Character)
         keyModel.keyCap = key
         keyModel.outputText = key
-        defaultKeyboard.addKey(keyModel, row: 1)
+        defaultKeyboard.addKey(keyModel, row: 1, page: 0)
     }
     
     var keyModel = Key(type: .Shift)
     keyModel.keyCap = "⇪"
-    defaultKeyboard.addKey(keyModel, row: 2)
+    defaultKeyboard.addKey(keyModel, row: 2, page: 0)
     
     for key in ["Z", "X", "C", "V", "B", "N", "M"] {
         var keyModel = Key(type: .Character)
         keyModel.keyCap = key
         keyModel.outputText = key
-        defaultKeyboard.addKey(keyModel, row: 2)
+        defaultKeyboard.addKey(keyModel, row: 2, page: 0)
     }
     
     var keyModel2 = Key(type: .Backspace)
     keyModel2.keyCap = "⬅︎"
-    defaultKeyboard.addKey(keyModel2, row: 2)
+    defaultKeyboard.addKey(keyModel2, row: 2, page: 0)
     
     var keyModel3 = Key(type: .ModeChange)
     keyModel3.keyCap = "123"
-    defaultKeyboard.addKey(keyModel3, row: 3)
+    defaultKeyboard.addKey(keyModel3, row: 3, page: 0)
     
     var keyModel4 = Key(type: .KeyboardChange)
     keyModel4.keyCap = "🌐"
-    defaultKeyboard.addKey(keyModel4, row: 3)
+    defaultKeyboard.addKey(keyModel4, row: 3, page: 0)
     
     var keyModel5 = Key(type: .Space)
     keyModel5.keyCap = "space"
     keyModel5.outputText = " "
-    defaultKeyboard.addKey(keyModel5, row: 3)
+    defaultKeyboard.addKey(keyModel5, row: 3, page: 0)
     
 //    var keyModel7 = Key(type: .Period)
 //    keyModel7.keyCap = "."
@@ -117,7 +135,7 @@ func defaultKeyboard() -> Keyboard {
     var keyModel6 = Key(type: .Return)
     keyModel6.keyCap = "return"
     keyModel6.outputText = "\n"
-    defaultKeyboard.addKey(keyModel6, row: 3)
+    defaultKeyboard.addKey(keyModel6, row: 3, page: 0)
     
     return defaultKeyboard
 }

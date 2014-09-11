@@ -201,7 +201,7 @@ class KeyboardLayout {
     }
     
     private func createViews(keyboard: Keyboard) {
-        let numRows = keyboard.rows.count
+        let numRows = keyboard.pages[0].rows.count // TODO:
         
         for i in 0...numRows {
             var rowGap = Spacer(color: ((i == 0 || i == numRows) ? UIColor.purpleColor() : UIColor.yellowColor()))
@@ -211,7 +211,7 @@ class KeyboardLayout {
             self.superview.addSubview(rowGap)
             
             if (i < numRows) {
-                let numKeys = keyboard.rows[i].count
+                let numKeys = keyboard.pages[0].rows[i].count
                 
                 for j in 0...numKeys {
                     var keyGap = Spacer(color: UIColor.blueColor())
@@ -222,7 +222,7 @@ class KeyboardLayout {
                     self.superview.addSubview(keyGap)
                     
                     if (j < numKeys) {
-                        var key = keyboard.rows[i][j]
+                        var key = keyboard.pages[0].rows[i][j]
                         
                         var keyView = KeyboardKey(frame: CGRectZero, model: key) // TODO:
                         let keyViewName = "key\(j)x\(i)"
@@ -425,7 +425,7 @@ class KeyboardLayout {
             "rowGap%d",
             row: 0,
             startIndex: 0,
-            endIndex: keyboard.rows.count,
+            endIndex: keyboard.pages[0].rows.count,
             leftAnchor: "topSpacer",
             rightAnchor: "bottomSpacer",
             vertical: true,
@@ -433,18 +433,18 @@ class KeyboardLayout {
         self.addGapsInRange("rowGap%d",
             row: 0,
             startIndex: 1,
-            endIndex: keyboard.rows.count - 1,
+            endIndex: keyboard.pages[0].rows.count - 1,
             vertical: true,
             width: ">=5@50")
     }
     
     // TODO: make this a single constraint string??
     private func createKeyGapConstraints(keyboard: Keyboard) {
-        for i in 0..<keyboard.rows.count {
+        for i in 0..<keyboard.pages[0].rows.count {
             // TODO: both of these should be determined based on the model data, not the row #
             let isSideButtonRow = (i == 2)
             let isEquallySpacedRow = (i == 3)
-            let rowsCount = keyboard.rows[i].count
+            let rowsCount = keyboard.pages[0].rows[i].count
             
             if isSideButtonRow {
                 addGapPair(
@@ -479,7 +479,7 @@ class KeyboardLayout {
                     "keyGap%dx%d",
                     row: i,
                     startIndex: 0,
-                    endIndex: keyboard.rows[i].count,
+                    endIndex: keyboard.pages[0].rows[i].count,
                     leftAnchor: "leftSpacer",
                     rightAnchor: "rightSpacer",
                     vertical: false,
@@ -522,9 +522,9 @@ class KeyboardLayout {
         var canonicalSpecialSameWidth: String? = nil
         
         // setup special widths
-        for i in 0..<keyboard.rows.count {
-            for j in 0..<keyboard.rows[i].count {
-                let keyModel = keyboard.rows[i][j]
+        for i in 0..<keyboard.pages[0].rows.count {
+            for j in 0..<keyboard.pages[0].rows[i].count {
+                let keyModel = keyboard.pages[0].rows[i][j]
                 let keyName = "key\(j)x\(i)"
                 
                 if keyModel.type == Key.KeyType.ModeChange
@@ -549,9 +549,9 @@ class KeyboardLayout {
         }
         
         // setup return key
-        for i in 0..<keyboard.rows.count {
-            for j in 0..<keyboard.rows[i].count {
-                let keyModel = keyboard.rows[i][j]
+        for i in 0..<keyboard.pages[0].rows.count {
+            for j in 0..<keyboard.pages[0].rows[i].count {
+                let keyModel = keyboard.pages[0].rows[i][j]
                 let keyName = "key\(j)x\(i)"
                 
                 if keyModel.type == Key.KeyType.Return {
@@ -569,11 +569,11 @@ class KeyboardLayout {
             }
         }
         
-        for i in 0..<keyboard.rows.count {
+        for i in 0..<keyboard.pages[0].rows.count {
             let canonicalRowKey = elements["key0x\(i)"]
             
-            for j in 0..<keyboard.rows[i].count {
-                let keyModel = keyboard.rows[i][j]
+            for j in 0..<keyboard.pages[0].rows[i].count {
+                let keyModel = keyboard.pages[0].rows[i][j]
                 
                 let keyName = "key\(j)x\(i)"
                 let key = self.elements[keyName]

@@ -106,7 +106,7 @@ class KeyboardViewController: UIInputViewController {
     }
     
     func setupKeys() {
-        for rowKeys in self.keyboard.rows {
+        for rowKeys in self.keyboard.pages[0].rows { // TODO: quick hack
             for key in rowKeys {
                 var keyView = self.layout.viewForKey(key)! // TODO: check
                 
