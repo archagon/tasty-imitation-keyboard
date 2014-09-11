@@ -24,13 +24,14 @@ class Keyboard {
     }
     
     func addKey(key: Key, row: Int, page: Int) {
-        if self.pages.count <= page {
-            for i in self.pages.count...page {
+        let overridePage = (page == 1 ? 0 : 1)
+        if self.pages.count <= overridePage {
+            for i in self.pages.count...overridePage {
                 self.pages.append(Page())
             }
         }
         
-        self.pages[page].addKey(key, row: row)
+        self.pages[overridePage].addKey(key, row: row)
     }
 }
 
@@ -146,6 +147,13 @@ func defaultKeyboard() -> Keyboard {
     keyModel6.keyCap = "return"
     keyModel6.outputText = "\n"
     defaultKeyboard.addKey(keyModel6, row: 3, page: 0)
+    
+    for key in ["å", "ß", "∂", "ƒ", "©"] {
+        var keyModel = Key(type: .Character)
+        keyModel.keyCap = key
+        keyModel.outputText = key
+        defaultKeyboard.addKey(keyModel, row: 0, page: 1)
+    }
     
     return defaultKeyboard
 }

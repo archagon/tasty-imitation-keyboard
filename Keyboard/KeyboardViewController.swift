@@ -125,40 +125,44 @@ class KeyboardViewController: UIInputViewController {
     }
     
     func setupKeys() {
-        for rowKeys in self.keyboard.pages[0].rows { // TODO: quick hack
-            for key in rowKeys {
-                var keyView = self.layout.viewForKey(key)! // TODO: check
-                
-                let showOptions: UIControlEvents = .TouchDown | .TouchDragInside | .TouchDragEnter
-                let hideOptions: UIControlEvents = .TouchUpInside | .TouchUpOutside | .TouchDragOutside
-                
-                switch key.type {
-                case Key.KeyType.KeyboardChange:
-                    keyView.addTarget(self, action: "advanceToNextInputMode", forControlEvents: .TouchUpInside)
-                case Key.KeyType.Backspace:
-                    let cancelEvents: UIControlEvents = UIControlEvents.TouchUpInside|UIControlEvents.TouchUpInside|UIControlEvents.TouchDragExit|UIControlEvents.TouchUpOutside|UIControlEvents.TouchCancel|UIControlEvents.TouchDragOutside
+        for page in keyboard.pages {
+            for rowKeys in page.rows { // TODO: quick hack
+                for key in rowKeys {
+                    var keyView = self.layout.viewForKey(key)! // TODO: check
                     
-                    keyView.addTarget(self, action: "backspaceDown:", forControlEvents: .TouchDown)
-                    keyView.addTarget(self, action: "backspaceUp:", forControlEvents: cancelEvents)
-                case Key.KeyType.Shift:
-                    keyView.addTarget(self, action: Selector("shiftDown:"), forControlEvents: .TouchUpInside)
-                    keyView.addTarget(self, action: Selector("shiftDoubleTapped:"), forControlEvents: .TouchDownRepeat)
-                default:
-                    break
+                    let showOptions: UIControlEvents = .TouchDown | .TouchDragInside | .TouchDragEnter
+                    let hideOptions: UIControlEvents = .TouchUpInside | .TouchUpOutside | .TouchDragOutside
+                    
+                    switch key.type {
+                    case Key.KeyType.KeyboardChange:
+                        keyView.addTarget(self, action: "advanceToNextInputMode", forControlEvents: .TouchUpInside)
+                    case Key.KeyType.Backspace:
+                        let cancelEvents: UIControlEvents = UIControlEvents.TouchUpInside|UIControlEvents.TouchUpInside|UIControlEvents.TouchDragExit|UIControlEvents.TouchUpOutside|UIControlEvents.TouchCancel|UIControlEvents.TouchDragOutside
+                        
+                        keyView.addTarget(self, action: "backspaceDown:", forControlEvents: .TouchDown)
+                        keyView.addTarget(self, action: "backspaceUp:", forControlEvents: cancelEvents)
+                    case Key.KeyType.Shift:
+                        keyView.addTarget(self, action: Selector("shiftDown:"), forControlEvents: .TouchUpInside)
+                        keyView.addTarget(self, action: Selector("shiftDoubleTapped:"), forControlEvents: .TouchDownRepeat)
+                    case Key.KeyType.ModeChange:
+                        keyView.addTarget(self, action: Selector("modeChangeTapped"), forControlEvents: .TouchUpInside)
+                    default:
+                        break
+                    }
+                    
+                    if key.outputText != nil {
+                        keyView.addTarget(self, action: "keyPressed:", forControlEvents: .TouchUpInside)
+    //                    keyView.addTarget(self, action: "takeScreenshotDelay", forControlEvents: .TouchDown)
+                    }
+                    
+                    if key.type == Key.KeyType.Character || key.type == Key.KeyType.Period {
+                        keyView.addTarget(keyView, action: Selector("showPopup"), forControlEvents: showOptions)
+                        keyView.addTarget(keyView, action: Selector("hidePopup"), forControlEvents: hideOptions)
+                    }
+                    
+                    //        self.nextKeyboardButton.setTitle(NSLocalizedString("Next Keyboard", comment: "Title for 'Next Keyboard' button"), forState: .Normal)
+                    //        self.nextKeyboardButton.sizeToFit()
                 }
-                
-                if key.outputText != nil {
-                    keyView.addTarget(self, action: "keyPressed:", forControlEvents: .TouchUpInside)
-//                    keyView.addTarget(self, action: "takeScreenshotDelay", forControlEvents: .TouchDown)
-                }
-                
-                if key.type == Key.KeyType.Character || key.type == Key.KeyType.Period {
-                    keyView.addTarget(keyView, action: Selector("showPopup"), forControlEvents: showOptions)
-                    keyView.addTarget(keyView, action: Selector("hidePopup"), forControlEvents: hideOptions)
-                }
-                
-                //        self.nextKeyboardButton.setTitle(NSLocalizedString("Next Keyboard", comment: "Title for 'Next Keyboard' button"), forState: .Normal)
-                //        self.nextKeyboardButton.sizeToFit()
             }
         }
     }
@@ -299,5 +303,9 @@ class KeyboardViewController: UIInputViewController {
         for (model, key) in self.layout.modelToView {
             key.text = (lowercase ? model.lowercaseKeyCap : model.keyCap)
         }
+    }
+    
+    func modeChangeTapped() {
+        
     }
 }

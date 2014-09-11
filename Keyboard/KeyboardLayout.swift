@@ -201,54 +201,56 @@ class KeyboardLayout {
     }
     
     private func createViews(keyboard: Keyboard) {
-        let numRows = keyboard.pages[0].rows.count // TODO:
-        
-        for i in 0...numRows {
-            var rowGap = Spacer(color: ((i == 0 || i == numRows) ? UIColor.purpleColor() : UIColor.yellowColor()))
-            let rowGapName = "rowGap\(i)"
-            rowGap.setTranslatesAutoresizingMaskIntoConstraints(false)
-            self.elements[rowGapName] = rowGap
-            self.superview.addSubview(rowGap)
+        for page in keyboard.pages {
+            let numRows = page.rows.count
             
-            if (i < numRows) {
-                let numKeys = keyboard.pages[0].rows[i].count
+            for i in 0...numRows {
+                var rowGap = Spacer(color: ((i == 0 || i == numRows) ? UIColor.purpleColor() : UIColor.yellowColor()))
+                let rowGapName = "rowGap\(i)"
+                rowGap.setTranslatesAutoresizingMaskIntoConstraints(false)
+                self.elements[rowGapName] = rowGap
+                self.superview.addSubview(rowGap)
                 
-                for j in 0...numKeys {
-                    var keyGap = Spacer(color: UIColor.blueColor())
-                    let keyGapName = "keyGap\(j)x\(i)"
-                    keyGap.setTranslatesAutoresizingMaskIntoConstraints(false)
+                if (i < numRows) {
+                    let numKeys = page.rows[i].count
                     
-                    self.elements[keyGapName] = keyGap
-                    self.superview.addSubview(keyGap)
-                    
-                    if (j < numKeys) {
-                        var key = keyboard.pages[0].rows[i][j]
+                    for j in 0...numKeys {
+                        var keyGap = Spacer(color: UIColor.blueColor())
+                        let keyGapName = "keyGap\(j)x\(i)"
+                        keyGap.setTranslatesAutoresizingMaskIntoConstraints(false)
                         
-                        var keyView = KeyboardKey(frame: CGRectZero, model: key) // TODO:
-                        let keyViewName = "key\(j)x\(i)"
-                        keyView.enabled = true
-                        keyView.setTranslatesAutoresizingMaskIntoConstraints(false)
-                        keyView.text = key.lowercaseKeyCap
+                        self.elements[keyGapName] = keyGap
+                        self.superview.addSubview(keyGap)
                         
-                        self.superview.addSubview(keyView)
-                        
-                        self.elements[keyViewName] = keyView
-                        self.modelToView[key] = keyView
-                        self.viewToModel[keyView] = key
-                        
-                        setColorsForKey(keyView, model: key)
-                        
-                        // font sizing
-                        switch key.type {
-                        case
-                        Key.KeyType.ModeChange,
-                        Key.KeyType.Space,
-                        Key.KeyType.Return:
-                            keyView.keyView.label.adjustsFontSizeToFitWidth = false
-                            keyView.keyView.label.minimumScaleFactor = 0.1
-                            keyView.keyView.label.font = keyView.keyView.label.font.fontWithSize(16)
-                        default:
-                            break
+                        if (j < numKeys) {
+                            var key = page.rows[i][j]
+                            
+                            var keyView = KeyboardKey(frame: CGRectZero, model: key) // TODO:
+                            let keyViewName = "key\(j)x\(i)"
+                            keyView.enabled = true
+                            keyView.setTranslatesAutoresizingMaskIntoConstraints(false)
+                            keyView.text = key.lowercaseKeyCap
+                            
+                            self.superview.addSubview(keyView)
+                            
+                            self.elements[keyViewName] = keyView
+                            self.modelToView[key] = keyView
+                            self.viewToModel[keyView] = key
+                            
+                            setColorsForKey(keyView, model: key)
+                            
+                            // font sizing
+                            switch key.type {
+                            case
+                            Key.KeyType.ModeChange,
+                            Key.KeyType.Space,
+                            Key.KeyType.Return:
+                                keyView.keyView.label.adjustsFontSizeToFitWidth = false
+                                keyView.keyView.label.minimumScaleFactor = 0.1
+                                keyView.keyView.label.font = keyView.keyView.label.font.fontWithSize(16)
+                            default:
+                                break
+                            }
                         }
                     }
                 }
@@ -421,95 +423,102 @@ class KeyboardLayout {
     }
     
     private func createRowGapConstraints(keyboard: Keyboard) {
-        self.addGapPair(
-            "rowGap%d",
-            row: 0,
-            startIndex: 0,
-            endIndex: keyboard.pages[0].rows.count,
-            leftAnchor: "topSpacer",
-            rightAnchor: "bottomSpacer",
-            vertical: true,
-            width: "0")
-        self.addGapsInRange("rowGap%d",
-            row: 0,
-            startIndex: 1,
-            endIndex: keyboard.pages[0].rows.count - 1,
-            vertical: true,
-            width: ">=5@50")
+        for page in keyboard.pages {
+            self.addGapPair(
+                "rowGap%d",
+                row: 0,
+                startIndex: 0,
+                endIndex: page.rows.count,
+                leftAnchor: "topSpacer",
+                rightAnchor: "bottomSpacer",
+                vertical: true,
+                width: "0")
+            
+            if page.rows.count >= 2 {
+                self.addGapsInRange("rowGap%d",
+                    row: 0,
+                    startIndex: 1,
+                    endIndex: page.rows.count - 1,
+                    vertical: true,
+                    width: ">=5@50")
+            }
+        }
     }
     
     // TODO: make this a single constraint string??
     private func createKeyGapConstraints(keyboard: Keyboard) {
-        for i in 0..<keyboard.pages[0].rows.count {
-            // TODO: both of these should be determined based on the model data, not the row #
-            let isSideButtonRow = (i == 2)
-            let isEquallySpacedRow = (i == 3)
-            let rowsCount = keyboard.pages[0].rows[i].count
-            
-            if isSideButtonRow {
-                addGapPair(
-                    "keyGap%dx%d",
-                    row: i,
-                    startIndex: 0,
-                    endIndex: rowsCount,
-                    leftAnchor: "leftSpacer",
-                    rightAnchor: "rightSpacer",
-                    vertical: false,
-                    width: "0")
-                addGapPair(
-                    "keyGap%dx%d",
-                    row: i,
-                    startIndex: 1,
-                    endIndex: rowsCount - 1,
-                    leftAnchor: nil,
-                    rightAnchor: nil,
-                    vertical: false,
-                    width: nil)
-                let keyGap = layout["keyGap"]!
-                addGapsInRange(
-                    "keyGap%dx%d",
-                    row: i,
-                    startIndex: 2,
-                    endIndex: rowsCount - 2,
-                    vertical: false,
-                    width: "\(keyGap)")
-            }
-            else if isEquallySpacedRow {
-                addGapPair(
-                    "keyGap%dx%d",
-                    row: i,
-                    startIndex: 0,
-                    endIndex: keyboard.pages[0].rows[i].count,
-                    leftAnchor: "leftSpacer",
-                    rightAnchor: "rightSpacer",
-                    vertical: false,
-                    width: "0")
-                addGapsInRange(
-                    "keyGap%dx%d",
-                    row: i,
-                    startIndex: 1,
-                    endIndex: rowsCount - 1,
-                    vertical: false,
-                    width: "7") // TODO:
-            }
-            else {
-                addGapPair(
-                    "keyGap%dx%d",
-                    row: i,
-                    startIndex: 0,
-                    endIndex: rowsCount,
-                    leftAnchor: "leftSpacer",
-                    rightAnchor: "rightSpacer",
-                    vertical: false,
-                    width: nil)
-                let keyGap = layout["keyGap"]!
-                addGapsInRange(
-                    "keyGap%dx%d",
-                    row: i,
-                    startIndex: 1,
-                    endIndex: rowsCount - 1,
-                    vertical: false,
-                    width: "\(keyGap)")
+        for page in keyboard.pages {
+            for i in 0..<page.rows.count {
+                // TODO: both of these should be determined based on the model data, not the row #
+                let isSideButtonRow = (i == 2)
+                let isEquallySpacedRow = (i == 3)
+                let rowsCount = page.rows[i].count
+                
+                if isSideButtonRow {
+                    addGapPair(
+                        "keyGap%dx%d",
+                        row: i,
+                        startIndex: 0,
+                        endIndex: rowsCount,
+                        leftAnchor: "leftSpacer",
+                        rightAnchor: "rightSpacer",
+                        vertical: false,
+                        width: "0")
+                    addGapPair(
+                        "keyGap%dx%d",
+                        row: i,
+                        startIndex: 1,
+                        endIndex: rowsCount - 1,
+                        leftAnchor: nil,
+                        rightAnchor: nil,
+                        vertical: false,
+                        width: nil)
+                    let keyGap = layout["keyGap"]!
+                    addGapsInRange(
+                        "keyGap%dx%d",
+                        row: i,
+                        startIndex: 2,
+                        endIndex: rowsCount - 2,
+                        vertical: false,
+                        width: "\(keyGap)")
+                }
+                else if isEquallySpacedRow {
+                    addGapPair(
+                        "keyGap%dx%d",
+                        row: i,
+                        startIndex: 0,
+                        endIndex: page.rows[i].count,
+                        leftAnchor: "leftSpacer",
+                        rightAnchor: "rightSpacer",
+                        vertical: false,
+                        width: "0")
+                    addGapsInRange(
+                        "keyGap%dx%d",
+                        row: i,
+                        startIndex: 1,
+                        endIndex: rowsCount - 1,
+                        vertical: false,
+                        width: "7") // TODO:
+                }
+                else {
+                    addGapPair(
+                        "keyGap%dx%d",
+                        row: i,
+                        startIndex: 0,
+                        endIndex: rowsCount,
+                        leftAnchor: "leftSpacer",
+                        rightAnchor: "rightSpacer",
+                        vertical: false,
+                        width: nil)
+                    let keyGap = layout["keyGap"]!
+                    addGapsInRange(
+                        "keyGap%dx%d",
+                        row: i,
+                        startIndex: 1,
+                        endIndex: rowsCount - 1,
+                        vertical: false,
+                        width: "\(keyGap)")
+                }
             }
         }
     }
@@ -521,138 +530,140 @@ class KeyboardLayout {
         let canonicalKey = elements["key0x0"]
         var canonicalSpecialSameWidth: String? = nil
         
-        // setup special widths
-        for i in 0..<keyboard.pages[0].rows.count {
-            for j in 0..<keyboard.pages[0].rows[i].count {
-                let keyModel = keyboard.pages[0].rows[i][j]
-                let keyName = "key\(j)x\(i)"
-                
-                if keyModel.type == Key.KeyType.ModeChange
-                    || keyModel.type == Key.KeyType.KeyboardChange
-                    || keyModel.type == Key.KeyType.Period {
-                        if canonicalSpecialSameWidth == nil {
-                            canonicalSpecialSameWidth = keyName
-                            let widthConstraint = NSLayoutConstraint(
-                                item: self.elements[keyName]!,
-                                attribute: NSLayoutAttribute.Width,
-                                relatedBy: NSLayoutRelation.Equal,
-                                toItem: self.elements["superview"]!,
-                                attribute: NSLayoutAttribute.Width,
-                                multiplier: CGFloat(0.0645),
-                                constant: CGFloat(13.37))
-                            self.superview.addConstraint(widthConstraint)
-                        } else {
-                            allConstraints.append("[\(keyName)(\(canonicalSpecialSameWidth!))]")
-                        }
-                }
-            }
-        }
-        
-        // setup return key
-        for i in 0..<keyboard.pages[0].rows.count {
-            for j in 0..<keyboard.pages[0].rows[i].count {
-                let keyModel = keyboard.pages[0].rows[i][j]
-                let keyName = "key\(j)x\(i)"
-                
-                if keyModel.type == Key.KeyType.Return {
-                    assert(canonicalSpecialSameWidth != nil, "canonical special key not found")
-                    let widthConstraint = NSLayoutConstraint(
-                        item: self.elements[keyName]!,
-                        attribute: NSLayoutAttribute.Width,
-                        relatedBy: NSLayoutRelation.Equal,
-                        toItem: self.elements[canonicalSpecialSameWidth!]!,
-                        attribute: NSLayoutAttribute.Width,
-                        multiplier: CGFloat(2.0625),
-                        constant: CGFloat(3.875))
-                    self.superview.addConstraint(widthConstraint)
-                }
-            }
-        }
-        
-        for i in 0..<keyboard.pages[0].rows.count {
-            let canonicalRowKey = elements["key0x\(i)"]
-            
-            for j in 0..<keyboard.pages[0].rows[i].count {
-                let keyModel = keyboard.pages[0].rows[i][j]
-                
-                let keyName = "key\(j)x\(i)"
-                let key = self.elements[keyName]
-                
-                let isCanonicalKey = (key == canonicalKey) // TODO:
-                let isCanonicalRowKey = (key == canonicalRowKey) // TODO:
-                
-                allConstraints.append("[keyGap\(j)x\(i)][\(keyName)][keyGap\(j+1)x\(i)]")
-                
-                // only the canonical key has a constant width
-                if isCanonicalKey {
-//                    let keyWidth = layout["keyWidth"]!
-//                    
-//                    allConstraints += "[\(keyName)(\(keyWidth)@19)]"
-//                    allConstraints += "[\(keyName)(\(keyWidth*2)@20)]"
-//                    allConstraints += "V:[\(keyName)(<=keyHeight@100,>=5@100)]"
-                        
-                    let widthConstraint = NSLayoutConstraint(
-                        item: key!,
-                        attribute: NSLayoutAttribute.Width,
-                        relatedBy: NSLayoutRelation.Equal,
-                        toItem: elements["superview"]!,
-                        attribute: NSLayoutAttribute.Width,
-                        multiplier: CGFloat(layout["keyWidthRatio"]!),
-                        constant: 0)
-                    widthConstraint.priority = 1000
+        for page in keyboard.pages {
+            // setup special widths
+            for i in 0..<page.rows.count {
+                for j in 0..<page.rows[i].count {
+                    let keyModel = page.rows[i][j]
+                    let keyName = "key\(j)x\(i)"
                     
-                    let heightConstraint = NSLayoutConstraint(
-                        item: key!,
-                        attribute: NSLayoutAttribute.Height,
-                        relatedBy: NSLayoutRelation.Equal,
-                        toItem: elements["superview"]!,
-                        attribute: NSLayoutAttribute.Height,
-                        multiplier: CGFloat(layout["keyHeightRatio"]!),
-                        constant: 0)
-                    heightConstraint.priority = 1000
-                    
-                    elements["superview"]?.addConstraint(widthConstraint)
-                    elements["superview"]?.addConstraint(heightConstraint)
-                    
-                    self.keyWidthConstraint = widthConstraint
-                    self.keyHeightConstraint = heightConstraint
-                }
-                else {
-                    // all keys are the same height
-                    allConstraints.append("V:[\(keyName)(key0x0)]")
-                    
-                    switch keyModel.type {
-                    case Key.KeyType.Character:
-                        var constraint0 = NSLayoutConstraint(
-                            item: key!,
-                            attribute: NSLayoutAttribute.Width,
-                            relatedBy: NSLayoutRelation.Equal,
-                            toItem: canonicalKey,
-                            attribute: NSLayoutAttribute.Width,
-                            multiplier: 1,
-                            constant: 0)
-                        self.superview.addConstraint(constraint0)
-                    case Key.KeyType.Shift, Key.KeyType.Backspace:
-                        let shiftAndBackspaceMaxWidth = layout["shiftAndBackspaceMaxWidth"]!
-                        var constraint = NSLayoutConstraint(
-                            item: key!,
-                            attribute: NSLayoutAttribute.Width,
-                            relatedBy: NSLayoutRelation.Equal,
-                            toItem: elements["superview"],
-                            attribute: NSLayoutAttribute.Width,
-                            multiplier: CGFloat(layout["keyWidthRatio"]! * (shiftAndBackspaceMaxWidth / 26)), // TODO:
-                            constant: 0)
-                        self.superview.addConstraint(constraint)
-                    default:
-                        break
+                    if keyModel.type == Key.KeyType.ModeChange
+                        || keyModel.type == Key.KeyType.KeyboardChange
+                        || keyModel.type == Key.KeyType.Period {
+                            if canonicalSpecialSameWidth == nil {
+                                canonicalSpecialSameWidth = keyName
+                                let widthConstraint = NSLayoutConstraint(
+                                    item: self.elements[keyName]!,
+                                    attribute: NSLayoutAttribute.Width,
+                                    relatedBy: NSLayoutRelation.Equal,
+                                    toItem: self.elements["superview"]!,
+                                    attribute: NSLayoutAttribute.Width,
+                                    multiplier: CGFloat(0.0645),
+                                    constant: CGFloat(13.37))
+                                self.superview.addConstraint(widthConstraint)
+                            } else {
+                                allConstraints.append("[\(keyName)(\(canonicalSpecialSameWidth!))]")
+                            }
                     }
                 }
-                
-                if isCanonicalRowKey {
-                    allConstraints.append("V:[rowGap\(i)][\(keyName)][rowGap\(i+1)]")
+            }
+            
+            // setup return key
+            for i in 0..<page.rows.count {
+                for j in 0..<page.rows[i].count {
+                    let keyModel = page.rows[i][j]
+                    let keyName = "key\(j)x\(i)"
+                    
+                    if keyModel.type == Key.KeyType.Return {
+                        assert(canonicalSpecialSameWidth != nil, "canonical special key not found")
+                        let widthConstraint = NSLayoutConstraint(
+                            item: self.elements[keyName]!,
+                            attribute: NSLayoutAttribute.Width,
+                            relatedBy: NSLayoutRelation.Equal,
+                            toItem: self.elements[canonicalSpecialSameWidth!]!,
+                            attribute: NSLayoutAttribute.Width,
+                            multiplier: CGFloat(2.0625),
+                            constant: CGFloat(3.875))
+                        self.superview.addConstraint(widthConstraint)
+                    }
                 }
-                else {
-                    self.centerItems(key!, item2: canonicalRowKey!, vertical: false)
+            }
+            
+            for i in 0..<page.rows.count {
+                let canonicalRowKey = elements["key0x\(i)"]
+                
+                for j in 0..<page.rows[i].count {
+                    let keyModel = page.rows[i][j]
+                    
+                    let keyName = "key\(j)x\(i)"
+                    let key = self.elements[keyName]
+                    
+                    let isCanonicalKey = (key == canonicalKey) // TODO:
+                    let isCanonicalRowKey = (key == canonicalRowKey) // TODO:
+                    
+                    allConstraints.append("[keyGap\(j)x\(i)][\(keyName)][keyGap\(j+1)x\(i)]")
+                    
+                    // only the canonical key has a constant width
+                    if isCanonicalKey {
+    //                    let keyWidth = layout["keyWidth"]!
+    //                    
+    //                    allConstraints += "[\(keyName)(\(keyWidth)@19)]"
+    //                    allConstraints += "[\(keyName)(\(keyWidth*2)@20)]"
+    //                    allConstraints += "V:[\(keyName)(<=keyHeight@100,>=5@100)]"
+                            
+                        let widthConstraint = NSLayoutConstraint(
+                            item: key!,
+                            attribute: NSLayoutAttribute.Width,
+                            relatedBy: NSLayoutRelation.Equal,
+                            toItem: elements["superview"]!,
+                            attribute: NSLayoutAttribute.Width,
+                            multiplier: CGFloat(layout["keyWidthRatio"]!),
+                            constant: 0)
+                        widthConstraint.priority = 1000
+                        
+                        let heightConstraint = NSLayoutConstraint(
+                            item: key!,
+                            attribute: NSLayoutAttribute.Height,
+                            relatedBy: NSLayoutRelation.Equal,
+                            toItem: elements["superview"]!,
+                            attribute: NSLayoutAttribute.Height,
+                            multiplier: CGFloat(layout["keyHeightRatio"]!),
+                            constant: 0)
+                        heightConstraint.priority = 1000
+                        
+                        elements["superview"]?.addConstraint(widthConstraint)
+                        elements["superview"]?.addConstraint(heightConstraint)
+                        
+                        self.keyWidthConstraint = widthConstraint
+                        self.keyHeightConstraint = heightConstraint
+                    }
+                    else {
+                        // all keys are the same height
+                        allConstraints.append("V:[\(keyName)(key0x0)]")
+                        
+                        switch keyModel.type {
+                        case Key.KeyType.Character:
+                            var constraint0 = NSLayoutConstraint(
+                                item: key!,
+                                attribute: NSLayoutAttribute.Width,
+                                relatedBy: NSLayoutRelation.Equal,
+                                toItem: canonicalKey,
+                                attribute: NSLayoutAttribute.Width,
+                                multiplier: 1,
+                                constant: 0)
+                            self.superview.addConstraint(constraint0)
+                        case Key.KeyType.Shift, Key.KeyType.Backspace:
+                            let shiftAndBackspaceMaxWidth = layout["shiftAndBackspaceMaxWidth"]!
+                            var constraint = NSLayoutConstraint(
+                                item: key!,
+                                attribute: NSLayoutAttribute.Width,
+                                relatedBy: NSLayoutRelation.Equal,
+                                toItem: elements["superview"],
+                                attribute: NSLayoutAttribute.Width,
+                                multiplier: CGFloat(layout["keyWidthRatio"]! * (shiftAndBackspaceMaxWidth / 26)), // TODO:
+                                constant: 0)
+                            self.superview.addConstraint(constraint)
+                        default:
+                            break
+                        }
+                    }
+                    
+                    if isCanonicalRowKey {
+                        allConstraints.append("V:[rowGap\(i)][\(keyName)][rowGap\(i+1)]")
+                    }
+                    else {
+                        self.centerItems(key!, item2: canonicalRowKey!, vertical: false)
+                    }
                 }
             }
         }
