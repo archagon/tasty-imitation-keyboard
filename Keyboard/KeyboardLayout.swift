@@ -126,13 +126,13 @@ class KeyboardLayout {
     
     The rows of the keyboard have invisible spacer rows between them.
     There are also invisible spacer rows on the top and bottom of the keyboard.
-    These are all labeled "rowGap<y>", where 0 <= y <= row count.
+    These are all labeled "rowGap<y>p<n>", where 0 <= y <= row count and n is the page number.
     
     Similarly, there are invisible spacer gaps between every key.
     There are also invisible gaps at the start and end of every row.
-    These are labeled "keyGap<x>x<y>, where 0 <= x <= key count and y <= 0 < row count.
+    These are labeled "keyGap<x>x<y>p<n>, where 0 <= x <= key count and y <= 0 < row count and n is the page number.
     
-    The keys are labeled "key<x>x<y>".
+    The keys are labeled "key<x>x<y>p<n>".
     */
     
     private func updateConstraintMultiplier(inout constraint: NSLayoutConstraint, multiplier: CGFloat) {
@@ -201,12 +201,12 @@ class KeyboardLayout {
     }
     
     private func createViews(keyboard: Keyboard) {
-        for page in keyboard.pages {
+        for (h, page) in enumerate(keyboard.pages) {
             let numRows = page.rows.count
             
             for i in 0...numRows {
                 var rowGap = Spacer(color: ((i == 0 || i == numRows) ? UIColor.purpleColor() : UIColor.yellowColor()))
-                let rowGapName = "rowGap\(i)"
+                let rowGapName = "rowGap\(i)p\(h)"
                 rowGap.setTranslatesAutoresizingMaskIntoConstraints(false)
                 self.elements[rowGapName] = rowGap
                 self.superview.addSubview(rowGap)
@@ -216,7 +216,7 @@ class KeyboardLayout {
                     
                     for j in 0...numKeys {
                         var keyGap = Spacer(color: UIColor.blueColor())
-                        let keyGapName = "keyGap\(j)x\(i)"
+                        let keyGapName = "keyGap\(j)x\(i)p\(h)"
                         keyGap.setTranslatesAutoresizingMaskIntoConstraints(false)
                         
                         self.elements[keyGapName] = keyGap
@@ -226,7 +226,7 @@ class KeyboardLayout {
                             var key = page.rows[i][j]
                             
                             var keyView = KeyboardKey(frame: CGRectZero, model: key) // TODO:
-                            let keyViewName = "key\(j)x\(i)"
+                            let keyViewName = "key\(j)x\(i)p\(h)"
                             keyView.enabled = true
                             keyView.setTranslatesAutoresizingMaskIntoConstraints(false)
                             keyView.text = key.lowercaseKeyCap
@@ -269,11 +269,12 @@ class KeyboardLayout {
             constant: 0))
     }
     
-    private func addGapPair(nameFormat: String, row: Int, startIndex: Int, endIndex: Int, leftAnchor: String?, rightAnchor: String?, vertical: Bool, width: String?) {
+    private func addGapPair(nameFormat: String, page: Int, row: Int?, startIndex: Int, endIndex: Int, leftAnchor: String?, rightAnchor: String?, vertical: Bool, width: String?) {
         var allConstraints: Array<String> = []
+        let rowConstraint = (row == nil)
         
-        var leftGapName = String(format: nameFormat, startIndex, row)
-        var rightGapName = String(format: nameFormat, endIndex, row)
+        var leftGapName = (rowConstraint ? String(format: nameFormat, startIndex, page) : String(format: nameFormat, startIndex, row!, page))
+        var rightGapName = (rowConstraint ? String(format: nameFormat, endIndex, page) : String(format: nameFormat, endIndex, row!, page))
         
         var verticalFlag = (vertical ? "V:" : "")
         var inverseVerticalFlag = (!vertical ? "V:" : "")
@@ -304,8 +305,9 @@ class KeyboardLayout {
             centerItems(self.elements[rightGapName]!, item2: self.elements["superview"]!, vertical: true)
         }
         else {
-            centerItems(self.elements[leftGapName]!, item2: self.elements["key\(0)x\(row)"]!, vertical: false)
-            centerItems(self.elements[rightGapName]!, item2: self.elements["key\(0)x\(row)"]!, vertical: false)
+            assert(rowConstraint == false)
+            centerItems(self.elements[leftGapName]!, item2: self.elements["key\(0)x\(row!)p\(page)"]!, vertical: false)
+            centerItems(self.elements[rightGapName]!, item2: self.elements["key\(0)x\(row!)p\(page)"]!, vertical: false)
         }
         
         for constraint in allConstraints {
@@ -318,10 +320,11 @@ class KeyboardLayout {
         }
     }
     
-    private func addGapsInRange(nameFormat: String, row: Int, startIndex: Int, endIndex: Int, vertical: Bool, width: String?) {
+    private func addGapsInRange(nameFormat: String, page: Int, row: Int?, startIndex: Int, endIndex: Int, vertical: Bool, width: String?) {
         var allConstraints: Array<String> = []
+        let rowConstraint = (row == nil)
         
-        var firstGapName = String(format: nameFormat, startIndex, row)
+        var firstGapName = (rowConstraint ? String(format: nameFormat, startIndex, page) : String(format: nameFormat, startIndex, row!, page))
         
         var verticalFlag = (vertical ? "V:" : "")
         var inverseVerticalFlag = (!vertical ? "V:" : "")
@@ -331,7 +334,7 @@ class KeyboardLayout {
         }
         
         for i in startIndex...endIndex {
-            var gapName = String(format: nameFormat, i, row)
+            var gapName = (rowConstraint ? String(format: nameFormat, i, page) : String(format: nameFormat, i, row!, page))
             
             // size and centering
             
@@ -345,7 +348,8 @@ class KeyboardLayout {
                 centerItems(self.elements[gapName]!, item2: self.elements["superview"]!, vertical: true)
             }
             else {
-                centerItems(self.elements[gapName]!, item2: self.elements["key\(0)x\(row)"]!, vertical: false)
+                assert(rowConstraint == false)
+                centerItems(self.elements[gapName]!, item2: self.elements["key\(0)x\(row!)p\(page)"]!, vertical: false)
             }
         }
         
@@ -423,10 +427,11 @@ class KeyboardLayout {
     }
     
     private func createRowGapConstraints(keyboard: Keyboard) {
-        for page in keyboard.pages {
+        for (h, page) in enumerate(keyboard.pages) {
             self.addGapPair(
-                "rowGap%d",
-                row: 0,
+                "rowGap%dp%d",
+                page: h,
+                row: nil,
                 startIndex: 0,
                 endIndex: page.rows.count,
                 leftAnchor: "topSpacer",
@@ -435,8 +440,9 @@ class KeyboardLayout {
                 width: "0")
             
             if page.rows.count >= 2 {
-                self.addGapsInRange("rowGap%d",
-                    row: 0,
+                self.addGapsInRange("rowGap%dp%d",
+                    page: h,
+                    row: nil,
                     startIndex: 1,
                     endIndex: page.rows.count - 1,
                     vertical: true,
@@ -447,7 +453,7 @@ class KeyboardLayout {
     
     // TODO: make this a single constraint string??
     private func createKeyGapConstraints(keyboard: Keyboard) {
-        for page in keyboard.pages {
+        for (h, page) in enumerate(keyboard.pages) {
             for i in 0..<page.rows.count {
                 // TODO: both of these should be determined based on the model data, not the row #
                 let isSideButtonRow = (i == 2)
@@ -456,7 +462,8 @@ class KeyboardLayout {
                 
                 if isSideButtonRow {
                     addGapPair(
-                        "keyGap%dx%d",
+                        "keyGap%dx%dp%d",
+                        page: h,
                         row: i,
                         startIndex: 0,
                         endIndex: rowsCount,
@@ -465,7 +472,8 @@ class KeyboardLayout {
                         vertical: false,
                         width: "0")
                     addGapPair(
-                        "keyGap%dx%d",
+                        "keyGap%dx%dp%d",
+                        page: h,
                         row: i,
                         startIndex: 1,
                         endIndex: rowsCount - 1,
@@ -475,7 +483,8 @@ class KeyboardLayout {
                         width: nil)
                     let keyGap = layout["keyGap"]!
                     addGapsInRange(
-                        "keyGap%dx%d",
+                        "keyGap%dx%dp%d",
+                        page: h,
                         row: i,
                         startIndex: 2,
                         endIndex: rowsCount - 2,
@@ -484,7 +493,8 @@ class KeyboardLayout {
                 }
                 else if isEquallySpacedRow {
                     addGapPair(
-                        "keyGap%dx%d",
+                        "keyGap%dx%dp%d",
+                        page: h,
                         row: i,
                         startIndex: 0,
                         endIndex: page.rows[i].count,
@@ -493,7 +503,8 @@ class KeyboardLayout {
                         vertical: false,
                         width: "0")
                     addGapsInRange(
-                        "keyGap%dx%d",
+                        "keyGap%dx%dp%d",
+                        page: h,
                         row: i,
                         startIndex: 1,
                         endIndex: rowsCount - 1,
@@ -502,7 +513,8 @@ class KeyboardLayout {
                 }
                 else {
                     addGapPair(
-                        "keyGap%dx%d",
+                        "keyGap%dx%dp%d",
+                        page: h,
                         row: i,
                         startIndex: 0,
                         endIndex: rowsCount,
@@ -512,7 +524,8 @@ class KeyboardLayout {
                         width: nil)
                     let keyGap = layout["keyGap"]!
                     addGapsInRange(
-                        "keyGap%dx%d",
+                        "keyGap%dx%dp%d",
+                        page: h,
                         row: i,
                         startIndex: 1,
                         endIndex: rowsCount - 1,
@@ -527,15 +540,15 @@ class KeyboardLayout {
         var allConstraints: Array<String> = []
         
         let hasPeriod = false
-        let canonicalKey = elements["key0x0"]
+        let canonicalKey = elements["key0x0p0"]
         var canonicalSpecialSameWidth: String? = nil
         
-        for page in keyboard.pages {
+        for (h, page) in enumerate(keyboard.pages) {
             // setup special widths
             for i in 0..<page.rows.count {
                 for j in 0..<page.rows[i].count {
                     let keyModel = page.rows[i][j]
-                    let keyName = "key\(j)x\(i)"
+                    let keyName = "key\(j)x\(i)p\(h)"
                     
                     if keyModel.type == Key.KeyType.ModeChange
                         || keyModel.type == Key.KeyType.KeyboardChange
@@ -562,7 +575,7 @@ class KeyboardLayout {
             for i in 0..<page.rows.count {
                 for j in 0..<page.rows[i].count {
                     let keyModel = page.rows[i][j]
-                    let keyName = "key\(j)x\(i)"
+                    let keyName = "key\(j)x\(i)p\(h)"
                     
                     if keyModel.type == Key.KeyType.Return {
                         assert(canonicalSpecialSameWidth != nil, "canonical special key not found")
@@ -578,20 +591,20 @@ class KeyboardLayout {
                     }
                 }
             }
-            
+
             for i in 0..<page.rows.count {
-                let canonicalRowKey = elements["key0x\(i)"]
+                let canonicalRowKey = elements["key0x\(i)p\(h)"]
                 
                 for j in 0..<page.rows[i].count {
                     let keyModel = page.rows[i][j]
                     
-                    let keyName = "key\(j)x\(i)"
+                    let keyName = "key\(j)x\(i)p\(h)"
                     let key = self.elements[keyName]
                     
                     let isCanonicalKey = (key == canonicalKey) // TODO:
                     let isCanonicalRowKey = (key == canonicalRowKey) // TODO:
                     
-                    allConstraints.append("[keyGap\(j)x\(i)][\(keyName)][keyGap\(j+1)x\(i)]")
+                    allConstraints.append("[keyGap\(j)x\(i)p\(h)][\(keyName)][keyGap\(j+1)x\(i)p\(h)]")
                     
                     // only the canonical key has a constant width
                     if isCanonicalKey {
@@ -629,7 +642,7 @@ class KeyboardLayout {
                     }
                     else {
                         // all keys are the same height
-                        allConstraints.append("V:[\(keyName)(key0x0)]")
+                        allConstraints.append("V:[\(keyName)(key0x0p0)]")
                         
                         switch keyModel.type {
                         case Key.KeyType.Character:
@@ -659,7 +672,7 @@ class KeyboardLayout {
                     }
                     
                     if isCanonicalRowKey {
-                        allConstraints.append("V:[rowGap\(i)][\(keyName)][rowGap\(i+1)]")
+                        allConstraints.append("V:[rowGap\(i)p\(h)][\(keyName)][rowGap\(i+1)p\(h)]")
                     }
                     else {
                         self.centerItems(key!, item2: canonicalRowKey!, vertical: false)

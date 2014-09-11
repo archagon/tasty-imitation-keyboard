@@ -154,6 +154,15 @@ func defaultKeyboard() -> Keyboard {
         keyModel.outputText = key
         defaultKeyboard.addKey(keyModel, row: 0, page: 1)
     }
+
+    var keyModel7 = Key(type: .ModeChange)
+    keyModel7.keyCap = "ABC"
+    defaultKeyboard.addKey(keyModel7, row: 1, page: 1)
+    
+    var keyModel8 = Key(type: .Character)
+    keyModel8.keyCap = "😍"
+    keyModel8.outputText = "😍"
+    defaultKeyboard.addKey(keyModel8, row: 1, page: 1)
     
     return defaultKeyboard
 }

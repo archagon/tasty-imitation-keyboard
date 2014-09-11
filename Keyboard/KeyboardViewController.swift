@@ -18,6 +18,12 @@ class KeyboardViewController: UIInputViewController {
     var layout: KeyboardLayout
     var heightConstraint: NSLayoutConstraint?
     
+    var currentMode: Int {
+        didSet {
+            setMode(currentMode)
+        }
+    }
+    
     var backspaceActive: Bool {
         get {
             return (backspaceDelayTimer != nil) || (backspaceRepeatTimer != nil)
@@ -32,8 +38,8 @@ class KeyboardViewController: UIInputViewController {
         case Locked
     }
     var shiftState: ShiftState {
-        willSet {
-            switch newValue {
+        didSet {
+            switch shiftState {
             case .Disabled:
                 NSLog("shift disabled")
             case .Enabled:
@@ -54,6 +60,7 @@ class KeyboardViewController: UIInputViewController {
         self.forwardingView = ForwardingView(frame: CGRectZero)
         self.layout = KeyboardLayout(model: self.keyboard, superview: self.forwardingView)
         self.shiftState = .Disabled
+        self.currentMode = 0
         
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
         
@@ -306,6 +313,19 @@ class KeyboardViewController: UIInputViewController {
     }
     
     func modeChangeTapped() {
-        
+        self.currentMode = (self.currentMode == 0 ? 1 : 0)
+    }
+    
+    func setMode(mode: Int) {
+        for (pageIndex, page) in enumerate(self.keyboard.pages) {
+            for (rowIndex, row) in enumerate(page.rows) {
+                for (keyIndex, key) in enumerate(row) {
+                    if self.layout.modelToView[key] != nil {
+                        var keyView = self.layout.modelToView[key]
+                        keyView?.hidden = (pageIndex != self.currentMode)
+                    }
+                }
+            }
+        }
     }
 }
