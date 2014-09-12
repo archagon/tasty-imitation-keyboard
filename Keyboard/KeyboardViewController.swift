@@ -41,11 +41,11 @@ class KeyboardViewController: UIInputViewController {
         didSet {
             switch shiftState {
             case .Disabled:
-                NSLog("shift disabled")
+                self.updateKeyCaps(true)
             case .Enabled:
-                NSLog("shift enabled")
+                self.updateKeyCaps(false)
             case .Locked:
-                NSLog("shift locked")
+                self.updateKeyCaps(false)
             }
         }
     }
@@ -235,6 +235,10 @@ class KeyboardViewController: UIInputViewController {
                 blah = 0
             }
         }
+        
+        if self.shiftState == .Enabled {
+            self.shiftState = .Disabled
+        }
     }
     
     func cancelBackspaceTimers() {
@@ -273,15 +277,12 @@ class KeyboardViewController: UIInputViewController {
         case .Disabled:
             self.shiftState = .Enabled
             sender.highlighted = true
-            updateKeyCaps(false)
         case .Enabled:
             self.shiftState = .Disabled
             sender.highlighted = false
-            updateKeyCaps(true)
         case .Locked:
             self.shiftState = .Disabled
             sender.highlighted = false
-            updateKeyCaps(true)
         }
         
         sender.text = "⇪"
@@ -292,15 +293,12 @@ class KeyboardViewController: UIInputViewController {
         case .Disabled:
             self.shiftState = .Locked
             sender.highlighted = true
-            updateKeyCaps(false)
         case .Enabled:
             self.shiftState = .Locked
             sender.highlighted = true
-            updateKeyCaps(false)
         case .Locked:
             self.shiftState = .Locked
             sender.highlighted = true
-            updateKeyCaps(false)
         }
         
         sender.text = "L"
