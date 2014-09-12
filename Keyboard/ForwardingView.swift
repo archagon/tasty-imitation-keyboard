@@ -10,11 +10,19 @@ import UIKit
 
 class ForwardingView: UIView {
     
+    var activeTouches: [Int]
+    var multiTapTimers: [Int: NSTimer]
+    var touchToView: [UITouch:UIView]
+    
     override init(frame: CGRect) {
+        self.activeTouches = []
+        self.multiTapTimers = [:]
+        self.touchToView = [:]
+        
         super.init(frame: frame)
         
         self.contentMode = UIViewContentMode.Redraw
-        self.multipleTouchEnabled = false
+        self.multipleTouchEnabled = true
         self.userInteractionEnabled = true
         self.opaque = false
     }
@@ -32,8 +40,6 @@ class ForwardingView: UIView {
     override func hitTest(point: CGPoint, withEvent event: UIEvent!) -> UIView? {
         return self
     }
-    
-    var myView: UIView?
     
     // TODO: drag up control centre from bottom == stuck
     func handleControl(view: UIView?, controlEvent: UIControlEvents) {
@@ -134,41 +140,53 @@ class ForwardingView: UIView {
     }
     
     override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {
-        let touch = touches.anyObject() as UITouch
-        let position = touch.locationInView(self)
-        var view = findNearestView(position)
-        
-        self.myView = view
-        
-        self.handleControl(self.myView, controlEvent: .TouchDown)
+        for obj in touches {
+            let touch = obj as UITouch
+            let position = touch.locationInView(self)
+            var view = findNearestView(position)
+            
+            self.touchToView[touch] = view
+            
+            self.handleControl(view, controlEvent: .TouchDown)
+        }
     }
     
     override func touchesMoved(touches: NSSet, withEvent event: UIEvent) {
-        let touch = touches.anyObject() as UITouch
-        let position = touch.locationInView(self)
-        var view = findNearestView(position)
-        
-        if view != self.myView {
-            self.handleControl(self.myView, controlEvent: .TouchUpOutside)
+        for obj in touches {
+            let touch = obj as UITouch
+            let position = touch.locationInView(self)
             
-            self.myView = view
+            var view = self.touchToView[touch]
+            var newView = findNearestView(position)
             
-            self.handleControl(self.myView, controlEvent: .TouchDown)
-        }
-        else {
-            self.handleControl(self.myView, controlEvent: .TouchDragInside)
+            if view != newView {
+                self.handleControl(view, controlEvent: .TouchUpOutside)
+                self.touchToView[touch] = newView
+                self.handleControl(newView, controlEvent: .TouchDown)
+            }
+            else {
+                self.handleControl(view, controlEvent: .TouchDragInside)
+            }
         }
     }
     
     override func touchesEnded(touches: NSSet, withEvent event: UIEvent) {
-        let touch = touches.anyObject() as UITouch
-        let pos = touch.locationInView(self)
-        var view = findNearestView(pos)
-        
-        self.handleControl(view, controlEvent: .TouchUpInside)
+        for obj in touches {
+            let touch = obj as UITouch
+            
+            var view = self.touchToView[touch]
+            
+            self.handleControl(view, controlEvent: .TouchUpInside)
+        }
     }
 
     override func touchesCancelled(touches: NSSet!, withEvent event: UIEvent!) {
-        self.handleControl(self.myView, controlEvent: .TouchCancel)
+        for obj in touches {
+            let touch = obj as UITouch
+            
+            var view = self.touchToView[touch]
+            
+            self.handleControl(view, controlEvent: .TouchCancel)
+        }
     }
 }
