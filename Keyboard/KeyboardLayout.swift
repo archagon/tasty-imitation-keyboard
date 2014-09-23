@@ -67,7 +67,7 @@ class KeyboardLayout {
     var viewToModel: [KeyboardKey:Key] = [:]
     private var elements: [String:UIView] = [:]
     
-    var allConstraints: [NSLayoutConstraint] = []
+    var allConstraints: [String] = []
     
     private var initialized: Bool
     
@@ -96,6 +96,20 @@ class KeyboardLayout {
         self.createRowGapConstraints(self.model)
         self.createKeyGapConstraints(self.model)
         self.createKeyConstraints(self.model)
+        
+        var generatedConstraints: [AnyObject] = []
+        let dictMetrics: [NSObject: AnyObject] = self.layout
+        let dictElements: [NSObject: AnyObject] = self.elements
+        
+        for constraint in self.allConstraints {
+            let constraints = NSLayoutConstraint.constraintsWithVisualFormat(
+                constraint,
+                options: NSLayoutFormatOptions(0),
+                metrics: dictMetrics,
+                views: dictElements)
+            generatedConstraints += constraints
+        }
+        self.superview.addConstraints(generatedConstraints)
     }
     
     func updateForOrientation(portrait: Bool) {
@@ -314,14 +328,7 @@ class KeyboardLayout {
             centerItems(self.elements[rightGapName]!, item2: self.elements["key\(0)x\(row!)p\(page)"]!, vertical: false)
         }
         
-        for constraint in allConstraints {
-            let generatedConstraints = NSLayoutConstraint.constraintsWithVisualFormat(
-                constraint,
-                options: NSLayoutFormatOptions(0),
-                metrics: layout,
-                views: elements)
-            self.superview.addConstraints(generatedConstraints)
-        }
+        self.allConstraints += allConstraints
     }
     
     private func addGapsInRange(nameFormat: String, page: Int, row: Int?, startIndex: Int, endIndex: Int, vertical: Bool, width: String?) {
@@ -357,14 +364,7 @@ class KeyboardLayout {
             }
         }
         
-        for constraint in allConstraints {
-            let generatedConstraints = NSLayoutConstraint.constraintsWithVisualFormat(
-                constraint,
-                options: NSLayoutFormatOptions(0),
-                metrics: layout,
-                views: elements)
-            self.superview.addConstraints(generatedConstraints)
-        }
+        self.allConstraints += allConstraints
     }
     
     private func addEdgeConstraints() {
@@ -382,32 +382,18 @@ class KeyboardLayout {
         }
         
         let total: CGFloat = CGFloat(layout["topBanner"]! + layout["topGap"]!)
-//        let constraints = [
-//            // left/right spacers
-//            "|[leftSpacer(leftGap)]",
-//            "[rightSpacer(rightGap)]|",
-//            "V:[leftSpacer(debugWidth)]",
-//            "V:[rightSpacer(debugWidth)]",
-//            
-//            // top/bottom spacers
-//            "V:|[topSpacer(\(total))]",
-//            "V:[bottomSpacer(bottomGap)]|",
-//            "[topSpacer(debugWidth)]",
-//            "[bottomSpacer(debugWidth)]"]
-        // QQQ: patch 1
         let constraints = [
             // left/right spacers
-            "|[leftSpacer]",
-            "[rightSpacer]|",
+            "|[leftSpacer(leftGap)]",
+            "[rightSpacer(rightGap)]|",
             "V:[leftSpacer(debugWidth)]",
             "V:[rightSpacer(debugWidth)]",
-
+            
             // top/bottom spacers
-            "V:|[topSpacer]",
-            "V:[bottomSpacer]|",
+            "V:|[topSpacer(\(total))]",
+            "V:[bottomSpacer(bottomGap)]|",
             "[topSpacer(debugWidth)]",
             "[bottomSpacer(debugWidth)]"]
-
         
         // edge constraints
         for constraint in constraints {
@@ -480,79 +466,6 @@ class KeyboardLayout {
                 let isEquallySpacedRow = (i == 3)
                 let rowsCount = page.rows[i].count
                 
-//                if isSideButtonRow {
-//                    addGapPair(
-//                        "keyGap%dx%dp%d",
-//                        page: h,
-//                        row: i,
-//                        startIndex: 0,
-//                        endIndex: rowsCount,
-//                        leftAnchor: "leftSpacer",
-//                        rightAnchor: "rightSpacer",
-//                        vertical: false,
-//                        width: "0")
-//                    addGapPair(
-//                        "keyGap%dx%dp%d",
-//                        page: h,
-//                        row: i,
-//                        startIndex: 1,
-//                        endIndex: rowsCount - 1,
-//                        leftAnchor: nil,
-//                        rightAnchor: nil,
-//                        vertical: false,
-//                        width: nil)
-//                    let keyGap = layout["keyGap"]!
-//                    addGapsInRange(
-//                        "keyGap%dx%dp%d",
-//                        page: h,
-//                        row: i,
-//                        startIndex: 2,
-//                        endIndex: rowsCount - 2,
-//                        vertical: false,
-//                        width: "\(keyGap)")
-//                }
-//                else if isEquallySpacedRow {
-//                    addGapPair(
-//                        "keyGap%dx%dp%d",
-//                        page: h,
-//                        row: i,
-//                        startIndex: 0,
-//                        endIndex: page.rows[i].count,
-//                        leftAnchor: "leftSpacer",
-//                        rightAnchor: "rightSpacer",
-//                        vertical: false,
-//                        width: "0")
-//                    addGapsInRange(
-//                        "keyGap%dx%dp%d",
-//                        page: h,
-//                        row: i,
-//                        startIndex: 1,
-//                        endIndex: rowsCount - 1,
-//                        vertical: false,
-//                        width: "7") // TODO:
-//                }
-//                else {
-//                    addGapPair(
-//                        "keyGap%dx%dp%d",
-//                        page: h,
-//                        row: i,
-//                        startIndex: 0,
-//                        endIndex: rowsCount,
-//                        leftAnchor: "leftSpacer",
-//                        rightAnchor: "rightSpacer",
-//                        vertical: false,
-//                        width: nil)
-//                    let keyGap = layout["keyGap"]!
-//                    addGapsInRange(
-//                        "keyGap%dx%dp%d",
-//                        page: h,
-//                        row: i,
-//                        startIndex: 1,
-//                        endIndex: rowsCount - 1,
-//                        vertical: false,
-//                        width: "\(keyGap)")
-//                }
-                
                 if isSideButtonRow {
                     addGapPair(
                         "keyGap%dx%dp%d",
@@ -563,7 +476,7 @@ class KeyboardLayout {
                         leftAnchor: "leftSpacer",
                         rightAnchor: "rightSpacer",
                         vertical: false,
-                        width: nil)
+                        width: "0")
                     addGapPair(
                         "keyGap%dx%dp%d",
                         page: h,
@@ -582,7 +495,7 @@ class KeyboardLayout {
                         startIndex: 2,
                         endIndex: rowsCount - 2,
                         vertical: false,
-                        width: nil)
+                        width: "\(keyGap)")
                 }
                 else if isEquallySpacedRow {
                     addGapPair(
@@ -594,7 +507,7 @@ class KeyboardLayout {
                         leftAnchor: "leftSpacer",
                         rightAnchor: "rightSpacer",
                         vertical: false,
-                        width: nil)
+                        width: "0")
                     addGapsInRange(
                         "keyGap%dx%dp%d",
                         page: h,
@@ -602,7 +515,7 @@ class KeyboardLayout {
                         startIndex: 1,
                         endIndex: rowsCount - 1,
                         vertical: false,
-                        width: nil) // TODO:
+                        width: "7") // TODO:
                 }
                 else {
                     addGapPair(
@@ -623,7 +536,7 @@ class KeyboardLayout {
                         startIndex: 1,
                         endIndex: rowsCount - 1,
                         vertical: false,
-                        width: nil)
+                        width: "\(keyGap)")
                 }
             }
         }
@@ -655,8 +568,7 @@ class KeyboardLayout {
                                     toItem: self.elements["superview"]!,
                                     attribute: NSLayoutAttribute.Width,
                                     multiplier: CGFloat(0.0645),
-//                                    constant: CGFloat(13.37)) QQQ:
-                                    constant: 0)
+                                    constant: CGFloat(13.37))
                                 self.superview.addConstraint(widthConstraint)
                             } else {
                                 allConstraints.append("[\(keyName)(\(canonicalSpecialSameWidth!))]")
@@ -680,8 +592,7 @@ class KeyboardLayout {
                             toItem: self.elements[canonicalSpecialSameWidth!]!,
                             attribute: NSLayoutAttribute.Width,
                             multiplier: CGFloat(2.0625),
-//                            constant: CGFloat(3.875)) QQQ:
-                            constant: 0)
+                            constant: CGFloat(3.875))
                         self.superview.addConstraint(widthConstraint)
                     }
                 }
@@ -776,14 +687,7 @@ class KeyboardLayout {
             }
         }
         
-        for constraint in allConstraints {
-            let generatedConstraints = NSLayoutConstraint.constraintsWithVisualFormat(
-                constraint,
-                options: NSLayoutFormatOptions(0),
-                metrics: layout,
-                views: elements)
-            self.superview.addConstraints(generatedConstraints)
-        }
+        self.allConstraints += allConstraints
     }
 
     private class Spacer: UIView {

@@ -58,6 +58,7 @@ class KeyboardViewController: UIInputViewController {
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
         self.keyboard = defaultKeyboard()
         self.forwardingView = ForwardingView(frame: CGRectZero)
+        self.forwardingView.setTranslatesAutoresizingMaskIntoConstraints(false)
         self.layout = KeyboardLayout(model: self.keyboard, superview: self.forwardingView)
         self.shiftState = .Disabled
         self.currentMode = 0
@@ -65,6 +66,43 @@ class KeyboardViewController: UIInputViewController {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
         
         self.view.addSubview(self.forwardingView)
+        
+        self.view.addConstraint(
+            NSLayoutConstraint(
+                item: self.forwardingView,
+                attribute: NSLayoutAttribute.Left,
+                relatedBy: NSLayoutRelation.Equal,
+                toItem: self.view,
+                attribute: NSLayoutAttribute.Left,
+                multiplier: 1,
+                constant: 0))
+        self.view.addConstraint(
+            NSLayoutConstraint(
+                item: self.forwardingView,
+                attribute: NSLayoutAttribute.Right,
+                relatedBy: NSLayoutRelation.Equal,
+                toItem: self.view,
+                attribute: NSLayoutAttribute.Right,
+                multiplier: 1,
+                constant: 0))
+        self.view.addConstraint(
+            NSLayoutConstraint(
+                item: self.forwardingView,
+                attribute: NSLayoutAttribute.Top,
+                relatedBy: NSLayoutRelation.Equal,
+                toItem: self.view,
+                attribute: NSLayoutAttribute.Top,
+                multiplier: 1,
+                constant: 0))
+        self.view.addConstraint(
+            NSLayoutConstraint(
+                item: self.forwardingView,
+                attribute: NSLayoutAttribute.Bottom,
+                relatedBy: NSLayoutRelation.Equal,
+                toItem: self.view,
+                attribute: NSLayoutAttribute.Bottom,
+                multiplier: 1,
+                constant: 0))
     }
     
     required init(coder: NSCoder) {
@@ -128,7 +166,6 @@ class KeyboardViewController: UIInputViewController {
 //            }
 //        }
         
-        self.forwardingView.frame = self.view.bounds
     }
     
     func setupKeys() {
