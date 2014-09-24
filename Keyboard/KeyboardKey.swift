@@ -299,7 +299,7 @@ class KeyboardKey: UIControl, KeyboardView {
                 toItem: self.popup,
                 attribute: directionToAttribute[Direction.Right]!,
                 multiplier: 1,
-                constant: 17) // TODO: layout
+                constant: 3) // TODO: layout
             cantTouchSideConstraint.priority = 1000
             var cantTouchSideConstraint2 = NSLayoutConstraint(
                 item: self.superview!,
@@ -308,7 +308,7 @@ class KeyboardKey: UIControl, KeyboardView {
                 toItem: self.popup,
                 attribute: directionToAttribute[Direction.Left]!,
                 multiplier: 1,
-                constant: 17) // TODO: layout
+                constant: -3) // TODO: layout
             cantTouchSideConstraint2.priority = 1000
             self.constraintStore.append((self.superview!, cantTouchSideConstraint) as (UIView, NSLayoutConstraint))
             self.constraintStore.append((self.superview!, cantTouchSideConstraint2) as (UIView, NSLayoutConstraint))
