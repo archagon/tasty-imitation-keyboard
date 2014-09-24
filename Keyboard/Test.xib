@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="6185.11" systemVersion="13D65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="6206.8" systemVersion="13D65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6185.11"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6206.8"/>
         <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
     </dependencies>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
         <view contentMode="scaleToFill" id="iN0-l3-epB">
-            <rect key="frame" x="0.0" y="0.0" width="646" height="441"/>
+            <rect key="frame" x="0.0" y="0.0" width="651" height="441"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="wWR-SQ-vP4">
-                    <rect key="frame" x="0.0" y="0.0" width="646" height="441"/>
+                    <rect key="frame" x="0.0" y="0.0" width="651" height="441"/>
                     <subviews>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="rY1-CF-WxC">
-                            <rect key="frame" x="3" y="166" width="55.5" height="69"/>
+                            <rect key="frame" x="3" y="166" width="56" height="69"/>
                             <color key="backgroundColor" red="0.50191402470000002" green="0.61996647230000002" blue="0.83122452449999995" alpha="1" colorSpace="calibratedRGB"/>
                             <constraints>
                                 <constraint firstAttribute="height" constant="69" id="GKK-i3-VDY"/>
                             </constraints>
                         </view>
-                        <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="RCN-Sw-KLa">
+                        <view contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="RCN-Sw-KLa">
                             <rect key="frame" x="58" y="191" width="85.5" height="18"/>
                             <color key="backgroundColor" red="0.68858271059999998" green="0.14909315400000001" blue="0.093192728449999998" alpha="1" colorSpace="calibratedRGB"/>
                             <constraints>
@@ -29,35 +29,35 @@
                                 <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="5" id="VLp-6H-OYp"/>
                             </constraints>
                         </view>
-                        <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="B0n-cU-h3r">
+                        <view contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="B0n-cU-h3r">
                             <rect key="frame" x="198.5" y="191" width="85.5" height="18"/>
                             <color key="backgroundColor" red="0.68858271059999998" green="0.14909315400000001" blue="0.093192728449999998" alpha="1" colorSpace="calibratedRGB"/>
                             <constraints>
                                 <constraint firstAttribute="height" constant="18" id="Onu-uz-s9J"/>
                             </constraints>
                         </view>
-                        <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ygn-z5-bdA">
+                        <view contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ygn-z5-bdA">
                             <rect key="frame" x="304.5" y="191" width="85.5" height="18"/>
                             <color key="backgroundColor" red="0.68858271059999998" green="0.14909315400000001" blue="0.093192728449999998" alpha="1" colorSpace="calibratedRGB"/>
                             <constraints>
                                 <constraint firstAttribute="height" constant="18" id="kJw-6I-Prw"/>
                             </constraints>
                         </view>
-                        <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="n9e-M3-ggH">
+                        <view contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="n9e-M3-ggH">
                             <rect key="frame" x="445" y="191" width="86" height="18"/>
                             <color key="backgroundColor" red="0.68858271059999998" green="0.14909315400000001" blue="0.093192728449999998" alpha="1" colorSpace="calibratedRGB"/>
                             <constraints>
                                 <constraint firstAttribute="height" constant="18" id="Hng-nd-K7X"/>
                             </constraints>
                         </view>
-                        <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Hxc-N6-kyc">
+                        <view contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Hxc-N6-kyc">
                             <rect key="frame" x="143.5" y="166" width="55" height="69"/>
                             <color key="backgroundColor" red="0.50191402470000002" green="0.61996647230000002" blue="0.83122452449999995" alpha="1" colorSpace="calibratedRGB"/>
                             <constraints>
                                 <constraint firstAttribute="height" constant="69" id="as6-O3-1Cc"/>
                             </constraints>
                         </view>
-                        <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="XOR-cB-EM6">
+                        <view contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="XOR-cB-EM6">
                             <rect key="frame" x="284.5" y="165" width="20" height="69"/>
                             <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                             <constraints>
@@ -65,7 +65,7 @@
                                 <constraint firstAttribute="height" constant="69" id="WfQ-YD-b8a"/>
                             </constraints>
                         </view>
-                        <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="iuY-K9-KHU">
+                        <view contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="iuY-K9-KHU">
                             <rect key="frame" x="390" y="166" width="55" height="69"/>
                             <color key="backgroundColor" red="0.50191402470000002" green="0.61996647230000002" blue="0.83122452449999995" alpha="1" colorSpace="calibratedRGB"/>
                             <constraints>
@@ -73,7 +73,7 @@
                             </constraints>
                         </view>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nTy-Mk-mv0">
-                            <rect key="frame" x="531" y="166" width="111.5" height="69"/>
+                            <rect key="frame" x="535" y="166" width="112.5" height="69"/>
                             <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                             <constraints>
                                 <constraint firstAttribute="height" constant="69" id="Egv-uR-yPQ"/>
@@ -126,7 +126,7 @@
             </constraints>
             <nil key="simulatedStatusBarMetrics"/>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
-            <point key="canvasLocation" x="563" y="396.5"/>
+            <point key="canvasLocation" x="565.5" y="396.5"/>
         </view>
     </objects>
 </document>
