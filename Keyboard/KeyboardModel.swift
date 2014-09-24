@@ -137,31 +137,76 @@ func defaultKeyboard() -> Keyboard {
     keyModel5.outputText = " "
     defaultKeyboard.addKey(keyModel5, row: 3, page: 0)
     
-//    var keyModel7 = Key(type: .Period)
-//    keyModel7.keyCap = "."
-//    keyModel7.outputText = "."
-//    defaultKeyboard.addKey(keyModel7, row: 3)
-    
     var keyModel6 = Key(type: .Return)
     keyModel6.keyCap = "return"
     keyModel6.outputText = "\n"
     defaultKeyboard.addKey(keyModel6, row: 3, page: 0)
     
-    for key in ["å", "ß", "∂", "ƒ", "©"] {
+    for key in ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"] {
         var keyModel = Key(type: .Character)
         keyModel.keyCap = key
         keyModel.outputText = key
         defaultKeyboard.addKey(keyModel, row: 0, page: 1)
     }
-
-    var keyModel7 = Key(type: .ModeChange)
-    keyModel7.keyCap = "ABC"
-    defaultKeyboard.addKey(keyModel7, row: 1, page: 1)
     
-    var keyModel8 = Key(type: .Character)
-    keyModel8.keyCap = "😍"
-    keyModel8.outputText = "😍"
-    defaultKeyboard.addKey(keyModel8, row: 1, page: 1)
+    for key in ["-", "/", ":", ";", "(", ")", "$", "&", "@", "\""] {
+        var keyModel = Key(type: .Character)
+        keyModel.keyCap = key
+        keyModel.outputText = key
+        defaultKeyboard.addKey(keyModel, row: 1, page: 1)
+    }
+    
+    defaultKeyboard.addKey(keyModel3, row: 2, page: 1)
+    
+    for key in [".", ",", "?", "?", "!", "'"] {
+        var keyModel = Key(type: .Character)
+        keyModel.keyCap = key
+        keyModel.outputText = key
+        defaultKeyboard.addKey(keyModel, row: 2, page: 1)
+    }
+    
+    defaultKeyboard.addKey(keyModel2, row: 2, page: 1)
+    
+    defaultKeyboard.addKey(keyModel3, row: 3, page: 1)
+    
+    defaultKeyboard.addKey(keyModel4, row: 3, page: 1)
+    
+    defaultKeyboard.addKey(keyModel5, row: 3, page: 1)
+    
+    defaultKeyboard.addKey(keyModel6, row: 3, page: 1)
+    
+    for key in ["[", "]", "{", "}", "#", "%", "^", "*", "+", "="] {
+        var keyModel = Key(type: .Character)
+        keyModel.keyCap = key
+        keyModel.outputText = key
+        defaultKeyboard.addKey(keyModel, row: 0, page: 2)
+    }
+    
+    for key in ["_", "\\", "|", "~", "<", ">", "€", "£", "Y", "*"] {
+        var keyModel = Key(type: .Character)
+        keyModel.keyCap = key
+        keyModel.outputText = key
+        defaultKeyboard.addKey(keyModel, row: 1, page: 2)
+    }
+    
+    defaultKeyboard.addKey(keyModel3, row: 2, page: 2)
+    
+    for key in [".", ",", "?", "?", "!", "'"] {
+        var keyModel = Key(type: .Character)
+        keyModel.keyCap = key
+        keyModel.outputText = key
+        defaultKeyboard.addKey(keyModel, row: 2, page: 2)
+    }
+    
+    defaultKeyboard.addKey(keyModel2, row: 2, page: 2)
+    
+    defaultKeyboard.addKey(keyModel3, row: 3, page: 2)
+    
+    defaultKeyboard.addKey(keyModel4, row: 3, page: 2)
+    
+    defaultKeyboard.addKey(keyModel5, row: 3, page: 2)
+    
+    defaultKeyboard.addKey(keyModel6, row: 3, page: 2)
     
     return defaultKeyboard
 }

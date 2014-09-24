@@ -321,7 +321,7 @@ class KeyboardViewController: UIInputViewController {
     }
     
     func modeChangeTapped() {
-        self.currentMode = (self.currentMode == 0 ? 1 : 0)
+        self.currentMode = ((self.currentMode + 1) % 3)
     }
     
     func setMode(mode: Int) {
