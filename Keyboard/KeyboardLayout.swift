@@ -68,6 +68,7 @@ class KeyboardLayout {
     private var elements: [String:UIView] = [:]
     
     var allConstraints: [String] = []
+    var allConstraintObjects: [NSLayoutConstraint] = []
     
     private var initialized: Bool
     
@@ -110,6 +111,7 @@ class KeyboardLayout {
             generatedConstraints += constraints
         }
         self.superview.addConstraints(generatedConstraints)
+        self.allConstraintObjects += (generatedConstraints as [NSLayoutConstraint])
     }
     
     func updateForOrientation(portrait: Bool) {
@@ -157,6 +159,9 @@ class KeyboardLayout {
         // TODO: generalize
         constraint.secondItem?.removeConstraint(constraint)
 //        constraint.secondItem?.removeConstraint(constraint)
+        
+        let constraintIndex = find(self.allConstraintObjects, constraint)
+        if constraintIndex != nil { self.allConstraintObjects.removeAtIndex(constraintIndex!) }
         
         let newConstraint = NSLayoutConstraint(
             item: constraint.firstItem,
@@ -277,14 +282,16 @@ class KeyboardLayout {
     }
     
     private func centerItems(item1: UIView, item2: UIView, vertical: Bool) {
-        self.superview.addConstraint(NSLayoutConstraint(
+        let constraint = NSLayoutConstraint(
             item: item1,
             attribute: (vertical ? NSLayoutAttribute.CenterX : NSLayoutAttribute.CenterY),
             relatedBy: NSLayoutRelation.Equal,
             toItem: item2,
             attribute: (vertical ? NSLayoutAttribute.CenterX : NSLayoutAttribute.CenterY),
             multiplier: 1,
-            constant: 0))
+            constant: 0)
+        self.superview.addConstraint(constraint)
+        self.allConstraintObjects.append(constraint)
     }
     
     private func addGapPair(nameFormat: String, page: Int, row: Int?, startIndex: Int, endIndex: Int, leftAnchor: String?, rightAnchor: String?, vertical: Bool, width: String?) {
@@ -403,29 +410,34 @@ class KeyboardLayout {
                 metrics: layout,
                 views: elements)
             self.superview.addConstraints(generatedConstraints)
+            self.allConstraintObjects += (generatedConstraints as [NSLayoutConstraint])
         }
         
         // centering constraints
         for (name, spacer) in spacers {
             if (name.hasPrefix("left") || name.hasPrefix("right")) {
-                self.superview.addConstraint(NSLayoutConstraint(
+                let constraint = NSLayoutConstraint(
                     item: spacer,
                     attribute: NSLayoutAttribute.CenterY,
                     relatedBy: NSLayoutRelation.Equal,
                     toItem: self.superview,
                     attribute: NSLayoutAttribute.CenterY,
                     multiplier: 1,
-                    constant: 0))
+                    constant: 0)
+                self.superview.addConstraint(constraint)
+                self.allConstraintObjects.append(constraint)
             }
             else if (name.hasPrefix("top") || name.hasPrefix("bottom")) {
-                self.superview.addConstraint(NSLayoutConstraint(
+                let constraint = NSLayoutConstraint(
                     item: spacer,
                     attribute: NSLayoutAttribute.CenterX,
                     relatedBy: NSLayoutRelation.Equal,
                     toItem: self.superview,
                     attribute: NSLayoutAttribute.CenterX,
                     multiplier: 1,
-                    constant: 0))
+                    constant: 0)
+                self.superview.addConstraint(constraint)
+                self.allConstraintObjects.append(constraint)
             }
         }
         
@@ -570,6 +582,7 @@ class KeyboardLayout {
                                     multiplier: CGFloat(0.0645),
                                     constant: CGFloat(13.37))
                                 self.superview.addConstraint(widthConstraint)
+                                self.allConstraintObjects.append(widthConstraint)
                             } else {
                                 allConstraints.append("[\(keyName)(\(canonicalSpecialSameWidth!))]")
                             }
@@ -594,6 +607,7 @@ class KeyboardLayout {
                             multiplier: CGFloat(2.0625),
                             constant: CGFloat(3.875))
                         self.superview.addConstraint(widthConstraint)
+                        self.allConstraintObjects.append(widthConstraint)
                     }
                 }
             }
@@ -642,6 +656,8 @@ class KeyboardLayout {
                         
                         elements["superview"]?.addConstraint(widthConstraint)
                         elements["superview"]?.addConstraint(heightConstraint)
+                        self.allConstraintObjects.append(widthConstraint)
+                        self.allConstraintObjects.append(heightConstraint)
                         
                         self.keyWidthConstraint = widthConstraint
                         self.keyHeightConstraint = heightConstraint
@@ -661,6 +677,7 @@ class KeyboardLayout {
                                 multiplier: 1,
                                 constant: 0)
                             self.superview.addConstraint(constraint0)
+                            self.allConstraintObjects.append(constraint0)
                         case Key.KeyType.Shift, Key.KeyType.Backspace:
                             let shiftAndBackspaceMaxWidth = layout["shiftAndBackspaceMaxWidth"]!
                             var constraint = NSLayoutConstraint(
@@ -672,6 +689,7 @@ class KeyboardLayout {
                                 multiplier: CGFloat(layout["keyWidthRatio"]! * (shiftAndBackspaceMaxWidth / 26)), // TODO:
                                 constant: 0)
                             self.superview.addConstraint(constraint)
+                            self.allConstraintObjects.append(constraint)
                         default:
                             break
                         }

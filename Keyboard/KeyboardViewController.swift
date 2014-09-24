@@ -109,21 +109,6 @@ class KeyboardViewController: UIInputViewController {
         fatalError("NSCoding not supported")
     }
 
-//    override func updateViewConstraints() {
-//        super.updateViewConstraints()
-//    }
-    
-    override func willRotateToInterfaceOrientation(toInterfaceOrientation: UIInterfaceOrientation, duration: NSTimeInterval) {
-        self.layout.updateForOrientation(toInterfaceOrientation.isPortrait)
-        
-//        if toInterfaceOrientation.isLandscape {
-//            self.heightConstraint?.constant = 100
-//        }
-//        else {
-//            self.heightConstraint?.constant = 500
-//        }
-    }
-
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -137,35 +122,19 @@ class KeyboardViewController: UIInputViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+    }
+    
+    override func updateViewConstraints() {
+        // suppresses constraint unsatisfiability on initial zero rect; mostly an issue of log spam
+        // TODO: there's probably a more sensible/correct way to do this
+        if CGRectIsEmpty(self.view.bounds) {
+            NSLayoutConstraint.deactivateConstraints(self.layout.allConstraintObjects)
+        }
+        else {
+            NSLayoutConstraint.activateConstraints(self.layout.allConstraintObjects)
+        }
         
-//        if self.view.frame.height != 0 {
-//            if self.heightConstraint == nil {
-//                let defaultHeightPortrait = 216.0
-//                let defaultHeightLandscape = 162.0
-//                let widthPortrait = 320.0
-//                let widthLandscape = 568.0
-//                
-//                // TODO: add layout binding
-//                let actualHeightPortrait = defaultHeightPortrait + 30.0
-//                let actualHeightLandscape = defaultHeightLandscape + 30.0
-//                
-//                let m = (actualHeightPortrait - actualHeightLandscape) / (widthPortrait - widthLandscape)
-//                let c = actualHeightPortrait - (widthPortrait * m)
-//                
-//                self.heightConstraint = NSLayoutConstraint(
-//                    item:self.view,
-//                    attribute:NSLayoutAttribute.Height,
-//                    relatedBy:NSLayoutRelation.Equal,
-//                    toItem:nil,
-//                    attribute:NSLayoutAttribute.NotAnAttribute,
-//                    multiplier:0,
-//                    constant:CGFloat(actualHeightPortrait))
-//                self.heightConstraint!.priority = 1000
-//                
-//                self.view.addConstraint(self.heightConstraint!) // TODO: what if view already has constraint added?
-//            }
-//        }
-        
+        super.updateViewConstraints()
     }
     
     func setupKeys() {
