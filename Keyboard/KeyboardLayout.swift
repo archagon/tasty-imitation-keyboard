@@ -48,7 +48,8 @@ let globalColors: [String:UIColor] = [
 // shift/backspace: 72x78, but shrinks to 48x78
 // lower row: 68x78, 100x78, 276
 
-class KeyboardLayout {
+// handles the layout for the keyboard, including key spacing and arrangement
+class KeyboardLayout: KeyboardKeyProtocol {
     
     dynamic var colors: [String:UIColor] {
         get {
@@ -248,11 +249,12 @@ class KeyboardLayout {
                         if (j < numKeys) {
                             var key = page.rows[i][j]
                             
-                            var keyView = KeyboardKey(frame: CGRectZero, model: key) // TODO:
+                            var keyView = KeyboardKey(frame: CGRectZero) // TODO:
                             let keyViewName = "key\(j)x\(i)p\(h)"
                             keyView.enabled = true
                             keyView.setTranslatesAutoresizingMaskIntoConstraints(false)
                             keyView.text = key.lowercaseKeyCap
+                            keyView.delegate = self
                             
                             self.superview.addSubview(keyView)
                             
@@ -706,6 +708,95 @@ class KeyboardLayout {
         }
         
         self.allConstraints += allConstraints
+    }
+    
+    var extraConstraints: [(UIView, [NSLayoutConstraint])] = []
+    func willShowPopup(key: KeyboardKey, direction: Direction) {
+        if let popup = key.popup {
+            let directionToAttribute = [
+                Direction.Up: NSLayoutAttribute.Top,
+                Direction.Down: NSLayoutAttribute.Bottom,
+                Direction.Left: NSLayoutAttribute.Left,
+                Direction.Right: NSLayoutAttribute.Right,
+            ]
+            
+            for (view, constraintArray) in self.extraConstraints {
+                if key == view {
+                    for constraint in constraintArray {
+                        self.superview.removeConstraint(constraint)
+                    }
+                }
+            }
+            
+            var extraConstraints: [NSLayoutConstraint] = []
+            
+            var cantTouchTopConstraint = NSLayoutConstraint(
+                item: popup,
+                attribute: directionToAttribute[direction]!,
+                relatedBy: (direction == Direction.Right ? NSLayoutRelation.LessThanOrEqual : NSLayoutRelation.GreaterThanOrEqual),
+                toItem: self.superview,
+                attribute: directionToAttribute[direction]!,
+                multiplier: 1,
+                constant: 2) // TODO: layout
+            cantTouchTopConstraint.priority = 1000
+            self.superview.addConstraint(cantTouchTopConstraint)
+            extraConstraints.append(cantTouchTopConstraint)
+//            self.allConstraintObjects.append(cantTouchTopConstraint)
+            
+            if direction.horizontal() {
+                var cantTouchTopConstraint = NSLayoutConstraint(
+                    item: popup,
+                    attribute: directionToAttribute[Direction.Up]!,
+                    relatedBy: NSLayoutRelation.GreaterThanOrEqual,
+                    toItem: self.superview,
+                    attribute: directionToAttribute[Direction.Up]!,
+                    multiplier: 1,
+                    constant: 5) // TODO: layout
+                cantTouchTopConstraint.priority = 1000
+                self.superview.addConstraint(cantTouchTopConstraint)
+                extraConstraints.append(cantTouchTopConstraint)
+//                self.allConstraintObjects.append(cantTouchTopConstraint)
+            }
+            else {
+                var cantTouchSideConstraint = NSLayoutConstraint(
+                    item: self.superview,
+                    attribute: directionToAttribute[Direction.Right]!,
+                    relatedBy: NSLayoutRelation.GreaterThanOrEqual,
+                    toItem: popup,
+                    attribute: directionToAttribute[Direction.Right]!,
+                    multiplier: 1,
+                    constant: 3) // TODO: layout
+                cantTouchSideConstraint.priority = 1000
+                var cantTouchSideConstraint2 = NSLayoutConstraint(
+                    item: self.superview,
+                    attribute: directionToAttribute[Direction.Left]!,
+                    relatedBy: NSLayoutRelation.LessThanOrEqual,
+                    toItem: popup,
+                    attribute: directionToAttribute[Direction.Left]!,
+                    multiplier: 1,
+                    constant: -3) // TODO: layout
+                cantTouchSideConstraint2.priority = 1000
+                
+                self.superview.addConstraint(cantTouchSideConstraint)
+                self.superview.addConstraint(cantTouchSideConstraint2)
+                extraConstraints.append(cantTouchSideConstraint)
+                extraConstraints.append(cantTouchSideConstraint2)
+//                self.allConstraintObjects.append(cantTouchSideConstraint)
+//                self.allConstraintObjects.append(cantTouchSideConstraint2)
+            }
+            
+            self.extraConstraints.append((key, extraConstraints) as (UIView, [NSLayoutConstraint]))
+        }
+    }
+    
+    func willHidePopup(key: KeyboardKey) {
+        for (view, constraintArray) in self.extraConstraints {
+            if key == view {
+                for constraint in constraintArray {
+                    self.superview.removeConstraint(constraint)
+                }
+            }
+        }
     }
 
     private class Spacer: UIView {
