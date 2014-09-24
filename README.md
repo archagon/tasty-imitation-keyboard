@@ -36,3 +36,7 @@ Hold-to-select-alternate-characters will be implemented at a later time.
 * autolayout
 * CoreGraphics
 * finally release an app on the App Store, darn it
+
+## License
+
+This project is licensed under the 3-clause ("New") BSD license. (Go Bears!)
