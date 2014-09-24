@@ -20,7 +20,6 @@
 		4EAAB700196E13FE005DE8F5 /* KeyboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E807DBD19461DC700D875D1 /* KeyboardViewController.swift */; };
 		4EF16F9119D254E00076AFCB /* Background.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4EF16F9019D254E00076AFCB /* Background.jpg */; };
 		4EF16F9619D255030076AFCB /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4EF16F9319D255030076AFCB /* Images.xcassets */; };
-		4EF16F9719D255030076AFCB /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4EF16F9419D255030076AFCB /* Info.plist */; };
 		4EF16F9819D255030076AFCB /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF16F9519D255030076AFCB /* ViewController.swift */; };
 		4EF16F9919D255030076AFCB /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4EF16F9219D254EA0076AFCB /* Info.plist */; };
 		4EF16F9B19D2550D0076AFCB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF16F9A19D2550D0076AFCB /* AppDelegate.swift */; };
@@ -87,7 +86,6 @@
 		4EF16F9019D254E00076AFCB /* Background.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = Background.jpg; path = HostingApp/Background.jpg; sourceTree = SOURCE_ROOT; };
 		4EF16F9219D254EA0076AFCB /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = HostingApp/Info.plist; sourceTree = SOURCE_ROOT; };
 		4EF16F9319D255030076AFCB /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = HostingApp/Images.xcassets; sourceTree = SOURCE_ROOT; };
-		4EF16F9419D255030076AFCB /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = HostingApp/Info.plist; sourceTree = SOURCE_ROOT; };
 		4EF16F9519D255030076AFCB /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ViewController.swift; path = HostingApp/ViewController.swift; sourceTree = SOURCE_ROOT; };
 		4EF16F9A19D2550D0076AFCB /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = HostingApp/AppDelegate.swift; sourceTree = SOURCE_ROOT; };
 		4EF16F9E19D2552E0076AFCB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Main.storyboard; sourceTree = "<group>"; };
@@ -183,7 +181,6 @@
 				4EF16F9519D255030076AFCB /* ViewController.swift */,
 				4EF16F9D19D2552E0076AFCB /* Main.storyboard */,
 				4EF16F9319D255030076AFCB /* Images.xcassets */,
-				4EF16F9419D255030076AFCB /* Info.plist */,
 				4E807D9619461D9000D875D1 /* Supporting Files */,
 			);
 			name = HostingApp;
@@ -307,7 +304,6 @@
 				4EF16F9919D255030076AFCB /* Info.plist in Resources */,
 				4EF16F9F19D2552E0076AFCB /* Main.storyboard in Resources */,
 				4EF16F9119D254E00076AFCB /* Background.jpg in Resources */,
-				4EF16F9719D255030076AFCB /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
