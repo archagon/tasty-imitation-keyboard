@@ -103,6 +103,13 @@ class KeyboardViewController: UIInputViewController {
                 attribute: NSLayoutAttribute.Bottom,
                 multiplier: 1,
                 constant: 0))
+        
+        // TODO: figure out where to move this
+        self.layout.initialize()
+        self.setupKeys()
+        
+        // TODO: read up on swift setter behavior on init
+        self.setMode(0)
     }
     
     required init(coder: NSCoder) {
@@ -111,9 +118,6 @@ class KeyboardViewController: UIInputViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        self.layout.initialize()
-        self.setupKeys()
     }
     
     override func viewWillLayoutSubviews() {
@@ -326,7 +330,7 @@ class KeyboardViewController: UIInputViewController {
                 for (keyIndex, key) in enumerate(row) {
                     if self.layout.modelToView[key] != nil {
                         var keyView = self.layout.modelToView[key]
-                        keyView?.hidden = (pageIndex != self.currentMode)
+                        keyView?.hidden = (pageIndex != mode)
                     }
                 }
             }

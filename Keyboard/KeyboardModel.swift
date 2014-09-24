@@ -24,14 +24,13 @@ class Keyboard {
     }
     
     func addKey(key: Key, row: Int, page: Int) {
-        let overridePage = (page == 1 ? 0 : 1)
-        if self.pages.count <= overridePage {
-            for i in self.pages.count...overridePage {
+        if self.pages.count <= page {
+            for i in self.pages.count...page {
                 self.pages.append(Page())
             }
         }
         
-        self.pages[overridePage].addKey(key, row: row)
+        self.pages[page].addKey(key, row: row)
     }
 }
 
