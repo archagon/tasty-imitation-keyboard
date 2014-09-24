@@ -8,8 +8,11 @@
 
 import UIKit
 
-class TranslitTableViewController: UITableViewController {
-                            
+class HostingAppViewController: UIViewController {
+    
+    @IBOutlet var effectsView: UIVisualEffectView?
+    @IBOutlet var textField: UITextView?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
     }

@@ -5,10 +5,10 @@
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
-        <!--View Controller-->
+        <!--Hosting App View Controller-->
         <scene sceneID="fbE-cB-Iyw">
             <objects>
-                <viewController id="nAo-DR-8Pl" sceneMemberID="viewController">
+                <viewController id="nAo-DR-8Pl" customClass="HostingAppViewController" customModule="HostingApp" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="Bpu-v8-xYb"/>
                         <viewControllerLayoutGuide type="bottom" id="P06-La-EKF"/>
@@ -20,23 +20,44 @@
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Background.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="IC3-rM-66w">
                                 <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                             </imageView>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Type here to test keyboard..." minimumFontSize="17" clearButtonMode="always" translatesAutoresizingMaskIntoConstraints="NO" id="iZ4-cw-fSB">
-                                <rect key="frame" x="16" y="28" width="568" height="30"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="18"/>
-                                <textInputTraits key="textInputTraits"/>
-                            </textField>
+                            <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="b1c-i6-VPq">
+                                <rect key="frame" x="16" y="24" width="568" height="560"/>
+                                <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="uz0-l4-LxW">
+                                    <rect key="frame" x="0.0" y="0.0" width="568" height="560"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="U3b-No-Yrb">
+                                            <rect key="frame" x="0.0" y="0.0" width="568" height="560"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                            <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                        </textView>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstAttribute="trailing" secondItem="U3b-No-Yrb" secondAttribute="trailing" id="SMp-oD-NZo"/>
+                                        <constraint firstAttribute="bottom" secondItem="U3b-No-Yrb" secondAttribute="bottom" id="Uax-vL-5ij"/>
+                                        <constraint firstItem="U3b-No-Yrb" firstAttribute="leading" secondItem="uz0-l4-LxW" secondAttribute="leading" id="f1u-if-Vrx"/>
+                                        <constraint firstItem="U3b-No-Yrb" firstAttribute="top" secondItem="uz0-l4-LxW" secondAttribute="top" id="yjo-XH-pBS"/>
+                                    </constraints>
+                                </view>
+                                <blurEffect style="light"/>
+                            </visualEffectView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="IC3-rM-66w" secondAttribute="trailing" id="2Tb-f1-RXm"/>
-                            <constraint firstItem="iZ4-cw-fSB" firstAttribute="leading" secondItem="aBi-zl-Xx9" secondAttribute="leadingMargin" id="4UW-WF-d3Z"/>
-                            <constraint firstItem="iZ4-cw-fSB" firstAttribute="top" secondItem="Bpu-v8-xYb" secondAttribute="bottom" constant="8" id="4h8-fx-Qsp"/>
                             <constraint firstItem="IC3-rM-66w" firstAttribute="leading" secondItem="aBi-zl-Xx9" secondAttribute="leading" id="6fk-Jg-LEU"/>
                             <constraint firstItem="P06-La-EKF" firstAttribute="top" secondItem="IC3-rM-66w" secondAttribute="bottom" id="CAM-uD-RD7"/>
-                            <constraint firstItem="iZ4-cw-fSB" firstAttribute="trailing" secondItem="aBi-zl-Xx9" secondAttribute="trailingMargin" id="Edj-bN-tLU"/>
                             <constraint firstItem="IC3-rM-66w" firstAttribute="top" secondItem="aBi-zl-Xx9" secondAttribute="top" id="F9u-ma-0Be"/>
+                            <constraint firstItem="b1c-i6-VPq" firstAttribute="trailing" secondItem="aBi-zl-Xx9" secondAttribute="trailingMargin" id="HYN-JI-tfy"/>
+                            <constraint firstItem="b1c-i6-VPq" firstAttribute="top" secondItem="Bpu-v8-xYb" secondAttribute="bottom" constant="4" id="Zvk-e3-X92"/>
+                            <constraint firstItem="b1c-i6-VPq" firstAttribute="leading" secondItem="aBi-zl-Xx9" secondAttribute="leadingMargin" id="lZp-Uu-nbI"/>
+                            <constraint firstItem="P06-La-EKF" firstAttribute="top" secondItem="b1c-i6-VPq" secondAttribute="bottom" constant="16" id="niV-ai-HGQ"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="effectsView" destination="b1c-i6-VPq" id="YSl-rY-9Od"/>
+                        <outlet property="textField" destination="U3b-No-Yrb" id="cxV-Rd-ZBH"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="kvK-BB-OCk" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
