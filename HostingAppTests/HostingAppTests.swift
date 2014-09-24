@@ -1,6 +1,6 @@
 //
-//  TransliteratingKeyboardTests.swift
-//  TransliteratingKeyboardTests
+//  HostingAppTests.swift
+//  HostingAppTests
 //
 //  Created by Alexei Baboulevitch on 6/9/14.
 //  Copyright (c) 2014 Apple. All rights reserved.
@@ -8,7 +8,7 @@
 
 import XCTest
 
-class TransliteratingKeyboardTests: XCTestCase {
+class HostingAppTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
