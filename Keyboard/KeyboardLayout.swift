@@ -692,19 +692,20 @@ class KeyboardLayout {
 
     private class Spacer: UIView {
         
+        override class func requiresConstraintBasedLayout() -> Bool {
+            return true
+        }
+        
         override init(frame: CGRect) {
             super.init(frame: frame)
             
             self.hidden = true
+            self.setTranslatesAutoresizingMaskIntoConstraints(false)
             self.userInteractionEnabled = false
         }
         
         override convenience init() {
-            return self.init(frame: CGRectZero)
-        }
-        
-        required init(coder: NSCoder) {
-            fatalError("NSCoding not supported")
+            self.init(frame: CGRectZero)
         }
         
         convenience init(color: UIColor) {
@@ -716,8 +717,8 @@ class KeyboardLayout {
             }
         }
         
-        //    override class func requiresConstraintBasedLayout() -> Bool {
-        //        return true
-        //    }
+        required init(coder: NSCoder) {
+            fatalError("NSCoding not supported")
+        }
     }
 }
