@@ -21,7 +21,6 @@
 		4EF16F9119D254E00076AFCB /* Background.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4EF16F9019D254E00076AFCB /* Background.jpg */; };
 		4EF16F9619D255030076AFCB /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4EF16F9319D255030076AFCB /* Images.xcassets */; };
 		4EF16F9819D255030076AFCB /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF16F9519D255030076AFCB /* ViewController.swift */; };
-		4EF16F9919D255030076AFCB /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4EF16F9219D254EA0076AFCB /* Info.plist */; };
 		4EF16F9B19D2550D0076AFCB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF16F9A19D2550D0076AFCB /* AppDelegate.swift */; };
 		4EF16F9F19D2552E0076AFCB /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4EF16F9D19D2552E0076AFCB /* Main.storyboard */; };
 		4EF250C71986D460003BC484 /* KeyboardLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF250C61986D460003BC484 /* KeyboardLayout.swift */; };
@@ -301,7 +300,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				4EF16F9619D255030076AFCB /* Images.xcassets in Resources */,
-				4EF16F9919D255030076AFCB /* Info.plist in Resources */,
 				4EF16F9F19D2552E0076AFCB /* Main.storyboard in Resources */,
 				4EF16F9119D254E00076AFCB /* Background.jpg in Resources */,
 			);
