@@ -49,7 +49,11 @@ class KeyboardViewController: UIInputViewController {
             }
         }
     }
-
+    
+    override func willRotateToInterfaceOrientation(toInterfaceOrientation: UIInterfaceOrientation, duration: NSTimeInterval) {
+        NSLog("will rotate starting to \(toInterfaceOrientation)")
+    }
+    
     // TODO: why does the app crash if this isn't here?
     convenience override init() {
         self.init(nibName: nil, bundle: nil)
@@ -58,87 +62,114 @@ class KeyboardViewController: UIInputViewController {
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
         self.keyboard = defaultKeyboard()
         self.forwardingView = ForwardingView(frame: CGRectZero)
-        self.forwardingView.setTranslatesAutoresizingMaskIntoConstraints(false)
         self.layout = KeyboardLayout(model: self.keyboard, superview: self.forwardingView)
         self.shiftState = .Disabled
         self.currentMode = 0
         
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-        
+            
         self.view.addSubview(self.forwardingView)
-        
-        self.view.addConstraint(
-            NSLayoutConstraint(
-                item: self.forwardingView,
-                attribute: NSLayoutAttribute.Left,
-                relatedBy: NSLayoutRelation.Equal,
-                toItem: self.view,
-                attribute: NSLayoutAttribute.Left,
-                multiplier: 1,
-                constant: 0))
-        self.view.addConstraint(
-            NSLayoutConstraint(
-                item: self.forwardingView,
-                attribute: NSLayoutAttribute.Right,
-                relatedBy: NSLayoutRelation.Equal,
-                toItem: self.view,
-                attribute: NSLayoutAttribute.Right,
-                multiplier: 1,
-                constant: 0))
-        self.view.addConstraint(
-            NSLayoutConstraint(
-                item: self.forwardingView,
-                attribute: NSLayoutAttribute.Top,
-                relatedBy: NSLayoutRelation.Equal,
-                toItem: self.view,
-                attribute: NSLayoutAttribute.Top,
-                multiplier: 1,
-                constant: 0))
-        self.view.addConstraint(
-            NSLayoutConstraint(
-                item: self.forwardingView,
-                attribute: NSLayoutAttribute.Bottom,
-                relatedBy: NSLayoutRelation.Equal,
-                toItem: self.view,
-                attribute: NSLayoutAttribute.Bottom,
-                multiplier: 1,
-                constant: 0))
-        
-        // TODO: figure out where to move this
-        self.layout.initialize()
-        self.setupKeys()
-        
-        // TODO: read up on swift setter behavior on init
-        self.setMode(0)
     }
     
     required init(coder: NSCoder) {
         fatalError("NSCoding not supported")
     }
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-    }
     
-    override func viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
-    }
+//    override func updateViewConstraints() {
+//        // suppresses constraint unsatisfiability on initial zero rect; mostly an issue of log spam
+//        // TODO: there's probably a more sensible/correct way to do this
+//        if CGRectIsEmpty(self.view.bounds) {
+//            NSLayoutConstraint.deactivateConstraints(self.layout.allConstraintObjects)
+//        }
+//        else {
+//            NSLayoutConstraint.activateConstraints(self.layout.allConstraintObjects)
+//        }
+//
+//        super.updateViewConstraints()
+//    }
     
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
+    var constraintsAdded: Bool = false
+    func setupConstraints() {
+        if !constraintsAdded {
+            self.forwardingView.setTranslatesAutoresizingMaskIntoConstraints(false)
+            
+            self.view.addConstraint(
+                NSLayoutConstraint(
+                    item: self.forwardingView,
+                    attribute: NSLayoutAttribute.Left,
+                    relatedBy: NSLayoutRelation.Equal,
+                    toItem: self.view,
+                    attribute: NSLayoutAttribute.Left,
+                    multiplier: 1,
+                    constant: 0))
+            self.view.addConstraint(
+                NSLayoutConstraint(
+                    item: self.forwardingView,
+                    attribute: NSLayoutAttribute.Right,
+                    relatedBy: NSLayoutRelation.Equal,
+                    toItem: self.view,
+                    attribute: NSLayoutAttribute.Right,
+                    multiplier: 1,
+                    constant: 0))
+            self.view.addConstraint(
+                NSLayoutConstraint(
+                    item: self.forwardingView,
+                    attribute: NSLayoutAttribute.Top,
+                    relatedBy: NSLayoutRelation.Equal,
+                    toItem: self.view,
+                    attribute: NSLayoutAttribute.Top,
+                    multiplier: 1,
+                    constant: 0))
+            self.view.addConstraint(
+                NSLayoutConstraint(
+                    item: self.forwardingView,
+                    attribute: NSLayoutAttribute.Bottom,
+                    relatedBy: NSLayoutRelation.Equal,
+                    toItem: self.view,
+                    attribute: NSLayoutAttribute.Bottom,
+                    multiplier: 1,
+                    constant: 0))
+            
+            self.layout.initialize()
+            self.setupKeys()
+            self.constraintsAdded = true
+            
+            // TODO: read up on swift setter behavior on init
+            self.setMode(0)
+        }
+        
+        self.setHeight()
     }
     
     override func updateViewConstraints() {
-        // suppresses constraint unsatisfiability on initial zero rect; mostly an issue of log spam
-        // TODO: there's probably a more sensible/correct way to do this
-        if CGRectIsEmpty(self.view.bounds) {
-            NSLayoutConstraint.deactivateConstraints(self.layout.allConstraintObjects)
-        }
-        else {
-            NSLayoutConstraint.activateConstraints(self.layout.allConstraintObjects)
-        }
-        
         super.updateViewConstraints()
+        self.setupConstraints()
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        self.view.setNeedsUpdateConstraints()
+    }
+    
+//    override func viewWillLayoutSubviews() {
+//        super.viewWillLayoutSubviews()
+//    }
+    
+//    override func viewDidLayoutSubviews() {
+//        super.viewDidLayoutSubviews()
+//        self.setHeight()
+//    }
+    
+//    override func viewDidAppear(animated: Bool) {
+//        self.setHeight()
+//    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        
+//        self.setHeight()
+        
+//        self.forwardingView.frame = self.view.bounds
     }
     
     func setupKeys() {
@@ -169,7 +200,7 @@ class KeyboardViewController: UIInputViewController {
                     
                     if key.outputText != nil {
                         keyView.addTarget(self, action: "keyPressed:", forControlEvents: .TouchUpInside)
-    //                    keyView.addTarget(self, action: "takeScreenshotDelay", forControlEvents: .TouchDown)
+                        //                    keyView.addTarget(self, action: "takeScreenshotDelay", forControlEvents: .TouchDown)
                     }
                     
                     if key.type == Key.KeyType.Character || key.type == Key.KeyType.Period {
@@ -220,6 +251,48 @@ class KeyboardViewController: UIInputViewController {
     
     override func textDidChange(textInput: UITextInput) {
         // The app has just changed the document's contents, the document context has been updated.
+    }
+    
+    func setHeight() {
+        if self.view.frame.height != 0 {
+            if self.heightConstraint == nil {
+                //for constraint in self.view.constraints() {
+                //    var actualConstraint = constraint as NSLayoutConstraint
+                //    if let identifier = actualConstraint.identifier {
+                //        if identifier == "UIView-Encapsulated-Layout-Height" {
+                //            //actualConstraint.constant = 100
+                //            actualConstraint.active = false
+                //        }
+                //    }
+                //}
+                
+                //let defaultHeightPortrait = 216.0
+                //let defaultHeightLandscape = 162.0
+                //let widthPortrait = 320.0
+                //let widthLandscape = 568.0
+                //
+                //// TODO: add layout binding
+                //let actualHeightPortrait = defaultHeightPortrait + 30.0
+                //let actualHeightLandscape = defaultHeightLandscape + 30.0
+                //
+                //let m = (actualHeightPortrait - actualHeightLandscape) / (widthPortrait - widthLandscape)
+                //let c = actualHeightPortrait - (widthPortrait * m)
+                
+                self.heightConstraint = NSLayoutConstraint(
+                    item:self.view,
+                    attribute:NSLayoutAttribute.Height,
+                    relatedBy:NSLayoutRelation.Equal,
+                    toItem:nil,
+                    attribute:NSLayoutAttribute.NotAnAttribute,
+                    multiplier:0,
+                    constant:400)
+                self.heightConstraint!.priority = 1000
+                
+                self.view.addConstraint(self.heightConstraint!) // TODO: what if view already has constraint added?
+            }
+        }
+        
+        return;
     }
     
     var blah = 0
