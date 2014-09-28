@@ -201,9 +201,6 @@ class KeyboardKey: UIControl, KeyboardView {
     }
     
     func setupPopupConstraints(dir: Direction) {
-        // TODO: superview optional
-        // TODO: superview constraints not part of allConstraints array, and also allConstraints does not work recursively
-        
         assert(self.popup != nil, "popup not found")
         
         for (view, constraint) in self.constraintStore {

@@ -8,6 +8,12 @@
 
 import UIKit
 
+extension UIInputView: UIInputViewAudioFeedback {
+    public var enableInputClicksWhenVisible: Bool {
+        return true
+    }
+}
+
 class KeyboardViewController: UIInputViewController {
     
     let backspaceDelay: NSTimeInterval = 0.5
@@ -254,74 +260,34 @@ class KeyboardViewController: UIInputViewController {
     }
     
     func setHeight() {
-        if self.view.frame.height != 0 {
-            if self.heightConstraint == nil {
-                //for constraint in self.view.constraints() {
-                //    var actualConstraint = constraint as NSLayoutConstraint
-                //    if let identifier = actualConstraint.identifier {
-                //        if identifier == "UIView-Encapsulated-Layout-Height" {
-                //            //actualConstraint.constant = 100
-                //            actualConstraint.active = false
-                //        }
-                //    }
-                //}
-                
-                //let defaultHeightPortrait = 216.0
-                //let defaultHeightLandscape = 162.0
-                //let widthPortrait = 320.0
-                //let widthLandscape = 568.0
-                //
-                //// TODO: add layout binding
-                //let actualHeightPortrait = defaultHeightPortrait + 30.0
-                //let actualHeightLandscape = defaultHeightLandscape + 30.0
-                //
-                //let m = (actualHeightPortrait - actualHeightLandscape) / (widthPortrait - widthLandscape)
-                //let c = actualHeightPortrait - (widthPortrait * m)
-                
-                self.heightConstraint = NSLayoutConstraint(
-                    item:self.view,
-                    attribute:NSLayoutAttribute.Height,
-                    relatedBy:NSLayoutRelation.Equal,
-                    toItem:nil,
-                    attribute:NSLayoutAttribute.NotAnAttribute,
-                    multiplier:0,
-                    constant:400)
-                self.heightConstraint!.priority = 1000
-                
-                self.view.addConstraint(self.heightConstraint!) // TODO: what if view already has constraint added?
-            }
-        }
+//        for constraint in self.view.constraints() {
+//            var actualConstraint = constraint as NSLayoutConstraint
+//            if let identifier = actualConstraint.identifier {
+//                if identifier == "UIView-Encapsulated-Layout-Height" {
+//                    //actualConstraint.constant = 400
+//                    //actualConstraint.active = false
+//                    NSLog("system keyboard height: \(actualConstraint.constant)")
+//                }
+//            }
+//        }
+//        
+//        if self.view.frame.height != 0 {
+//            if self.heightConstraint == nil {
+//                self.heightConstraint = NSLayoutConstraint(
+//                    item:self.view,
+//                    attribute:NSLayoutAttribute.Height,
+//                    relatedBy:NSLayoutRelation.Equal,
+//                    toItem:nil,
+//                    attribute:NSLayoutAttribute.NotAnAttribute,
+//                    multiplier:0,
+//                    constant:400)
+//                self.heightConstraint!.priority = 1000
+//                
+//                self.view.addConstraint(self.heightConstraint!) // TODO: what if view already has constraint added?
+//            }
+//        }
         
         return;
-    }
-    
-    var blah = 0
-    func keyPressed(sender: KeyboardKey) {
-        UIDevice.currentDevice().playInputClick()
-        
-        let model = self.layout.keyForView(sender)
-        
-        NSLog("context before input: \((self.textDocumentProxy as UITextDocumentProxy).documentContextBeforeInput)")
-        NSLog("context after input: \((self.textDocumentProxy as UITextDocumentProxy).documentContextAfterInput)")
-        
-        // TODO: if let chain
-        if model != nil && model!.outputText != nil {
-            if blah < 3 {
-                (self.textDocumentProxy as UITextDocumentProxy as UIKeyInput).insertText(model!.outputText!)
-                blah += 1
-            }
-            else {
-                (self.textDocumentProxy as UITextDocumentProxy as UIKeyInput).deleteBackward()
-                (self.textDocumentProxy as UITextDocumentProxy as UIKeyInput).deleteBackward()
-                (self.textDocumentProxy as UITextDocumentProxy as UIKeyInput).deleteBackward()
-                (self.textDocumentProxy as UITextDocumentProxy as UIKeyInput).insertText("😽")
-                blah = 0
-            }
-        }
-        
-        if self.shiftState == .Enabled {
-            self.shiftState = .Disabled
-        }
     }
     
     func cancelBackspaceTimers() {
