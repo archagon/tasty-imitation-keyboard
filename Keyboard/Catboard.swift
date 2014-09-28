@@ -21,6 +21,8 @@ class Catboard: KeyboardViewController {
 //        self.heightConstraint?.constant = CGFloat(200 + randomNumber)
         
 //        return;
+        
+        // alas, this doesn't seem to work yet
         UIDevice.currentDevice().playInputClick()
 //
 //        let model = self.layout.keyForView(sender)

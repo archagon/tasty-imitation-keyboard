@@ -8,11 +8,12 @@
 
 import UIKit
 
-extension UIInputView: UIInputViewAudioFeedback {
-    public var enableInputClicksWhenVisible: Bool {
-        return true
-    }
-}
+// does not work; drops CPU to 0% when run on device
+//extension UIInputView: UIInputViewAudioFeedback {
+//    public var enableInputClicksWhenVisible: Bool {
+//        return true
+//    }
+//}
 
 class KeyboardViewController: UIInputViewController {
     
