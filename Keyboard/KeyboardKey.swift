@@ -51,7 +51,7 @@ class KeyboardKey: UIControl, KeyboardView {
     var downBorderColor: UIColor? { didSet { updateColors() }}
     var downTextColor: UIColor? { didSet { updateColors() }}
     
-    var popupDirection: Direction
+    var popupDirection: Direction?
     var ambiguityTimer: NSTimer! // QQQ:
     var constraintStore: [(UIView, NSLayoutConstraint)] = [] // QQQ:
     
@@ -63,8 +63,7 @@ class KeyboardKey: UIControl, KeyboardView {
             updateColors()
         }
     }
-    override var highlighted: Bool
-        {
+    override var highlighted: Bool {
         didSet
         {
             updateColors()
@@ -95,7 +94,7 @@ class KeyboardKey: UIControl, KeyboardView {
         self.drawUnder = true
         self.drawBorder = false
         self.textColor = UIColor.blackColor()
-        self.popupDirection = Direction.Up
+        self.popupDirection = nil
         
         super.init(frame: frame)
         
@@ -123,9 +122,14 @@ class KeyboardKey: UIControl, KeyboardView {
         fatalError("NSCoding not supported")
     }
     
-//    override func updateConstraints() {
-//        
-//    }
+    override func updateConstraints() {
+        super.updateConstraints()
+        
+        if self.popupDirection != nil {
+            self.setupPopupConstraints(self.popupDirection!)
+            self.configurePopup(self.popupDirection!)
+        }
+    }
 
     func timerLoop() {
         if self.popup != nil && self.popup!.hasAmbiguousLayout() {
@@ -136,30 +140,37 @@ class KeyboardKey: UIControl, KeyboardView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
+//        NSLog("updating subviews: \(self)")
         
-        if self.popup != nil {
+        if self.popup != nil && self.popupDirection == nil {
             self.popupDirection = Direction.Up
-            self.setupPopupConstraints(self.popupDirection)
-            self.delegate?.willShowPopup(self, direction: self.popupDirection)
-            self.configurePopup(self.popupDirection)
+//            self.popupSetupDirection = self.popupDirection!
+//            self.setupPopupConstraints(self.popupDirection!)
+//            self.configurePopup(self.popupDirection!)
+//            self.popup?.layoutIfNeeded()
+//            self.setNeedsUpdateConstraints()
+//            self.updateConstraintsIfNeeded()
+
+            self.setNeedsUpdateConstraints()
             super.layoutSubviews()
+            self.delegate?.willShowPopup(self, direction: self.popupDirection!)
             
             var upperLeftCorner = self.popup!.frame.origin
             var popupPosition = self.superview!.convertPoint(upperLeftCorner, fromView: self) // TODO: hack
             
 //            if popupPosition.y < 0 {
-            if self.popup!.bounds.height < 10 {
-                if self.frame.origin.x < self.superview!.bounds.width/2 { // TODO: hack
-                    self.popupDirection = Direction.Right
-                }
-                else {
-                    self.popupDirection = Direction.Left
-                }
-                self.setupPopupConstraints(self.popupDirection)
-                self.delegate?.willShowPopup(self, direction: self.popupDirection)
-                self.configurePopup(self.popupDirection)
-                super.layoutSubviews()
-            }
+//            if self.popup!.bounds.height < 10 {
+//                if self.frame.origin.x < self.superview!.bounds.width/2 { // TODO: hack
+//                    self.popupDirection = Direction.Right
+//                }
+//                else {
+//                    self.popupDirection = Direction.Left
+//                }
+//                self.setupPopupConstraints(self.popupDirection)
+//                self.delegate?.willShowPopup(self, direction: self.popupDirection)
+//                self.configurePopup(self.popupDirection)
+//                super.layoutSubviews()
+//            }
         }
         
 //        self.holder.frame = self.bounds
@@ -320,6 +331,9 @@ class KeyboardKey: UIControl, KeyboardView {
             self.popup!.text = self.keyView.text
             self.keyView.label.hidden = true
             self.popup!.label.font = self.popup!.label.font.fontWithSize(22 * 2.0)
+            
+//            self.popupDirection = .Up
+//            self.setNeedsUpdateConstraints()
         }
     }
     
@@ -339,6 +353,8 @@ class KeyboardKey: UIControl, KeyboardView {
             self.keyView.drawBorder = false
             
             self.layer.zPosition = 0
+            
+            self.popupDirection = nil
         }
     }
 }

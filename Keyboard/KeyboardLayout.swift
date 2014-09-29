@@ -710,6 +710,7 @@ class KeyboardLayout: KeyboardKeyProtocol {
         self.allConstraints += allConstraints
     }
     
+    // TODO: superview constraints not part of allConstraints array, and also allConstraints does not work recursively
     var extraConstraints: [(UIView, [NSLayoutConstraint])] = []
     func willShowPopup(key: KeyboardKey, direction: Direction) {
         if let popup = key.popup {

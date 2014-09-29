@@ -22,7 +22,7 @@ class KeyboardViewController: UIInputViewController {
     
     var keyboard: Keyboard
     var forwardingView: ForwardingView
-    var layout: KeyboardLayout
+    var layout: KeyboardLayout!
     var heightConstraint: NSLayoutConstraint?
     
     var currentMode: Int {
@@ -57,10 +57,6 @@ class KeyboardViewController: UIInputViewController {
         }
     }
     
-    override func willRotateToInterfaceOrientation(toInterfaceOrientation: UIInterfaceOrientation, duration: NSTimeInterval) {
-        NSLog("will rotate starting to \(toInterfaceOrientation)")
-    }
-    
     // TODO: why does the app crash if this isn't here?
     convenience override init() {
         self.init(nibName: nil, bundle: nil)
@@ -69,74 +65,43 @@ class KeyboardViewController: UIInputViewController {
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
         self.keyboard = defaultKeyboard()
         self.forwardingView = ForwardingView(frame: CGRectZero)
-        self.layout = KeyboardLayout(model: self.keyboard, superview: self.forwardingView)
         self.shiftState = .Disabled
         self.currentMode = 0
         
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-            
+        
+        self.layout = KeyboardLayout(model: self.keyboard, superview: self.forwardingView)
         self.view.addSubview(self.forwardingView)
+
+        self.view.setNeedsUpdateConstraints()
     }
     
     required init(coder: NSCoder) {
         fatalError("NSCoding not supported")
     }
     
-//    override func updateViewConstraints() {
-//        // suppresses constraint unsatisfiability on initial zero rect; mostly an issue of log spam
-//        // TODO: there's probably a more sensible/correct way to do this
-//        if CGRectIsEmpty(self.view.bounds) {
-//            NSLayoutConstraint.deactivateConstraints(self.layout.allConstraintObjects)
-//        }
-//        else {
-//            NSLayoutConstraint.activateConstraints(self.layout.allConstraintObjects)
-//        }
-//
-//        super.updateViewConstraints()
-//    }
+    /*
+    BUG POSTMORTEM
+
+    For some strange reason, a layout pass of the entire keyboard is triggered 
+    whenever a popup shows up, if one of the following is done:
+
+    a) The forwarding view uses an autoresizing mask.
+    b) The forwarding view has constraints set anywhere other than init.
+
+    On the other hand, setting (non-autoresizing) constraints or just setting the
+    frame in layoutSubviews works perfectly fine.
+
+    I don't really know what to make of this. Am I doing Autolayout wrong, is it
+    a bug, or is it expected behavior? Perhaps this has to do with the fact that
+    the view's frame is only ever explicitly modified when set directly in layoutSubviews,
+    and not implicitly modified by various Autolayout constraints
+    (even though it should really not be changing).
+    */
     
     var constraintsAdded: Bool = false
     func setupConstraints() {
         if !constraintsAdded {
-            self.forwardingView.setTranslatesAutoresizingMaskIntoConstraints(false)
-            
-            self.view.addConstraint(
-                NSLayoutConstraint(
-                    item: self.forwardingView,
-                    attribute: NSLayoutAttribute.Left,
-                    relatedBy: NSLayoutRelation.Equal,
-                    toItem: self.view,
-                    attribute: NSLayoutAttribute.Left,
-                    multiplier: 1,
-                    constant: 0))
-            self.view.addConstraint(
-                NSLayoutConstraint(
-                    item: self.forwardingView,
-                    attribute: NSLayoutAttribute.Right,
-                    relatedBy: NSLayoutRelation.Equal,
-                    toItem: self.view,
-                    attribute: NSLayoutAttribute.Right,
-                    multiplier: 1,
-                    constant: 0))
-            self.view.addConstraint(
-                NSLayoutConstraint(
-                    item: self.forwardingView,
-                    attribute: NSLayoutAttribute.Top,
-                    relatedBy: NSLayoutRelation.Equal,
-                    toItem: self.view,
-                    attribute: NSLayoutAttribute.Top,
-                    multiplier: 1,
-                    constant: 0))
-            self.view.addConstraint(
-                NSLayoutConstraint(
-                    item: self.forwardingView,
-                    attribute: NSLayoutAttribute.Bottom,
-                    relatedBy: NSLayoutRelation.Equal,
-                    toItem: self.view,
-                    attribute: NSLayoutAttribute.Bottom,
-                    multiplier: 1,
-                    constant: 0))
-            
             self.layout.initialize()
             self.setupKeys()
             self.constraintsAdded = true
@@ -145,38 +110,30 @@ class KeyboardViewController: UIInputViewController {
             self.setMode(0)
         }
         
-        self.setHeight()
+        //self.setHeight()
     }
     
     override func updateViewConstraints() {
         super.updateViewConstraints()
+        
+//        // suppresses constraint unsatisfiability on initial zero rect; mostly an issue of log spam
+//        // TODO: there's probably a more sensible/correct way to do this
+//        if CGRectIsEmpty(self.view.bounds) {
+//            NSLayoutConstraint.deactivateConstraints(self.layout.allConstraintObjects)
+//        }
+//        else {
+//            NSLayoutConstraint.activateConstraints(self.layout.allConstraintObjects)
+//        }
+        
         self.setupConstraints()
     }
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        self.view.setNeedsUpdateConstraints()
+    override func viewDidLayoutSubviews() {
+        self.forwardingView.frame = self.view.bounds
     }
     
-//    override func viewWillLayoutSubviews() {
-//        super.viewWillLayoutSubviews()
-//    }
-    
-//    override func viewDidLayoutSubviews() {
-//        super.viewDidLayoutSubviews()
-//        self.setHeight()
-//    }
-    
-//    override func viewDidAppear(animated: Bool) {
-//        self.setHeight()
-//    }
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        
-//        self.setHeight()
-        
-//        self.forwardingView.frame = self.view.bounds
+    override func willRotateToInterfaceOrientation(toInterfaceOrientation: UIInterfaceOrientation, duration: NSTimeInterval) {
+        NSLog("will rotate starting to \(toInterfaceOrientation)")
     }
     
     func setupKeys() {
@@ -261,32 +218,32 @@ class KeyboardViewController: UIInputViewController {
     }
     
     func setHeight() {
-//        for constraint in self.view.constraints() {
-//            var actualConstraint = constraint as NSLayoutConstraint
-//            if let identifier = actualConstraint.identifier {
-//                if identifier == "UIView-Encapsulated-Layout-Height" {
-//                    //actualConstraint.constant = 400
-//                    //actualConstraint.active = false
-//                    NSLog("system keyboard height: \(actualConstraint.constant)")
-//                }
-//            }
-//        }
-//        
-//        if self.view.frame.height != 0 {
-//            if self.heightConstraint == nil {
-//                self.heightConstraint = NSLayoutConstraint(
-//                    item:self.view,
-//                    attribute:NSLayoutAttribute.Height,
-//                    relatedBy:NSLayoutRelation.Equal,
-//                    toItem:nil,
-//                    attribute:NSLayoutAttribute.NotAnAttribute,
-//                    multiplier:0,
-//                    constant:400)
-//                self.heightConstraint!.priority = 1000
-//                
-//                self.view.addConstraint(self.heightConstraint!) // TODO: what if view already has constraint added?
-//            }
-//        }
+        for constraint in self.view.constraints() {
+            var actualConstraint = constraint as NSLayoutConstraint
+            if let identifier = actualConstraint.identifier {
+                if identifier == "UIView-Encapsulated-Layout-Height" {
+                    //actualConstraint.constant = 400
+                    //actualConstraint.active = false
+                    NSLog("system keyboard height: \(actualConstraint.constant)")
+                }
+            }
+        }
+        
+        if self.view.frame.height != 0 {
+            if self.heightConstraint == nil {
+                self.heightConstraint = NSLayoutConstraint(
+                    item:self.view,
+                    attribute:NSLayoutAttribute.Height,
+                    relatedBy:NSLayoutRelation.Equal,
+                    toItem:nil,
+                    attribute:NSLayoutAttribute.NotAnAttribute,
+                    multiplier:0,
+                    constant:400)
+                self.heightConstraint!.priority = 1000
+                
+                self.view.addConstraint(self.heightConstraint!) // TODO: what if view already has constraint added?
+            }
+        }
         
         return;
     }
