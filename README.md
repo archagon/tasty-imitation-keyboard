@@ -17,7 +17,7 @@ I'm working on a 3rd party keyboard for iOS8 and I want it to look and feel as c
 
 ![](UnderConstruction.gif)
 
-The development of this keyboard is fully open-source, so the project may not work at all times. At the present moment, the baseline functionality is there. Left to implement are special characters, Shift, multitouch, and improved graphics (including translucenty and dark mode).
+The development of this keyboard is out in the open, so the project may not work at all times. At the present moment, the baseline functionality is there. Left to implement are special characters, Shift, multitouch, and improved graphics (including translucenty and dark mode).
 
 Hold-to-select-alternate-characters will be implemented at a later time.
 
@@ -28,7 +28,7 @@ Hold-to-select-alternate-characters will be implemented at a later time.
 3. Go to `Settings→General→Keyboard→Keyboards→Add New Keyboard` on your device and add the third-party keyboard.
 4. Go back to the app. You should be able to select the keyboard via the globe icon.
 
-## Learning goals for this project:
+## Learning Goals
 
 * Swift
 * 3rd party extensions
@@ -36,6 +36,12 @@ Hold-to-select-alternate-characters will be implemented at a later time.
 * autolayout
 * CoreGraphics
 * finally release an app on the App Store, darn it
+
+## Other Stuff
+
+Please consult [the project wiki](https://github.com/archagon/tasty-imitation-keyboard/wiki) for technical details. You may find it handy if you're implementing your own keyboard!
+
+I made a 3rd party functionless keyboard with a similar layout but a much simpler program structure for debugging purposes. You can find it here: [faux-testing-keyboard](https://github.com/archagon/faux-testing-keyboard)
 
 ## License
 
