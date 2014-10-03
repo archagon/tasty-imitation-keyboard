@@ -22,9 +22,6 @@ class Catboard: KeyboardViewController {
         
         // alas, this doesn't seem to work yet
         UIDevice.currentDevice().playInputClick()
-        
-//        var randomNumber = Int(arc4random() % 200)
-//        self.heightConstraint?.constant = CGFloat(200 + randomNumber)
 
         let model = self.layout.keyForView(sender)
 
@@ -33,14 +30,18 @@ class Catboard: KeyboardViewController {
 
         if model != nil && model!.outputText != nil {
             if self.runningKeystrokes < 3 {
-                (self.textDocumentProxy as UITextDocumentProxy as UIKeyInput).insertText(model!.outputText!)
+                if let textDocumentProxy = self.textDocumentProxy as? UIKeyInput {
+                    textDocumentProxy.insertText(model!.outputText!)
+                }
                 self.runningKeystrokes += 1
             }
             else {
-                (self.textDocumentProxy as UITextDocumentProxy as UIKeyInput).deleteBackward()
-                (self.textDocumentProxy as UITextDocumentProxy as UIKeyInput).deleteBackward()
-                (self.textDocumentProxy as UITextDocumentProxy as UIKeyInput).deleteBackward()
-                (self.textDocumentProxy as UITextDocumentProxy as UIKeyInput).insertText("😽")
+                if let textDocumentProxy = self.textDocumentProxy as? UIKeyInput {
+                    textDocumentProxy.deleteBackward()
+                    textDocumentProxy.deleteBackward()
+                    textDocumentProxy.deleteBackward()
+                    textDocumentProxy.insertText("😽")
+                }
                 self.runningKeystrokes = 0
             }
         }

@@ -289,7 +289,10 @@ class KeyboardViewController: UIInputViewController {
         
         // first delete
         UIDevice.currentDevice().playInputClick()
-        (self.textDocumentProxy as UITextDocumentProxy as UIKeyInput).deleteBackward()
+        
+        if let textDocumentProxy = self.textDocumentProxy as? UIKeyInput {
+            textDocumentProxy.deleteBackward()
+        }
         
         // trigger for subsequent deletes
         self.backspaceDelayTimer = NSTimer.scheduledTimerWithTimeInterval(backspaceDelay - backspaceRepeat, target: self, selector: Selector("backspaceDelayCallback"), userInfo: nil, repeats: false)
@@ -305,7 +308,9 @@ class KeyboardViewController: UIInputViewController {
     }
     
     func backspaceRepeatCallback() {
-        (self.textDocumentProxy as UITextDocumentProxy as UIKeyInput).deleteBackward()
+        if let textDocumentProxy = self.textDocumentProxy as? UIKeyInput {
+            textDocumentProxy.deleteBackward()
+        }
     }
     
     func shiftDown(sender: KeyboardKey) {
