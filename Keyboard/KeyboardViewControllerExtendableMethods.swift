@@ -14,10 +14,5 @@ extension KeyboardViewController {
     // OVERRIDE THESE METHODS IN YOUR SUPERCLASS //
     ///////////////////////////////////////////////
     
-    // Be sure to call super.
-    func keyPressed(sender: KeyboardKey) {
-        if self.shiftState == ShiftState.Enabled {
-            self.shiftState = ShiftState.Disabled
-        }
-    }
+    func keyPressed(sender: KeyboardKey) {}
 }

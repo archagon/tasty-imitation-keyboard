@@ -8,12 +8,10 @@
 
 import UIKit
 
-// does not work; drops CPU to 0% when run on device
-//extension UIInputView: UIInputViewAudioFeedback {
-//    public var enableInputClicksWhenVisible: Bool {
-//        return true
-//    }
-//}
+let metrics: [String:Double] = [
+    "topBanner": 30
+]
+func metric(name: String) -> CGFloat { return CGFloat(metrics[name]!) }
 
 class KeyboardViewController: UIInputViewController {
     
@@ -57,6 +55,20 @@ class KeyboardViewController: UIInputViewController {
         }
     }
     
+    var keyboardHeight: CGFloat {
+        get {
+            if let constraint = self.heightConstraint {
+                return constraint.constant
+            }
+            else {
+                return 0
+            }
+        }
+        set {
+            self.setHeight(newValue)
+        }
+    }
+    
     // TODO: why does the app crash if this isn't here?
     convenience override init() {
         self.init(nibName: nil, bundle: nil)
@@ -70,7 +82,7 @@ class KeyboardViewController: UIInputViewController {
         
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
         
-        self.layout = KeyboardLayout(model: self.keyboard, superview: self.forwardingView)
+        self.layout = KeyboardLayout(model: self.keyboard, superview: self.forwardingView, topBanner: 0)
         self.view.addSubview(self.forwardingView)
 
         self.view.setNeedsUpdateConstraints()
@@ -81,7 +93,7 @@ class KeyboardViewController: UIInputViewController {
     }
     
     /*
-    BUG POSTMORTEM
+    BUG NOTE
 
     For some strange reason, a layout pass of the entire keyboard is triggered 
     whenever a popup shows up, if one of the following is done:
@@ -106,11 +118,8 @@ class KeyboardViewController: UIInputViewController {
             self.setupKeys()
             self.constraintsAdded = true
             
-            // TODO: read up on swift setter behavior on init
             self.setMode(0)
         }
-        
-        //self.setHeight()
     }
     
     override func updateViewConstraints() {
@@ -132,9 +141,31 @@ class KeyboardViewController: UIInputViewController {
         self.forwardingView.frame = self.view.bounds
     }
     
-    override func willRotateToInterfaceOrientation(toInterfaceOrientation: UIInterfaceOrientation, duration: NSTimeInterval) {
-        NSLog("will rotate starting to \(toInterfaceOrientation)")
+    override func viewDidAppear(animated: Bool) {
+        self.keyboardHeight = self.heightForOrientation(self.interfaceOrientation)
+        self.layout.topBanner = metric("topBanner")
     }
+    
+    // TODO: the new size "snaps" into place on rotation, which I believe is related to performance
+    override func willRotateToInterfaceOrientation(toInterfaceOrientation: UIInterfaceOrientation, duration: NSTimeInterval) {
+        self.keyboardHeight = self.heightForOrientation(toInterfaceOrientation)
+    }
+    
+    func heightForOrientation(orientation: UIInterfaceOrientation) -> CGFloat {
+        let canonicalPortraitHeight = CGFloat(216) //TODO: different size for 6+
+        let canonicalLandscapeHeight = CGFloat(162)
+        return CGFloat(orientation.isPortrait ? canonicalPortraitHeight + metric("topBanner") : canonicalLandscapeHeight + metric("topBanner"))
+    }
+    
+    /*
+    BUG NOTE
+
+    None of the UIContentContainer methods are called for this controller.
+    */
+    
+    //override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
+    //    super.viewWillTransitionToSize(size, withTransitionCoordinator: coordinator)
+    //}
     
     func setupKeys() {
         for page in keyboard.pages {
@@ -163,7 +194,7 @@ class KeyboardViewController: UIInputViewController {
                     }
                     
                     if key.outputText != nil {
-                        keyView.addTarget(self, action: "keyPressed:", forControlEvents: .TouchUpInside)
+                        keyView.addTarget(self, action: "keyPressedHelper:", forControlEvents: .TouchUpInside)
                         //                    keyView.addTarget(self, action: "takeScreenshotDelay", forControlEvents: .TouchDown)
                     }
                     
@@ -209,43 +240,41 @@ class KeyboardViewController: UIInputViewController {
         // Dispose of any resources that can be recreated
     }
     
-    override func textWillChange(textInput: UITextInput) {
-        // The app is about to change the document's contents. Perform any preparation here.
+//    override func textWillChange(textInput: UITextInput) {
+//        // The app is about to change the document's contents. Perform any preparation here.
+//    }
+//    
+//    override func textDidChange(textInput: UITextInput) {
+//        // The app has just changed the document's contents, the document context has been updated.
+//    }
+    
+    func setHeight(height: CGFloat) {
+        if self.heightConstraint == nil {
+            assert(self.view.bounds.height != 0, "attempted to set height when view hasn't appeared yet")
+            
+            self.heightConstraint = NSLayoutConstraint(
+                item:self.view,
+                attribute:NSLayoutAttribute.Height,
+                relatedBy:NSLayoutRelation.Equal,
+                toItem:nil,
+                attribute:NSLayoutAttribute.NotAnAttribute,
+                multiplier:0,
+                constant:height)
+            self.heightConstraint!.priority = 1000
+            
+            self.view.addConstraint(self.heightConstraint!) // TODO: what if view already has constraint added?
+            NSLog("constraint added")
+        }
+        else {
+            self.heightConstraint?.constant = height
+        }
     }
     
-    override func textDidChange(textInput: UITextInput) {
-        // The app has just changed the document's contents, the document context has been updated.
-    }
-    
-    func setHeight() {
-        for constraint in self.view.constraints() {
-            var actualConstraint = constraint as NSLayoutConstraint
-            if let identifier = actualConstraint.identifier {
-                if identifier == "UIView-Encapsulated-Layout-Height" {
-                    //actualConstraint.constant = 400
-                    //actualConstraint.active = false
-                    NSLog("system keyboard height: \(actualConstraint.constant)")
-                }
-            }
+    func keyPressedHelper(sender: KeyboardKey) {
+        if self.shiftState == ShiftState.Enabled {
+            self.shiftState = ShiftState.Disabled
         }
-        
-        if self.view.frame.height != 0 {
-            if self.heightConstraint == nil {
-                self.heightConstraint = NSLayoutConstraint(
-                    item:self.view,
-                    attribute:NSLayoutAttribute.Height,
-                    relatedBy:NSLayoutRelation.Equal,
-                    toItem:nil,
-                    attribute:NSLayoutAttribute.NotAnAttribute,
-                    multiplier:0,
-                    constant:400)
-                self.heightConstraint!.priority = 1000
-                
-                self.view.addConstraint(self.heightConstraint!) // TODO: what if view already has constraint added?
-            }
-        }
-        
-        return;
+        self.keyPressed(sender)
     }
     
     func cancelBackspaceTimers() {
@@ -334,3 +363,10 @@ class KeyboardViewController: UIInputViewController {
         }
     }
 }
+
+//// does not work; drops CPU to 0% when run on device
+//extension UIInputView: UIInputViewAudioFeedback {
+//    public var enableInputClicksWhenVisible: Bool {
+//        return true
+//    }
+//}

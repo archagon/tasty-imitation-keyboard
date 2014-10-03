@@ -15,7 +15,6 @@ var DEBUG_SHOW_SPACERS = false
 let globalLayout: [String:Double] = [
     "leftGap": 3,
     "rightGap": 3,
-    "topBanner": 0,
     "topGap": 12,
     "bottomGap": 3,
     "keyWidthRatio": (26 / 320.0),
@@ -76,10 +75,18 @@ class KeyboardLayout: KeyboardKeyProtocol {
     private var keyWidthConstraint: NSLayoutConstraint!
     private var keyHeightConstraint: NSLayoutConstraint!
     
-    init(model: Keyboard, superview: UIView) {
+    var topBanner: CGFloat = 0 {
+        didSet {
+            self.setTopBannerSpace(topBanner)
+        }
+    }
+    var topSpacerConstraint: NSLayoutConstraint?
+    
+    init(model: Keyboard, superview: UIView, topBanner: CGFloat) {
         self.initialized = false
         self.model = model
         self.superview = superview
+        self.topBanner = topBanner
     }
     
     func initialize() {
@@ -390,7 +397,6 @@ class KeyboardLayout: KeyboardKeyProtocol {
             self.superview.addSubview(spacer)
         }
         
-        let total: CGFloat = CGFloat(layout["topBanner"]! + layout["topGap"]!)
         let constraints = [
             // left/right spacers
             "|[leftSpacer(leftGap)]",
@@ -399,7 +405,7 @@ class KeyboardLayout: KeyboardKeyProtocol {
             "V:[rightSpacer(debugWidth)]",
             
             // top/bottom spacers
-            "V:|[topSpacer(\(total))]",
+            "V:|[topSpacer]", //height set below
             "V:[bottomSpacer(bottomGap)]|",
             "[topSpacer(debugWidth)]",
             "[bottomSpacer(debugWidth)]"]
@@ -414,6 +420,20 @@ class KeyboardLayout: KeyboardKeyProtocol {
             self.superview.addConstraints(generatedConstraints)
             self.allConstraintObjects += (generatedConstraints as [NSLayoutConstraint])
         }
+        
+        // top spacer constraint
+        let total: CGFloat = CGFloat(Double(self.topBanner) + layout["topGap"]!)
+        let topSpacerConstraint = NSLayoutConstraint(
+            item: spacers["topSpacer"]!,
+            attribute: NSLayoutAttribute.Height,
+            relatedBy: NSLayoutRelation.Equal,
+            toItem: nil,
+            attribute: NSLayoutAttribute.NotAnAttribute,
+            multiplier: 1,
+            constant: total)
+        self.topSpacerConstraint = topSpacerConstraint
+        self.superview.addConstraint(topSpacerConstraint)
+        self.allConstraintObjects.append(topSpacerConstraint)
         
         // centering constraints
         for (name, spacer) in spacers {
@@ -444,6 +464,11 @@ class KeyboardLayout: KeyboardKeyProtocol {
         }
         
         return
+    }
+    
+    func setTopBannerSpace(space: CGFloat) {
+        let total: CGFloat = CGFloat(Double(space) + layout["topGap"]!)
+        self.topSpacerConstraint?.constant = total
     }
     
     private func createRowGapConstraints(keyboard: Keyboard) {
