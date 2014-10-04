@@ -53,6 +53,7 @@ class ForwardingView: UIView {
         
         let control = view! as UIControl
         
+        // TODO:
         switch controlEvent {
         case
         UIControlEvents.TouchDown,
@@ -148,6 +149,12 @@ class ForwardingView: UIView {
             self.touchToView[touch] = view
             
             self.handleControl(view, controlEvent: .TouchDown)
+            
+            if touch.tapCount > 1 {
+                // two events, I think this is the correct behavior but I have not tested with an actual UIControl
+                self.handleControl(view, controlEvent: .TouchDownRepeat)
+                NSLog("tap count is more than one")
+            }
         }
     }
     
