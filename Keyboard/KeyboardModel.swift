@@ -6,12 +6,6 @@
 //  Copyright (c) 2014 Apple. All rights reserved.
 //
 
-// temporary layout rules
-//      - letters: side gap + standard size + gap size; side gap is flexible, and letters are centered
-//      - special characters: size to width
-//      - special keys: a few standard widths
-//      - space and return: flexible spacing
-
 import Foundation
 
 var counter = 0
@@ -66,19 +60,18 @@ class Key: Hashable {
     }
     
     var type: KeyType
-    var outputText: String?
-    var keyCap: String?
-    var lowercaseKeyCap: String? {
+    var uppercaseKeyCap: String?
+    var lowercaseKeyCap: String?
+    var uppercaseOutput: String?
+    var lowercaseOutput: String?
+    
+    var hasOutput: Bool {
         get {
-            if keyCap == nil {
-                return nil
-            }
-            else {
-                return (keyCap! as NSString).lowercaseString
-            }
+            return (self.uppercaseOutput != nil) || (self.lowercaseOutput != nil)
         }
     }
     
+    // TODO: this is kind of a hack
     var hashValue: Int
     
     init(_ type: KeyType) {
@@ -90,8 +83,67 @@ class Key: Hashable {
     convenience init(_ key: Key) {
         self.init(key.type)
         
-        self.outputText = key.outputText
-        self.keyCap = key.keyCap
+        self.uppercaseKeyCap = key.uppercaseKeyCap
+        self.lowercaseKeyCap = key.lowercaseKeyCap
+        self.uppercaseOutput = key.uppercaseOutput
+        self.lowercaseOutput = key.lowercaseOutput
+    }
+    
+    func setLetter(letter: String) {
+        self.lowercaseOutput = (letter as NSString).lowercaseString
+        self.uppercaseOutput = (letter as NSString).uppercaseString
+        self.lowercaseKeyCap = self.lowercaseOutput
+        self.uppercaseKeyCap = self.uppercaseOutput
+    }
+    
+    func outputForCase(uppercase: Bool) -> String {
+        if uppercase {
+            if self.uppercaseOutput != nil {
+                return self.uppercaseOutput!
+            }
+            else if self.lowercaseOutput != nil {
+                return self.lowercaseOutput!
+            }
+            else {
+                return ""
+            }
+        }
+        else {
+            if self.lowercaseOutput != nil {
+                return self.lowercaseOutput!
+            }
+            else if self.uppercaseOutput != nil {
+                return self.uppercaseOutput!
+            }
+            else {
+                return ""
+            }
+        }
+    }
+    
+    func keyCapForCase(uppercase: Bool) -> String {
+        if uppercase {
+            if self.uppercaseKeyCap != nil {
+                return self.uppercaseKeyCap!
+            }
+            else if self.lowercaseKeyCap != nil {
+                return self.lowercaseKeyCap!
+            }
+            else {
+                return ""
+            }
+        }
+        else {
+            if self.lowercaseKeyCap != nil {
+                return self.lowercaseKeyCap!
+            }
+            else if self.uppercaseKeyCap != nil {
+                return self.uppercaseKeyCap!
+            }
+            else {
+                return ""
+            }
+        }
     }
 }
 
@@ -104,62 +156,59 @@ func defaultKeyboard() -> Keyboard {
     
     for key in ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"] {
         var keyModel = Key(.Character)
-        keyModel.keyCap = key
-        keyModel.outputText = key
+        keyModel.setLetter(key)
         defaultKeyboard.addKey(keyModel, row: 0, page: 0)
     }
     
     for key in ["A", "S", "D", "F", "G", "H", "J", "K", "L"] {
         var keyModel = Key(.Character)
-        keyModel.keyCap = key
-        keyModel.outputText = key
+        keyModel.setLetter(key)
         defaultKeyboard.addKey(keyModel, row: 1, page: 0)
     }
     
     var keyModel = Key(.Shift)
-    keyModel.keyCap = "⇪"
+    keyModel.uppercaseKeyCap = "⇪"
     defaultKeyboard.addKey(keyModel, row: 2, page: 0)
     
     for key in ["Z", "X", "C", "V", "B", "N", "M"] {
         var keyModel = Key(.Character)
-        keyModel.keyCap = key
-        keyModel.outputText = key
+        keyModel.setLetter(key)
         defaultKeyboard.addKey(keyModel, row: 2, page: 0)
     }
     
     var keyModel2 = Key(.Backspace)
-    keyModel2.keyCap = "⬅︎"
+    keyModel2.uppercaseKeyCap = "⬅︎"
     defaultKeyboard.addKey(keyModel2, row: 2, page: 0)
     
     var keyModel3 = Key(.ModeChange)
-    keyModel3.keyCap = "123"
+    keyModel3.uppercaseKeyCap = "123"
     defaultKeyboard.addKey(keyModel3, row: 3, page: 0)
     
     var keyModel4 = Key(.KeyboardChange)
-    keyModel4.keyCap = "🌐"
+    keyModel4.uppercaseKeyCap = "🌐"
     defaultKeyboard.addKey(keyModel4, row: 3, page: 0)
     
     var keyModel5 = Key(.Space)
-    keyModel5.keyCap = "space"
-    keyModel5.outputText = " "
+    keyModel5.uppercaseKeyCap = "space"
+    keyModel5.uppercaseOutput = " "
+    keyModel5.lowercaseOutput = " "
     defaultKeyboard.addKey(keyModel5, row: 3, page: 0)
     
     var keyModel6 = Key(.Return)
-    keyModel6.keyCap = "return"
-    keyModel6.outputText = "\n"
+    keyModel6.uppercaseKeyCap = "return"
+    keyModel6.uppercaseOutput = "\n"
+    keyModel6.lowercaseOutput = "\n"
     defaultKeyboard.addKey(keyModel6, row: 3, page: 0)
     
     for key in ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"] {
         var keyModel = Key(.Character)
-        keyModel.keyCap = key
-        keyModel.outputText = key
+        keyModel.setLetter(key)
         defaultKeyboard.addKey(keyModel, row: 0, page: 1)
     }
     
     for key in ["-", "/", ":", ";", "(", ")", "$", "&", "@", "\""] {
         var keyModel = Key(.Character)
-        keyModel.keyCap = key
-        keyModel.outputText = key
+        keyModel.setLetter(key)
         defaultKeyboard.addKey(keyModel, row: 1, page: 1)
     }
     
@@ -167,8 +216,7 @@ func defaultKeyboard() -> Keyboard {
     
     for key in [".", ",", "?", "?", "!", "'"] {
         var keyModel = Key(.Character)
-        keyModel.keyCap = key
-        keyModel.outputText = key
+        keyModel.setLetter(key)
         defaultKeyboard.addKey(keyModel, row: 2, page: 1)
     }
     
@@ -184,15 +232,13 @@ func defaultKeyboard() -> Keyboard {
     
     for key in ["[", "]", "{", "}", "#", "%", "^", "*", "+", "="] {
         var keyModel = Key(.Character)
-        keyModel.keyCap = key
-        keyModel.outputText = key
+        keyModel.setLetter(key)
         defaultKeyboard.addKey(keyModel, row: 0, page: 2)
     }
     
     for key in ["_", "\\", "|", "~", "<", ">", "€", "£", "Y", "*"] {
         var keyModel = Key(.Character)
-        keyModel.keyCap = key
-        keyModel.outputText = key
+        keyModel.setLetter(key)
         defaultKeyboard.addKey(keyModel, row: 1, page: 2)
     }
     
@@ -200,8 +246,7 @@ func defaultKeyboard() -> Keyboard {
     
     for key in [".", ",", "?", "?", "!", "'"] {
         var keyModel = Key(.Character)
-        keyModel.keyCap = key
-        keyModel.outputText = key
+        keyModel.setLetter(key)
         defaultKeyboard.addKey(keyModel, row: 2, page: 2)
     }
     

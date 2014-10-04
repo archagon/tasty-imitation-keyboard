@@ -23,15 +23,13 @@ class Catboard: KeyboardViewController {
         // alas, this doesn't seem to work yet
         UIDevice.currentDevice().playInputClick()
 
-        let model = self.layout.keyForView(sender)
-
 //        NSLog("context before input: \((self.textDocumentProxy as UITextDocumentProxy).documentContextBeforeInput)")
 //        NSLog("context after input: \((self.textDocumentProxy as UITextDocumentProxy).documentContextAfterInput)")
 
-        if model != nil && model!.outputText != nil {
+        if let model = self.layout.keyForView(sender) {
             if self.runningKeystrokes < 3 {
                 if let textDocumentProxy = self.textDocumentProxy as? UIKeyInput {
-                    textDocumentProxy.insertText(model!.outputText!)
+                    textDocumentProxy.insertText(model.outputForCase(self.shiftState.uppercase()))
                 }
                 self.runningKeystrokes += 1
             }

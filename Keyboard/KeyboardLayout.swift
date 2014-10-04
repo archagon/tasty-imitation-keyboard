@@ -260,7 +260,7 @@ class KeyboardLayout: KeyboardKeyProtocol {
                             let keyViewName = "key\(j)x\(i)p\(h)"
                             keyView.enabled = true
                             keyView.setTranslatesAutoresizingMaskIntoConstraints(false)
-                            keyView.text = key.lowercaseKeyCap
+                            keyView.text = key.keyCapForCase(false)
                             keyView.delegate = self
                             
                             self.superview.addSubview(keyView)

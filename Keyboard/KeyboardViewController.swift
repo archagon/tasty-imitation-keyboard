@@ -41,6 +41,17 @@ class KeyboardViewController: UIInputViewController {
         case Disabled
         case Enabled
         case Locked
+        
+        func uppercase() -> Bool {
+            switch self {
+            case Disabled:
+                return false
+            case Enabled:
+                return true
+            case Locked:
+                return true
+            }
+        }
     }
     var shiftState: ShiftState {
         didSet {
@@ -193,9 +204,9 @@ class KeyboardViewController: UIInputViewController {
                         break
                     }
                     
-                    if key.outputText != nil {
+                    if key.hasOutput {
                         keyView.addTarget(self, action: "keyPressedHelper:", forControlEvents: .TouchUpInside)
-                        //                    keyView.addTarget(self, action: "takeScreenshotDelay", forControlEvents: .TouchDown)
+//                    keyView.addTarget(self, action: "takeScreenshotDelay", forControlEvents: .TouchDown)
                     }
                     
                     if key.type == Key.KeyType.Character || key.type == Key.KeyType.Period {
@@ -271,10 +282,10 @@ class KeyboardViewController: UIInputViewController {
     }
     
     func keyPressedHelper(sender: KeyboardKey) {
+        self.keyPressed(sender)
         if self.shiftState == ShiftState.Enabled {
             self.shiftState = ShiftState.Disabled
         }
-        self.keyPressed(sender)
     }
     
     func cancelBackspaceTimers() {
@@ -347,7 +358,7 @@ class KeyboardViewController: UIInputViewController {
     
     func updateKeyCaps(lowercase: Bool) {
         for (model, key) in self.layout.modelToView {
-            key.text = (lowercase ? model.lowercaseKeyCap : model.keyCap)
+            key.text = model.keyCapForCase(!lowercase)
         }
     }
     
