@@ -14,5 +14,6 @@ extension KeyboardViewController {
     // OVERRIDE THESE METHODS IN YOUR SUPERCLASS //
     ///////////////////////////////////////////////
     
-    func keyPressed(sender: KeyboardKey) {}
+    // TODO: I dunno what happened, this used to work
+    //func keyPressed(key: Key) {}
 }

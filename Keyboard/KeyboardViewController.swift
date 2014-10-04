@@ -282,7 +282,13 @@ class KeyboardViewController: UIInputViewController {
     }
     
     func keyPressedHelper(sender: KeyboardKey) {
-        self.keyPressed(sender)
+        // alas, this doesn't seem to work yet
+        UIDevice.currentDevice().playInputClick()
+        
+        if let model = self.layout.keyForView(sender) {
+            self.keyPressed(model)
+        }
+        
         if self.shiftState == ShiftState.Enabled {
             self.shiftState = ShiftState.Disabled
         }
@@ -378,6 +384,8 @@ class KeyboardViewController: UIInputViewController {
             }
         }
     }
+    
+    func keyPressed(key: Key) {}
 }
 
 //// does not work; drops CPU to 0% when run on device

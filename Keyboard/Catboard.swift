@@ -17,31 +17,24 @@ class Catboard: KeyboardViewController {
     
     var runningKeystrokes: Int = 0
     
-    override func keyPressed(sender: KeyboardKey) {
-        super.keyPressed(sender)
-        
-        // alas, this doesn't seem to work yet
-        UIDevice.currentDevice().playInputClick()
-
+    override func keyPressed(key: Key) {
 //        NSLog("context before input: \((self.textDocumentProxy as UITextDocumentProxy).documentContextBeforeInput)")
 //        NSLog("context after input: \((self.textDocumentProxy as UITextDocumentProxy).documentContextAfterInput)")
 
-        if let model = self.layout.keyForView(sender) {
-            if self.runningKeystrokes < 3 {
-                if let textDocumentProxy = self.textDocumentProxy as? UIKeyInput {
-                    textDocumentProxy.insertText(model.outputForCase(self.shiftState.uppercase()))
-                }
-                self.runningKeystrokes += 1
+        if self.runningKeystrokes < 3 {
+            if let textDocumentProxy = self.textDocumentProxy as? UIKeyInput {
+                textDocumentProxy.insertText(key.outputForCase(self.shiftState.uppercase()))
             }
-            else {
-                if let textDocumentProxy = self.textDocumentProxy as? UIKeyInput {
-                    textDocumentProxy.deleteBackward()
-                    textDocumentProxy.deleteBackward()
-                    textDocumentProxy.deleteBackward()
-                    textDocumentProxy.insertText("😽")
-                }
-                self.runningKeystrokes = 0
+            self.runningKeystrokes += 1
+        }
+        else {
+            if let textDocumentProxy = self.textDocumentProxy as? UIKeyInput {
+                textDocumentProxy.deleteBackward()
+                textDocumentProxy.deleteBackward()
+                textDocumentProxy.deleteBackward()
+                textDocumentProxy.insertText("😽")
             }
+            self.runningKeystrokes = 0
         }
     }
 }
