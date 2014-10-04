@@ -17,7 +17,7 @@ let globalLayout: [String:Double] = [
     "rightGap": 3,
     "topGap": 12,
     "bottomGap": 3,
-    "keyWidthRatio": (26 / 320.0),
+    "keyWidthRatio": Double((26.0 / 320.0)), //QQQ: this was messing up code completion... don't ask
     "keyHeightRatio": (39 / 216.0),
     "landscapeKeyWidthRatio": (52 / 568.0),
     "landscapeKeyHeightRatio": (33 / 162.0),
