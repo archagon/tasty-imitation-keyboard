@@ -213,9 +213,6 @@ class KeyboardViewController: UIInputViewController {
                         keyView.addTarget(keyView, action: Selector("showPopup"), forControlEvents: showOptions)
                         keyView.addTarget(keyView, action: Selector("hidePopup"), forControlEvents: hideOptions)
                     }
-                    
-                    //        self.nextKeyboardButton.setTitle(NSLocalizedString("Next Keyboard", comment: "Title for 'Next Keyboard' button"), forState: .Normal)
-                    //        self.nextKeyboardButton.sizeToFit()
                 }
             }
         }
