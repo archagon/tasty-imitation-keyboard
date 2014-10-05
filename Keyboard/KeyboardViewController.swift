@@ -66,6 +66,8 @@ class KeyboardViewController: UIInputViewController {
         }
     }
     
+    var shiftWasMultitapped: Bool = false
+    
     var keyboardHeight: CGFloat {
         get {
             if let constraint = self.heightConstraint {
@@ -328,6 +330,11 @@ class KeyboardViewController: UIInputViewController {
     }
     
     func shiftDown(sender: KeyboardKey) {
+        if self.shiftWasMultitapped {
+            self.shiftWasMultitapped = false
+            return
+        }
+        
         switch self.shiftState {
         case .Disabled:
             self.shiftState = .Enabled
@@ -344,19 +351,22 @@ class KeyboardViewController: UIInputViewController {
     }
     
     func shiftDoubleTapped(sender: KeyboardKey) {
+        self.shiftWasMultitapped = true
+        
         switch self.shiftState {
         case .Disabled:
             self.shiftState = .Locked
+            sender.text = "L"
             sender.highlighted = true
         case .Enabled:
             self.shiftState = .Locked
+            sender.text = "L"
             sender.highlighted = true
         case .Locked:
-            self.shiftState = .Locked
-            sender.highlighted = true
+            self.shiftState = .Disabled
+            sender.text = "⇪"
+            sender.highlighted = false
         }
-        
-        sender.text = "L"
     }
     
     func updateKeyCaps(lowercase: Bool) {
