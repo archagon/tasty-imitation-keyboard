@@ -369,17 +369,16 @@ class KeyboardViewController: UIInputViewController {
         switch self.shiftState {
         case .Disabled:
             self.shiftState = .Locked
-            (sender.shape as? ShiftShape)?.withLock = true
             sender.highlighted = true
         case .Enabled:
             self.shiftState = .Locked
-            (sender.shape as? ShiftShape)?.withLock = true
             sender.highlighted = true
         case .Locked:
             self.shiftState = .Disabled
-            (sender.shape as? ShiftShape)?.withLock = false
             sender.highlighted = false
         }
+        
+        (sender.shape as? ShiftShape)?.withLock = (self.shiftState == .Locked)
     }
     
     func updateKeyCaps(lowercase: Bool) {
