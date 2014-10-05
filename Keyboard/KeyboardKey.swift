@@ -201,7 +201,7 @@ class KeyboardKey: UIControl, KeyboardView {
             shape.removeFromSuperview()
             self.addSubview(shape)
             
-            let sizeRatio = CGFloat(0.65)
+            let sizeRatio = CGFloat(1)
             let size = CGSizeMake(self.bounds.width * sizeRatio, self.bounds.height * sizeRatio)
             shape.frame = CGRectMake(
                 CGFloat((self.bounds.width - size.width) / 2.0),
