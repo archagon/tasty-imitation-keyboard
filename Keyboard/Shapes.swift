@@ -23,7 +23,7 @@ class BackspaceShape: Shape {
 class ShiftShape: Shape {
     var withLock: Bool = false {
         didSet {
-            self.setNeedsDisplay()
+            self.overflowCanvas.setNeedsDisplay()
         }
     }
     
@@ -39,6 +39,14 @@ class GlobeShape: Shape {
 }
 
 class Shape: UIView {
+    var color: UIColor? {
+        didSet {
+            if let color = self.color {
+                self.overflowCanvas.setNeedsDisplay()
+            }
+        }
+    }
+    
     // in case shapes draw out of bounds, we still want them to show
     var overflowCanvas: OverflowCanvas!
     

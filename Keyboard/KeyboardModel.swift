@@ -167,7 +167,6 @@ func defaultKeyboard() -> Keyboard {
     }
     
     var keyModel = Key(.Shift)
-    keyModel.uppercaseKeyCap = "⇪"
     defaultKeyboard.addKey(keyModel, row: 2, page: 0)
     
     for key in ["Z", "X", "C", "V", "B", "N", "M"] {
@@ -177,7 +176,6 @@ func defaultKeyboard() -> Keyboard {
     }
     
     var keyModel2 = Key(.Backspace)
-    keyModel2.uppercaseKeyCap = "⬅︎"
     defaultKeyboard.addKey(keyModel2, row: 2, page: 0)
     
     var keyModel3 = Key(.ModeChange)
@@ -185,7 +183,6 @@ func defaultKeyboard() -> Keyboard {
     defaultKeyboard.addKey(keyModel3, row: 3, page: 0)
     
     var keyModel4 = Key(.KeyboardChange)
-    keyModel4.uppercaseKeyCap = "🌐"
     defaultKeyboard.addKey(keyModel4, row: 3, page: 0)
     
     var keyModel5 = Key(.Space)

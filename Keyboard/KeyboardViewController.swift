@@ -360,7 +360,7 @@ class KeyboardViewController: UIInputViewController {
             sender.highlighted = false
         }
         
-        sender.text = "⇪"
+        (sender.shape as? ShiftShape)?.withLock = false
     }
     
     func shiftDoubleTapped(sender: KeyboardKey) {
@@ -369,15 +369,15 @@ class KeyboardViewController: UIInputViewController {
         switch self.shiftState {
         case .Disabled:
             self.shiftState = .Locked
-            sender.text = "L"
+            (sender.shape as? ShiftShape)?.withLock = true
             sender.highlighted = true
         case .Enabled:
             self.shiftState = .Locked
-            sender.text = "L"
+            (sender.shape as? ShiftShape)?.withLock = true
             sender.highlighted = true
         case .Locked:
             self.shiftState = .Disabled
-            sender.text = "⇪"
+            (sender.shape as? ShiftShape)?.withLock = false
             sender.highlighted = false
         }
     }
