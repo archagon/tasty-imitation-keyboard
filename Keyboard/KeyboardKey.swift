@@ -76,6 +76,12 @@ class KeyboardKey: UIControl, KeyboardView {
         }
     }
     
+    var shape: Shape? {
+        didSet {
+            self.redrawShape()
+        }
+    }
+    
     override var frame: CGRect {
         didSet {
             self.redrawText()
@@ -177,6 +183,7 @@ class KeyboardKey: UIControl, KeyboardView {
 //        self.holder0.frame = self.bounds
         
         self.redrawText()
+        self.redrawShape()
     }
     
     func redrawText() {
@@ -186,6 +193,16 @@ class KeyboardKey: UIControl, KeyboardView {
 //        self.button.setTitle(self.text, forState: UIControlState.Normal)
         
         self.keyView.text = ((self.text != nil) ? self.text : "")
+    }
+    
+    func redrawShape() {
+        if let shape = self.shape {
+            self.text = nil
+            shape.removeFromSuperview()
+            self.addSubview(shape)
+            shape.frame = self.bounds
+            shape.setNeedsDisplay()
+        }
     }
     
     // TODO: StyleKit?

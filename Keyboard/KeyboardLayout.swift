@@ -283,6 +283,21 @@ class KeyboardLayout: KeyboardKeyProtocol {
                             default:
                                 break
                             }
+                            
+                            // shapes
+                            switch key.type {
+                            case Key.KeyType.Shift:
+                                let shiftShape = ShiftShape()
+                                keyView.shape = shiftShape
+                            case Key.KeyType.Backspace:
+                                let backspaceShape = BackspaceShape()
+                                keyView.shape = backspaceShape
+                            case Key.KeyType.KeyboardChange:
+                                let globeShape = GlobeShape()
+                                keyView.shape = globeShape
+                            default:
+                                break
+                            }
                         }
                     }
                 }
