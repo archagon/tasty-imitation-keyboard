@@ -200,7 +200,15 @@ class KeyboardKey: UIControl, KeyboardView {
             self.text = nil
             shape.removeFromSuperview()
             self.addSubview(shape)
-            shape.frame = self.bounds
+            
+            let sizeRatio = CGFloat(0.65)
+            let size = CGSizeMake(self.bounds.width * sizeRatio, self.bounds.height * sizeRatio)
+            shape.frame = CGRectMake(
+                CGFloat((self.bounds.width - size.width) / 2.0),
+                CGFloat((self.bounds.height - size.height) / 2.0),
+                size.width,
+                size.height)
+            
             shape.setNeedsDisplay()
         }
     }
