@@ -8,6 +8,10 @@
 
 import UIKit
 
+///////////////////
+// SHAPE OBJECTS //
+///////////////////
+
 class Shape: UIView {
     // in case shapes draw out of bounds, we still want them to show
     var overflowCanvas: OverflowCanvas!
@@ -44,7 +48,7 @@ class Shape: UIView {
         self.overflowCanvas.setNeedsDisplay()
     }
     
-    func drawCall() {}
+    func drawCall() { /* override me! */ }
     
     class OverflowCanvas: UIView {
         // TODO: retain cycle? does swift even have those?
@@ -102,6 +106,10 @@ class GlobeShape: Shape {
         drawGlobe(self.bounds, UIColor.redColor())
     }
 }
+
+/////////////////////
+// SHAPE FUNCTIONS //
+/////////////////////
 
 func drawBackspace(bounds: CGRect, color: UIColor) {
     let highestX = CGFloat(43.5)
