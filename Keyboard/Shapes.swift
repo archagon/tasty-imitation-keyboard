@@ -14,7 +14,7 @@ import UIKit
 
 class BackspaceShape: Shape {
     override func drawCall() {
-        drawBackspace(self.bounds, UIColor.redColor())
+        drawBackspace(self.bounds, UIColor.whiteColor())
     }
 }
 
@@ -26,13 +26,13 @@ class ShiftShape: Shape {
     }
     
     override func drawCall() {
-        drawShift(self.bounds, UIColor.redColor(), self.withLock)
+        drawShift(self.bounds, UIColor.blackColor(), self.withLock)
     }
 }
 
 class GlobeShape: Shape {
     override func drawCall() {
-        drawGlobe(self.bounds, UIColor.redColor())
+        drawGlobe(self.bounds, UIColor.blackColor())
     }
 }
 
@@ -125,7 +125,8 @@ func getFactors(fromSize: CGSize, toSize: CGSize) -> (xScalingFactor: CGFloat, y
     var offset: CGFloat!
     
     if fullHorizontal {
-        yScalingFactor = (CGFloat(1.0) / highestY) * (toSize.height * (CGFloat(1) / ratio))
+        let heightRatio = toSize.width / (ratio * toSize.height)
+        yScalingFactor = (CGFloat(1.0) / highestY) * (toSize.height * heightRatio)
         
         let newY = highestY * yScalingFactor
         offset = (toSize.height - newY) / CGFloat(2)
@@ -133,7 +134,8 @@ func getFactors(fromSize: CGSize, toSize: CGSize) -> (xScalingFactor: CGFloat, y
         lineWidthScalingFactor = toSize.width / highestX
     }
     else {
-        xScalingFactor = (CGFloat(1.0) / highestX) * (toSize.width * ratio)
+        let widthRatio = (ratio * toSize.height) / toSize.width
+        xScalingFactor = (CGFloat(1.0) / highestX) * (toSize.width * widthRatio)
         
         let newX = highestX * xScalingFactor
         offset = (toSize.width - newX) / CGFloat(2)
@@ -154,12 +156,10 @@ func drawBackspace(bounds: CGRect, color: UIColor) {
     CGContextSaveGState(ctx)
     CGContextTranslateCTM(ctx, (factors.fillIsHorizontal ? 0 : factors.offset), (factors.fillIsHorizontal ? factors.offset : 0))
     
-    //// PaintCode Trial Version
-    //// www.paintcodeapp.com
     
     //// Color Declarations
     let color = color
-    let color2 = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 1.000) // TODO:
+    let color2 = UIColor.blackColor()
     
     //// Bezier Drawing
     var bezierPath = UIBezierPath()
@@ -214,8 +214,6 @@ func drawShift(bounds: CGRect, color: UIColor, withRect: Bool) {
     CGContextSaveGState(ctx)
     CGContextTranslateCTM(ctx, (factors.fillIsHorizontal ? 0 : factors.offset), (factors.fillIsHorizontal ? factors.offset : 0))
     
-    //// PaintCode Trial Version
-    //// www.paintcodeapp.com
     
     //// Color Declarations
     let color2 = color
@@ -259,8 +257,6 @@ func drawGlobe(bounds: CGRect, color: UIColor) {
     CGContextSaveGState(ctx)
     CGContextTranslateCTM(ctx, (factors.fillIsHorizontal ? 0 : factors.offset), (factors.fillIsHorizontal ? factors.offset : 0))
     
-    //// PaintCode Trial Version
-    //// www.paintcodeapp.com
     
     //// Color Declarations
     let color = color
