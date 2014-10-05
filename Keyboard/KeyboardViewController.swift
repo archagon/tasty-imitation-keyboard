@@ -95,7 +95,7 @@ class KeyboardViewController: UIInputViewController {
         
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
         
-        self.layout = KeyboardLayout(model: self.keyboard, superview: self.forwardingView, topBanner: 0)
+        self.layout = KeyboardLayout(model: self.keyboard, superview: self.forwardingView, topBanner: 0, banner: self.banner())
         self.view.addSubview(self.forwardingView)
 
         self.view.setNeedsUpdateConstraints()

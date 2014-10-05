@@ -32,13 +32,25 @@ class Catboard: KeyboardViewController {
                 textDocumentProxy.deleteBackward()
                 textDocumentProxy.deleteBackward()
                 textDocumentProxy.deleteBackward()
-                textDocumentProxy.insertText("😽")
+                textDocumentProxy.insertText(randomCat())
             }
             self.runningKeystrokes = 0
         }
     }
     
     override func banner() -> BannerView {
-        return BannerView()
+        return CatboardBanner()
     }
+}
+
+func randomCat() -> String {
+    let cats = "🐱😺😸😹😽😻😿😾😼🙀"
+    
+    let numCats = countElements(cats)
+    let randomCat = arc4random() % UInt32(numCats)
+    
+    let index = advance(cats.startIndex, Int(randomCat))
+    let character = cats[index]
+    
+    return String(character)
 }
