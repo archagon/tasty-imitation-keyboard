@@ -12,6 +12,30 @@ import UIKit
 // SHAPE OBJECTS //
 ///////////////////
 
+class BackspaceShape: Shape {
+    override func drawCall() {
+        drawBackspace(self.bounds, UIColor.redColor())
+    }
+}
+
+class ShiftShape: Shape {
+    var withLock: Bool = false {
+        didSet {
+            self.setNeedsDisplay()
+        }
+    }
+    
+    override func drawCall() {
+        drawShift(self.bounds, UIColor.redColor(), self.withLock)
+    }
+}
+
+class GlobeShape: Shape {
+    override func drawCall() {
+        drawGlobe(self.bounds, UIColor.redColor())
+    }
+}
+
 class Shape: UIView {
     // in case shapes draw out of bounds, we still want them to show
     var overflowCanvas: OverflowCanvas!
@@ -80,30 +104,6 @@ class Shape: UIView {
             
             CGContextRestoreGState(ctx)
         }
-    }
-}
-
-class BackspaceShape: Shape {
-    override func drawCall() {
-        drawBackspace(self.bounds, UIColor.redColor())
-    }
-}
-
-class ShiftShape: Shape {
-    var withLock: Bool = false {
-        didSet {
-            self.setNeedsDisplay()
-        }
-    }
-    
-    override func drawCall() {
-        drawShift(self.bounds, UIColor.redColor(), self.withLock)
-    }
-}
-
-class GlobeShape: Shape {
-    override func drawCall() {
-        drawGlobe(self.bounds, UIColor.redColor())
     }
 }
 
