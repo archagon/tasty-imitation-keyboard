@@ -111,12 +111,48 @@ class GlobeShape: Shape {
 // SHAPE FUNCTIONS //
 /////////////////////
 
+func getFactors(fromSize: CGSize, toSize: CGSize) -> (xScalingFactor: CGFloat, yScalingFactor: CGFloat, lineWidthScalingFactor: CGFloat, fillIsHorizontal: Bool, offset: CGFloat) {
+    let highestX = fromSize.width
+    let highestY = fromSize.height
+    var xScalingFactor = (CGFloat(1.0) / highestX) * toSize.width
+    var yScalingFactor = (CGFloat(1.0) / highestY) * toSize.height
+    
+    let ratio = highestX / highestY
+    let canvasRatio = toSize.width / toSize.height
+    let fullHorizontal: Bool = (ratio > canvasRatio)
+    
+    var lineWidthScalingFactor: CGFloat!
+    var offset: CGFloat!
+    
+    if fullHorizontal {
+        yScalingFactor = yScalingFactor * (CGFloat(1) / ratio)
+        
+        let newY = highestY * yScalingFactor
+        offset = (toSize.height - newY) / CGFloat(2)
+        
+        lineWidthScalingFactor = toSize.width / highestX
+    }
+    else {
+        xScalingFactor = xScalingFactor * (CGFloat(1) / ratio)
+        
+        let newX = highestX * xScalingFactor
+        offset = (toSize.width - newX) / CGFloat(2)
+        
+        lineWidthScalingFactor = toSize.height / highestY
+    }
+    
+    return (xScalingFactor, yScalingFactor, lineWidthScalingFactor, fullHorizontal, offset)
+}
+
 func drawBackspace(bounds: CGRect, color: UIColor) {
-    let highestX = CGFloat(43.5)
-    let highestY = CGFloat(31.5)
-    let xScalingFactor = (CGFloat(1.0) / highestX) * bounds.width
-    let yScalingFactor = (CGFloat(1.0) / highestY) * bounds.height
-    let lineWidthScalingFactor = bounds.width / highestX
+    let factors = getFactors(CGSizeMake(43.5, 31.5), bounds.size)
+    let xScalingFactor = factors.xScalingFactor
+    let yScalingFactor = factors.yScalingFactor
+    let lineWidthScalingFactor = factors.lineWidthScalingFactor
+    
+    let ctx = UIGraphicsGetCurrentContext()
+    CGContextSaveGState(ctx)
+    CGContextTranslateCTM(ctx, (factors.fillIsHorizontal ? 0 : factors.offset), (factors.fillIsHorizontal ? factors.offset : 0))
     
     //// PaintCode Trial Version
     //// www.paintcodeapp.com
@@ -164,13 +200,19 @@ func drawBackspace(bounds: CGRect, color: UIColor) {
     color2.setStroke()
     bezier3Path.lineWidth = 2.5 * lineWidthScalingFactor
     bezier3Path.stroke()
+    
+    CGContextRestoreGState(ctx)
 }
 
 func drawShift(bounds: CGRect, color: UIColor, withRect: Bool) {
-    let highestX = CGFloat(37)
-    let highestY = CGFloat((withRect ? 34.5 + 4 : 31.5))
-    let xScalingFactor = (CGFloat(1.0) / highestX) * bounds.width
-    let yScalingFactor = (CGFloat(1.0) / highestY) * bounds.height
+    let factors = getFactors(CGSizeMake(37, (withRect ? 34.5 + 4 : 31.5)), bounds.size)
+    let xScalingFactor = factors.xScalingFactor
+    let yScalingFactor = factors.yScalingFactor
+    let lineWidthScalingFactor = factors.lineWidthScalingFactor
+    
+    let ctx = UIGraphicsGetCurrentContext()
+    CGContextSaveGState(ctx)
+    CGContextTranslateCTM(ctx, (factors.fillIsHorizontal ? 0 : factors.offset), (factors.fillIsHorizontal ? factors.offset : 0))
     
     //// PaintCode Trial Version
     //// www.paintcodeapp.com
@@ -203,14 +245,19 @@ func drawShift(bounds: CGRect, color: UIColor, withRect: Bool) {
         color2.setFill()
         rectanglePath.fill()
     }
+    
+    CGContextRestoreGState(ctx)
 }
 
 func drawGlobe(bounds: CGRect, color: UIColor) {
-    let highestX = CGFloat(41)
-    let highestY = CGFloat(40)
-    let xScalingFactor = (CGFloat(1.0) / highestX) * bounds.width
-    let yScalingFactor = (CGFloat(1.0) / highestY) * bounds.height
-    let lineWidthScalingFactor = bounds.width / highestX
+    let factors = getFactors(CGSizeMake(41, 40), bounds.size)
+    let xScalingFactor = factors.xScalingFactor
+    let yScalingFactor = factors.yScalingFactor
+    let lineWidthScalingFactor = factors.lineWidthScalingFactor
+    
+    let ctx = UIGraphicsGetCurrentContext()
+    CGContextSaveGState(ctx)
+    CGContextTranslateCTM(ctx, (factors.fillIsHorizontal ? 0 : factors.offset), (factors.fillIsHorizontal ? factors.offset : 0))
     
     //// PaintCode Trial Version
     //// www.paintcodeapp.com
@@ -289,4 +336,6 @@ func drawGlobe(bounds: CGRect, color: UIColor) {
     color.setStroke()
     bezier6Path.lineWidth = 2.5 * lineWidthScalingFactor
     bezier6Path.stroke()
+    
+    CGContextRestoreGState(ctx)
 }
