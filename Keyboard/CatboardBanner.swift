@@ -8,6 +8,11 @@
 
 import UIKit
 
+/*
+This is the demo banner. The banner is needed so that the top row popups have somewhere to go. Might as well fill it
+with something (or leave it blank if you like.)
+*/
+
 class CatboardBanner: BannerView {
     
     var label: UILabel = UILabel()
