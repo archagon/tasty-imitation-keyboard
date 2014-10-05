@@ -21,6 +21,7 @@
 		4EC2A47019DF811E00F789E1 /* ForwardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC2A46C19DF811E00F789E1 /* ForwardingView.swift */; };
 		4EEFD78719E0DBA5004D4974 /* BannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEFD78619E0DBA5004D4974 /* BannerView.swift */; };
 		4EEFD78919E0DC6B004D4974 /* CatboardBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEFD78819E0DC6B004D4974 /* CatboardBanner.swift */; };
+		4EEFD78B19E0DF15004D4974 /* Graphics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEFD78A19E0DF15004D4974 /* Graphics.swift */; };
 		4EF16F9119D254E00076AFCB /* Background.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4EF16F9019D254E00076AFCB /* Background.jpg */; };
 		4EF16F9619D255030076AFCB /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4EF16F9319D255030076AFCB /* Images.xcassets */; };
 		4EF16F9819D255030076AFCB /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF16F9519D255030076AFCB /* ViewController.swift */; };
@@ -87,6 +88,7 @@
 		4EC3297C198030D6007B9BCB /* TODO.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = TODO.txt; sourceTree = "<group>"; };
 		4EEFD78619E0DBA5004D4974 /* BannerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BannerView.swift; sourceTree = "<group>"; };
 		4EEFD78819E0DC6B004D4974 /* CatboardBanner.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CatboardBanner.swift; sourceTree = "<group>"; };
+		4EEFD78A19E0DF15004D4974 /* Graphics.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Graphics.swift; sourceTree = "<group>"; };
 		4EF16F9019D254E00076AFCB /* Background.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Background.jpg; sourceTree = "<group>"; };
 		4EF16F9219D254EA0076AFCB /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4EF16F9319D255030076AFCB /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
@@ -121,6 +123,7 @@
 				4E60A1391979FA5C00854CC8 /* KeyboardKeyBackground.swift */,
 				4E60A13B1979FA8E00854CC8 /* KeyboardConnector.swift */,
 				4EEFD78619E0DBA5004D4974 /* BannerView.swift */,
+				4EEFD78A19E0DF15004D4974 /* Graphics.swift */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -335,6 +338,7 @@
 				4E00A6E5197183EE009414F2 /* KeyboardKey.swift in Sources */,
 				4EEFD78719E0DBA5004D4974 /* BannerView.swift in Sources */,
 				4EEFD78919E0DC6B004D4974 /* CatboardBanner.swift in Sources */,
+				4EEFD78B19E0DF15004D4974 /* Graphics.swift in Sources */,
 				4E72C96819E04A7A00DFDDB0 /* Catboard.swift in Sources */,
 				4E60A13E1979FB2E00854CC8 /* DirectionEnum.swift in Sources */,
 				4EC2A46D19DF811E00F789E1 /* KeyboardViewController.swift in Sources */,
