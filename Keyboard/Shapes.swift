@@ -9,6 +9,9 @@
 import UIKit
 
 class Shape: UIView {
+    // in case shapes draw out of bounds, we still want them to show
+    var overflowCanvas: OverflowCanvas!
+    
     convenience override init() {
         self.init(frame: CGRectZero)
     }
@@ -17,16 +20,67 @@ class Shape: UIView {
         super.init(frame: frame)
         
         self.opaque = false
-        self.setNeedsDisplay()
+        self.clipsToBounds = false
+        
+        self.overflowCanvas = OverflowCanvas(shape: self)
+        self.addSubview(self.overflowCanvas)
     }
 
     required init(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        let overflowCanvasSizeRatio = CGFloat(1.25)
+        let overflowCanvasSize = CGSizeMake(self.bounds.width * overflowCanvasSizeRatio, self.bounds.height * overflowCanvasSizeRatio)
+        
+        self.overflowCanvas.frame = CGRectMake(
+            CGFloat((self.bounds.width - overflowCanvasSize.width) / 2.0),
+            CGFloat((self.bounds.height - overflowCanvasSize.height) / 2.0),
+            overflowCanvasSize.width,
+            overflowCanvasSize.height)
+        self.overflowCanvas.setNeedsDisplay()
+    }
+    
+    func drawCall() {}
+    
+    class OverflowCanvas: UIView {
+        // TODO: retain cycle? does swift even have those?
+        var shape: Shape
+        
+        init(shape: Shape) {
+            self.shape = shape
+            
+            super.init(frame: CGRectZero)
+            
+            self.opaque = false
+        }
+
+        required init(coder aDecoder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+        
+        override func drawRect(rect: CGRect) {
+            let ctx = UIGraphicsGetCurrentContext()
+            let csp = CGColorSpaceCreateDeviceRGB()
+            
+            CGContextSaveGState(ctx)
+            
+            let xOffset = (self.bounds.width - self.shape.bounds.width) / CGFloat(2)
+            let yOffset = (self.bounds.height - self.shape.bounds.height) / CGFloat(2)
+            CGContextTranslateCTM(ctx, xOffset, yOffset)
+            
+            self.shape.drawCall()
+            
+            CGContextRestoreGState(ctx)
+        }
+    }
 }
 
 class BackspaceShape: Shape {
-    override func drawRect(rect: CGRect) {
+    override func drawCall() {
         drawBackspace(self.bounds, UIColor.redColor())
     }
 }
@@ -38,13 +92,13 @@ class ShiftShape: Shape {
         }
     }
     
-    override func drawRect(rect: CGRect) {
+    override func drawCall() {
         drawShift(self.bounds, UIColor.redColor(), self.withLock)
     }
 }
 
 class GlobeShape: Shape {
-    override func drawRect(rect: CGRect) {
+    override func drawCall() {
         drawGlobe(self.bounds, UIColor.redColor())
     }
 }
