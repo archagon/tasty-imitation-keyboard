@@ -16,4 +16,7 @@ extension KeyboardViewController {
     
     // TODO: I dunno what happened, this used to work
     //func keyPressed(key: Key) {}
+    
+    // TODO: but this one CAN be overriden? what's going on?!
+    func banner() -> BannerView { return BannerView() }
 }

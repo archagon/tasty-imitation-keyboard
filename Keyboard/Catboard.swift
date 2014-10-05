@@ -37,4 +37,8 @@ class Catboard: KeyboardViewController {
             self.runningKeystrokes = 0
         }
     }
+    
+    override func banner() -> BannerView {
+        return BannerView()
+    }
 }
