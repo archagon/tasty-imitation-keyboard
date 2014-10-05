@@ -215,6 +215,11 @@ class KeyboardViewController: UIInputViewController {
                         keyView.addTarget(keyView, action: Selector("showPopup"), forControlEvents: showOptions)
                         keyView.addTarget(keyView, action: Selector("hidePopup"), forControlEvents: hideOptions)
                     }
+                    
+                    if key.type != Key.KeyType.Shift {
+                        keyView.addTarget(self, action: Selector("highlightKey:"), forControlEvents: showOptions)
+                        keyView.addTarget(self, action: Selector("unHighlightKey:"), forControlEvents: hideOptions)
+                    }
                 }
             }
         }
@@ -278,6 +283,14 @@ class KeyboardViewController: UIInputViewController {
         else {
             self.heightConstraint?.constant = height
         }
+    }
+    
+    func highlightKey(sender: KeyboardKey) {
+        sender.highlighted = true
+    }
+    
+    func unHighlightKey(sender: KeyboardKey) {
+        sender.highlighted = false
     }
     
     func keyPressedHelper(sender: KeyboardKey) {

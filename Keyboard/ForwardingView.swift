@@ -43,39 +43,15 @@ class ForwardingView: UIView {
     
     // TODO: drag up control centre from bottom == stuck
     func handleControl(view: UIView?, controlEvent: UIControlEvents) {
-        if view == nil {
-            return
-        }
-        
-        if !(view is UIControl) {
-            return
-        }
-        
-        let control = view! as UIControl
-        
-        // TODO:
-        switch controlEvent {
-        case
-        UIControlEvents.TouchDown,
-        UIControlEvents.TouchDragEnter:
-            control.highlighted = true
-        case
-        UIControlEvents.TouchDragExit,
-        UIControlEvents.TouchUpInside,
-        UIControlEvents.TouchUpOutside,
-        UIControlEvents.TouchCancel:
-            control.highlighted = false
-        default:
-            break
-        }
-        
-        let targets = control.allTargets()
-        for target in targets.allObjects { // TODO: Xcode crashes
-            var actions = control.actionsForTarget(target, forControlEvent: controlEvent)
-            if (actions != nil) {
-                for action in actions! {
-                    let selector = Selector(action as String)
-                    control.sendAction(selector, to: target, forEvent: nil)
+        if let control = view as? UIControl {
+            let targets = control.allTargets()
+            for target in targets.allObjects { // TODO: Xcode crashes
+                var actions = control.actionsForTarget(target, forControlEvent: controlEvent)
+                if (actions != nil) {
+                    for action in actions! {
+                        let selector = Selector(action as String)
+                        control.sendAction(selector, to: target, forEvent: nil)
+                    }
                 }
             }
         }
@@ -153,7 +129,6 @@ class ForwardingView: UIView {
             if touch.tapCount > 1 {
                 // two events, I think this is the correct behavior but I have not tested with an actual UIControl
                 self.handleControl(view, controlEvent: .TouchDownRepeat)
-                NSLog("tap count is more than one")
             }
         }
     }
