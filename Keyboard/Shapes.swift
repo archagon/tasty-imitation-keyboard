@@ -125,7 +125,7 @@ func getFactors(fromSize: CGSize, toSize: CGSize) -> (xScalingFactor: CGFloat, y
     var offset: CGFloat!
     
     if fullHorizontal {
-        yScalingFactor = yScalingFactor * (CGFloat(1) / ratio)
+        yScalingFactor = (CGFloat(1.0) / highestY) * (toSize.height * (CGFloat(1) / ratio))
         
         let newY = highestY * yScalingFactor
         offset = (toSize.height - newY) / CGFloat(2)
@@ -133,7 +133,7 @@ func getFactors(fromSize: CGSize, toSize: CGSize) -> (xScalingFactor: CGFloat, y
         lineWidthScalingFactor = toSize.width / highestX
     }
     else {
-        xScalingFactor = xScalingFactor * (CGFloat(1) / ratio)
+        xScalingFactor = (CGFloat(1.0) / highestX) * (toSize.width * ratio)
         
         let newX = highestX * xScalingFactor
         offset = (toSize.width - newX) / CGFloat(2)
@@ -158,8 +158,8 @@ func drawBackspace(bounds: CGRect, color: UIColor) {
     //// www.paintcodeapp.com
     
     //// Color Declarations
-    let color = UIColor(red: 0.000, green: 0.000, blue: 0.000, alpha: 1.000)
-    let color2 = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 1.000)
+    let color = color
+    let color2 = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 1.000) // TODO:
     
     //// Bezier Drawing
     var bezierPath = UIBezierPath()
@@ -218,7 +218,7 @@ func drawShift(bounds: CGRect, color: UIColor, withRect: Bool) {
     //// www.paintcodeapp.com
     
     //// Color Declarations
-    let color2 = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 1.000)
+    let color2 = color
     
     //// Bezier Drawing
     var bezierPath = UIBezierPath()
@@ -263,7 +263,7 @@ func drawGlobe(bounds: CGRect, color: UIColor) {
     //// www.paintcodeapp.com
     
     //// Color Declarations
-    let color = UIColor(red: 0.386, green: 0.207, blue: 0.207, alpha: 1.000)
+    let color = color
     
     //// Oval Drawing
     var ovalPath = UIBezierPath(ovalInRect: CGRectMake(0 * xScalingFactor, 0 * yScalingFactor, 40 * xScalingFactor, 40 * yScalingFactor))
