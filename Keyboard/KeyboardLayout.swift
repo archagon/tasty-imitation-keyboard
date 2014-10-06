@@ -350,7 +350,7 @@ class KeyboardLayout: KeyboardKeyProtocol {
             let sideEdges = layoutConstants.sideEdges
             
             // top edge
-            let topEdge: CGFloat = (isLandscape ? layoutConstants.topEdgeLandscape : layoutConstants.topEdgePortrait)
+            let topEdge: CGFloat = ((isLandscape ? layoutConstants.topEdgeLandscape : layoutConstants.topEdgePortrait) + self.topBanner)
             
             // row gaps
             let rowGaps: CGFloat = (isLandscape ? layoutConstants.rowGapsLandscape : layoutConstants.rowGapsPortrait)
@@ -372,20 +372,56 @@ class KeyboardLayout: KeyboardKeyProtocol {
             }()
             
             for (r, row) in enumerate(page.rows) {
+                let numKeysInRow = row.count
+                
+                // running offsets from both sides
+                var offsets: (left: CGFloat, right: CGFloat) = (sideEdges, bounds.width - sideEdges)
+                
+                // if we're processing a span of character keys, this has the start and end indices of the range
+                var inCharacterRange: Bool = false
+                
                 for (k, key) in enumerate(row) {
+                    
+                    // establish character range if needed
+                    if !inCharacterRange {
+                        if key.type == Key.KeyType.Character {
+                            var endIndex = 0
+                            
+                            for (var k2: Int = k; k2 < row.count ; k2 += 1) {
+                                let key2 = row[k2]
+                                if key2.type == Key.KeyType.Character {
+                                    endIndex = k2
+                                }
+                                else {
+                                    break
+                                }
+                            }
+                            
+                            // ASSUMPTION: only one span per row
+                            let numberOfCharactersInSpan = (endIndex + 1) - k
+                            let sizeOfSpan = CGFloat(numberOfCharactersInSpan) * letterKeyWidth + CGFloat(numberOfCharactersInSpan - 1) * keyGaps
+                            let sizeDiff = ((offsets.right - offsets.left) - sizeOfSpan) / CGFloat(2)
+                            
+                            assert(sizeDiff > 0, "character row does not fit in layout")
+                            
+                            offsets.left += sizeDiff
+                            offsets.right -= sizeDiff
+                        }
+                    }
+                    else {
+                        if key.type != Key.KeyType.Character {
+                            inCharacterRange = false
+                        }
+                    }
+                    
                     var view = views[key]
                     
                     let verticalOffset = topEdge + CGFloat(r) * (keyHeight + rowGaps)
-                    let tempHorizontalOffset = sideEdges + CGFloat(k) * (letterKeyWidth + keyGaps)
+                    let horizontalOffset = offsets.left
 
-                    view?.frame = CGRectMake(tempHorizontalOffset, verticalOffset, letterKeyWidth, keyHeight)
+                    view?.frame = CGRectMake(horizontalOffset, verticalOffset, letterKeyWidth, keyHeight)
                     
-//                    switch key.type {
-//                    case .Character:
-//                        break
-//                    default:
-//                        break
-//                    }
+                    offsets.left += (letterKeyWidth + keyGaps)
                 }
             }
         }
