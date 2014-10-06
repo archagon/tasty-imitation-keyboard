@@ -152,6 +152,7 @@ class KeyboardViewController: UIInputViewController {
     
     override func viewDidLayoutSubviews() {
         self.forwardingView.frame = self.view.bounds
+        self.layout.layoutTemp()
     }
     
     override func viewDidAppear(animated: Bool) {
