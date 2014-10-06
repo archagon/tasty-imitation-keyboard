@@ -1,3 +1,95 @@
+# Inferred Rules
+
+6: 375 × 667
+6+: 414 × 736
+
+6 w/o sides w/borders in landscape: 532
+6+ w/o sides w/borders in landscape: 535
+568 5S
+
+4P: 15
+4L: 7
+5: 15
+5L: 7
+6: 11 except 9 to spacebar
+6L: 7
+6+: 10
+6+L: 7
+
+## Margins
+
+## Key Dimensions
+
+### Height
+
+* 33 / 162 ~= 0.204 (4/5/6/6+ L)
+
+* 39 / 216 ~= 0.181 (4/5 P)
+    * 39 / 320 ~= 0.122
+* 43 / 216 ~= 0.199 (6 P)
+    * 43 / 375 ~= 0.115
+* 46 / 226 ~= 0.204 (6+ P)
+    * 46 / 414 ~= 0.111
+
+* landscape always the same: scale by height
+* portrait: scale linearly by width
+
+    320 x + c = 39
+    375 x + c = 43
+    39 - 320 x = 43 - 375 x
+    375 x - 320 x = 43 - 39
+    
+    **x = 4 / 55 ~= 0.072**
+    
+    **c = 39 - 320 x ~= 15.727**
+    
+    **other idea: row gaps, similarly tied to width**
+
+### Regular Keys
+
+**also gap based**
+
+* portrait
+* landscape (measuring usable space + side margins)
+    42 / 480 ~= 0.088
+    47 / 528 ~= 0.089
+    48 / 531 ~= 0.090
+    52 / 568 ~= 0.092
+    
+    480 x + c = 42
+    568 x + c = 52
+    42 - 480 x = 52 - 568 x
+    
+    **x = (52 - 42) / (568 - 480) = 10 / 88**
+    
+    **c = 42 - 480 * x**
+    
+### Shift/Backspace
+
+4: 36/57 (24/38 RU)
+5L: 68/69
+
+### Special Keys
+
+### Return
+
+### Space
+
+### Side Keys for 6/6+
+    
+## Gaps
+
+## Layout
+
+## Other
+
+* corner radii
+* font sizes
+* graphics
+
+
+---
+
 # Icons
 
 * Globe: 20 x 20
@@ -137,8 +229,8 @@
 
 ## Keys
 
-* Letter rows: 31.5 x 43 (including gap)
-* Shift/Backspace: 42 x 43 (including gap)
+* Letter rows: 31.5 x 43 (including gap) 28R
+* Shift/Backspace: 42 x 43 (including gap) 29R
 * Special keys: 40.5-41 x 43 (including gap)
 * Return: 87.5 x 43
 * Space: 182.5 x 43
@@ -179,8 +271,8 @@
 
 ## Keys
 
-* Letter rows: 47 x 33 (including gap)
-* Shift/Backspace: 63 x 33 (including gap)
+* Letter rows: 47 x 33 (including gap) 42.5R
+* Shift/Backspace: 63 x 33 (including gap) 42.5R
 * Special keys: 46 x 33 (including gap)
 * Return: 99 x 33
 * Space: 310 x 33
@@ -206,8 +298,8 @@
 
 ## Keys
 
-* Letter rows: 35 x 46, 33 x 46 RU
-* Shift/Backspace: 45 x 46, 33 x 46 RU
+* Letter rows: 35 x 46, 31 x 46 RU
+* Shift/Backspace: 45 x 46, 31 x 46 RU
 * Special keys: 46 x 46
 * Return: 97 x 46
 * Space: 199 x 46
