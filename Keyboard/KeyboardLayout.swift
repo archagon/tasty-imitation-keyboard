@@ -346,26 +346,28 @@ class KeyboardLayout: KeyboardKeyProtocol {
                 return currentMax
             }()
             
-            // side edges
+            // measurement
             let sideEdges = layoutConstants.sideEdges
-            
-            // top edge
+
+            // measurement
             let topEdge: CGFloat = ((isLandscape ? layoutConstants.topEdgeLandscape : layoutConstants.topEdgePortrait) + self.topBanner)
             
-            // row gaps
+            // measurement
             let rowGaps: CGFloat = (isLandscape ? layoutConstants.rowGapsLandscape : layoutConstants.rowGapsPortrait)
             
-            // key gaps
+            // measurement
             let keyGaps: CGFloat = {
                 let pastThreshhold = (CGFloat(mostKeysInRow) >= layoutConstants.keyGapsSmallThreshhold)
                 return (pastThreshhold ? layoutConstants.keyGapsSmall : layoutConstants.keyGaps)
             }()
             
-            // key height
-            let totalGaps = sideEdges + topEdge + (rowGaps * CGFloat(numRows - 1))
-            let keyHeight: CGFloat = (bounds.height - totalGaps) / CGFloat(numRows)
+            // measurement
+            let keyHeight: CGFloat = {
+                let totalGaps = sideEdges + topEdge + (rowGaps * CGFloat(numRows - 1))
+                return (bounds.height - totalGaps) / CGFloat(numRows)
+            }()
             
-            // letter key width
+            // measurement
             let letterKeyWidth: CGFloat = {
                 let totalGaps = (sideEdges * CGFloat(2)) + (keyGaps * CGFloat(mostKeysInRow - 1))
                 return (bounds.width - totalGaps) / CGFloat(mostKeysInRow)
@@ -382,7 +384,7 @@ class KeyboardLayout: KeyboardKeyProtocol {
                 
                 for (k, key) in enumerate(row) {
                     
-                    // establish character range if needed
+                    // character range state processing
                     if !inCharacterRange {
                         if key.type == Key.KeyType.Character {
                             var endIndex = 0
@@ -402,7 +404,7 @@ class KeyboardLayout: KeyboardKeyProtocol {
                             let sizeOfSpan = CGFloat(numberOfCharactersInSpan) * letterKeyWidth + CGFloat(numberOfCharactersInSpan - 1) * keyGaps
                             let sizeDiff = ((offsets.right - offsets.left) - sizeOfSpan) / CGFloat(2)
                             
-                            assert(sizeDiff > 0, "character row does not fit in layout")
+//                            assert(sizeDiff > 0, "character row does not fit in layout")
                             
                             offsets.left += sizeDiff
                             offsets.right -= sizeDiff
@@ -426,6 +428,30 @@ class KeyboardLayout: KeyboardKeyProtocol {
             }
         }
     }
+    
+//    * capture keys in containers corresponding to their units
+//    * units don't necessairly correspond to specific views
+//    * for example:
+//        * top: [left spacer][shift][space][key row][space][backspace][right spacer]
+//        * key row: [key][gap][key][gap]...
+//    
+//    promises
+//    for key in row {
+//        if key == special {
+//            promise(key.width = flexispecial)
+//        }
+//        else if key == character {
+//            row = capture()
+//            measure(row)
+//            promise(key.surroundings == equal)
+//        }
+//    }
+//    resolve(promises)
+//    
+    // at this point, we have "gaps" (flexi specials, surrounding gaps) that need to be resolved
+    
+    
+    
     
 //    private func addGapPair(nameFormat: String, page: Int, row: Int?, startIndex: Int, endIndex: Int, leftAnchor: String?, rightAnchor: String?, vertical: Bool, width: String?) {
 //        var allConstraints: [String] = []
