@@ -94,7 +94,7 @@ class KeyboardLayout: KeyboardKeyProtocol {
     
     var topBanner: CGFloat = 0 {
         didSet {
-//            self.setTopBannerSpace(topBanner)
+            self.layoutTemp()
         }
     }
     var topSpacerConstraint: NSLayoutConstraint?
