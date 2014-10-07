@@ -33,9 +33,16 @@ struct layoutConstants {
     static let rowGapPortraitLastRowIndex: Int = 1
     static let rowGapLandscape: CGFloat = 7
     
-    static let keyGaps: CGFloat = 6
-    static let keyGapsSmall: CGFloat = 5
-    static let keyGapsSmallThreshhold: CGFloat = 10
+    // key gaps have weird and inconsistent rules
+    static let keyGapPortraitNormal: CGFloat = 6
+    static let keyGapPortraitSmall: CGFloat = 5
+    static let keyGapPortraitNormalThreshhold: CGFloat = 350
+    static let keyGapPortraitUncompressThreshhold: CGFloat = 350
+    static let keyGapLandscapeNormal: CGFloat = 6
+    static let keyGapLandscapeSmall: CGFloat = 5
+    // TODO: 5.5 row gap on 5L
+    // TODO: wider row gap on 6L
+    static let keyCompressedThreshhold: Int = 11
     
     static func sideEdgesPortrait(width: CGFloat) -> CGFloat { return self.findThreshhold(self.sideEdgesPortraitArray, threshholds: self.sideEdgesPortraitWidthThreshholds, measurement: width) }
     static func topEdgePortrait(width: CGFloat) -> CGFloat { return self.findThreshhold(self.topEdgePortraitArray, threshholds: self.topEdgePortraitWidthThreshholds, measurement: width) }
@@ -51,6 +58,34 @@ struct layoutConstants {
         }
     }
     
+    static func keyGapPortrait(width: CGFloat, rowCharacterCount: Int) -> CGFloat {
+        let compressed = (rowCharacterCount >= self.keyCompressedThreshhold)
+        if compressed {
+            if width >= self.keyGapPortraitUncompressThreshhold {
+                return self.keyGapPortraitNormal
+            }
+            else {
+                return self.keyGapPortraitSmall
+            }
+        }
+        else {
+            return self.keyGapPortraitNormal
+        }
+    }
+    static func keyGapLandscape(width: CGFloat, rowCharacterCount: Int) -> CGFloat {
+        let compressed = (rowCharacterCount >= self.keyCompressedThreshhold)
+        let shrunk = self.keyboardIsShrunk(width)
+        if compressed || shrunk {
+            return self.keyGapLandscapeSmall
+        }
+        else {
+            return self.keyGapLandscapeNormal
+        }
+    }
+    
+    static func keyboardIsShrunk(width: CGFloat) -> Bool {
+        return width >= self.keyboardShrunkSizeBaseWidthThreshhold
+    }
     static func keyboardShrunkSize(width: CGFloat) -> CGFloat {
         if width >= self.keyboardShrunkSizeBaseWidthThreshhold {
             return self.findThreshhold(self.keyboardShrunkSizeArray, threshholds: self.keyboardShrunkSizeWidthThreshholds, measurement: width)
@@ -297,10 +332,7 @@ class KeyboardLayout: KeyboardKeyProtocol {
             let rowGapTotal = CGFloat(numRows - 1 - 1) * rowGap + lastRowGap
             
             // measurement
-            let keyGaps: CGFloat = {
-                let pastThreshhold = (CGFloat(mostKeysInRow) >= layoutConstants.keyGapsSmallThreshhold)
-                return (pastThreshhold ? layoutConstants.keyGapsSmall : layoutConstants.keyGaps)
-            }()
+            let keyGap: CGFloat = (isLandscape ? layoutConstants.keyGapLandscape(bounds.width, rowCharacterCount: mostKeysInRow) : layoutConstants.keyGapPortrait(bounds.width, rowCharacterCount: mostKeysInRow))
             
             // measurement
             let keyHeight: CGFloat = {
@@ -310,14 +342,14 @@ class KeyboardLayout: KeyboardKeyProtocol {
             
             // measurement
             let letterKeyWidth: CGFloat = {
-                let totalGaps = (sideEdges * CGFloat(2)) + (keyGaps * CGFloat(mostKeysInRow - 1))
+                let totalGaps = (sideEdges * CGFloat(2)) + (keyGap * CGFloat(mostKeysInRow - 1))
                 return (bounds.width - totalGaps) / CGFloat(mostKeysInRow)
             }()
             
             for (r, row) in enumerate(page.rows) {
                 let rowGapCurrentTotal = (r == page.rows.count - 1 ? rowGapTotal : CGFloat(r) * rowGap)
                 let frame = CGRectMake(sideEdges, topEdge + (CGFloat(r) * keyHeight) + rowGapCurrentTotal, bounds.width - CGFloat(2) * sideEdges, keyHeight)
-                self.handleRow(row, keyGaps: keyGaps, letterKeyWidth: letterKeyWidth, frame: frame)
+                self.handleRow(row, keyGaps: keyGap, letterKeyWidth: letterKeyWidth, frame: frame)
             }
         }
     }
