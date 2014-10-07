@@ -22,6 +22,10 @@ struct layoutConstants {
     static let topEdgePortraitWidthThreshholds: [CGFloat] = [350, 400]
     static let topEdgeLandscape: CGFloat = 6
     
+    static let keyboardShrunkSizeArray: [CGFloat] = [522, 524]
+    static let keyboardShrunkSizeWidthThreshholds: [CGFloat] = [700]
+    static let keyboardShrunkSizeBaseWidthThreshhold: CGFloat = 600
+    
     static let rowGapsPortrait: CGFloat = 15
     static let rowGapsLandscape: CGFloat = 7
     
@@ -31,6 +35,15 @@ struct layoutConstants {
     
     static func sideEdgesPortrait(width: CGFloat) -> CGFloat { return self.findThreshhold(self.sideEdgesPortraitArray, threshholds: self.sideEdgesPortraitWidthThreshholds, measurement: width) }
     static func topEdgePortrait(width: CGFloat) -> CGFloat { return self.findThreshhold(self.topEdgePortraitArray, threshholds: self.topEdgePortraitWidthThreshholds, measurement: width) }
+    
+    static func keyboardShrunkSize(width: CGFloat) -> CGFloat {
+        if width >= self.keyboardShrunkSizeBaseWidthThreshhold {
+            return self.findThreshhold(self.keyboardShrunkSizeArray, threshholds: self.keyboardShrunkSizeWidthThreshholds, measurement: width)
+        }
+        else {
+            return width
+        }
+    }
     
     static func findThreshhold(elements: [CGFloat], threshholds: [CGFloat], measurement: CGFloat) -> CGFloat {
         assert(elements.count == threshholds.count + 1, "elements and threshholds do not match")
@@ -269,7 +282,17 @@ class KeyboardLayout: KeyboardKeyProtocol {
             }()
             
             // measurement
-            let sideEdges = (isLandscape ? layoutConstants.sideEdgesPortrait(bounds.width) : layoutConstants.sideEdgesLandscape)
+            var sideEdges = (isLandscape ? layoutConstants.sideEdgesPortrait(bounds.width) : layoutConstants.sideEdgesLandscape)
+            
+            // measurement
+            let bottomEdge = sideEdges
+            
+            let normalKeyboardSize = bounds.width - CGFloat(2) * sideEdges
+            
+            // measurement
+            let shrunkKeyboardSize = layoutConstants.keyboardShrunkSize(normalKeyboardSize)
+            
+            sideEdges += ((normalKeyboardSize - shrunkKeyboardSize) / CGFloat(2))
 
             // measurement
             let topEdge: CGFloat = ((isLandscape ? layoutConstants.topEdgeLandscape : layoutConstants.topEdgePortrait(bounds.width)) + self.topBanner)
@@ -285,7 +308,7 @@ class KeyboardLayout: KeyboardKeyProtocol {
             
             // measurement
             let keyHeight: CGFloat = {
-                let totalGaps = sideEdges + topEdge + (rowGaps * CGFloat(numRows - 1))
+                let totalGaps = bottomEdge + topEdge + (rowGaps * CGFloat(numRows - 1))
                 return (bounds.height - totalGaps) / CGFloat(numRows)
             }()
             
@@ -296,7 +319,7 @@ class KeyboardLayout: KeyboardKeyProtocol {
             }()
             
             for (r, row) in enumerate(page.rows) {
-                let frame = CGRectMake(sideEdges, topEdge + CGFloat(r) * (keyHeight + rowGaps), self.superview.bounds.width - CGFloat(2) * sideEdges, keyHeight)
+                let frame = CGRectMake(sideEdges, topEdge + CGFloat(r) * (keyHeight + rowGaps), bounds.width - CGFloat(2) * sideEdges, keyHeight)
                 self.handleRow(row, keyGaps: keyGaps, letterKeyWidth: letterKeyWidth, frame: frame)
             }
         }
