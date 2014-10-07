@@ -8,26 +8,30 @@
 
 import UIKit
 
-var DEBUG_SHOW_SPACERS = false
-
-// TODO: create class from layout dictionary?
-
 struct layoutConstants {
     static let landscapeRatio: CGFloat = 2
     
+    // side edges increase on 6 in portrait
     static let sideEdgesPortraitArray: [CGFloat] = [3, 4]
     static let sideEdgesPortraitWidthThreshholds: [CGFloat] = [700]
     static let sideEdgesLandscape: CGFloat = 3
+    
+    // top edges decrease on various devices in portrait
     static let topEdgePortraitArray: [CGFloat] = [12, 10, 8]
     static let topEdgePortraitWidthThreshholds: [CGFloat] = [350, 400]
     static let topEdgeLandscape: CGFloat = 6
     
+    // keyboard area shrinks in size in landscape on 6 and 6+
     static let keyboardShrunkSizeArray: [CGFloat] = [522, 524]
     static let keyboardShrunkSizeWidthThreshholds: [CGFloat] = [700]
     static let keyboardShrunkSizeBaseWidthThreshhold: CGFloat = 600
     
-    static let rowGapsPortrait: CGFloat = 15
-    static let rowGapsLandscape: CGFloat = 7
+    // row gaps are weird on 6 in portrait
+    static let rowGapPortraitArray: [CGFloat] = [15, 11, 10]
+    static let rowGapPortraitThreshholds: [CGFloat] = [350, 400]
+    static let rowGapPortraitLastRow: CGFloat = 9
+    static let rowGapPortraitLastRowIndex: Int = 1
+    static let rowGapLandscape: CGFloat = 7
     
     static let keyGaps: CGFloat = 6
     static let keyGapsSmall: CGFloat = 5
@@ -35,6 +39,17 @@ struct layoutConstants {
     
     static func sideEdgesPortrait(width: CGFloat) -> CGFloat { return self.findThreshhold(self.sideEdgesPortraitArray, threshholds: self.sideEdgesPortraitWidthThreshholds, measurement: width) }
     static func topEdgePortrait(width: CGFloat) -> CGFloat { return self.findThreshhold(self.topEdgePortraitArray, threshholds: self.topEdgePortraitWidthThreshholds, measurement: width) }
+    static func rowGapPortrait(width: CGFloat) -> CGFloat { return self.findThreshhold(self.rowGapPortraitArray, threshholds: self.rowGapPortraitThreshholds, measurement: width) }
+    
+    static func rowGapPortraitLastRow(width: CGFloat) -> CGFloat {
+        let index = self.findThreshholdIndex(self.rowGapPortraitThreshholds, measurement: width)
+        if index == self.rowGapPortraitLastRowIndex {
+            return self.rowGapPortraitLastRow
+        }
+        else {
+            return self.rowGapPortraitArray[index]
+        }
+    }
     
     static func keyboardShrunkSize(width: CGFloat) -> CGFloat {
         if width >= self.keyboardShrunkSizeBaseWidthThreshhold {
@@ -47,13 +62,16 @@ struct layoutConstants {
     
     static func findThreshhold(elements: [CGFloat], threshholds: [CGFloat], measurement: CGFloat) -> CGFloat {
         assert(elements.count == threshholds.count + 1, "elements and threshholds do not match")
+        return elements[self.findThreshholdIndex(threshholds, measurement: measurement)]
+    }
+    static func findThreshholdIndex(threshholds: [CGFloat], measurement: CGFloat) -> Int {
         for (i, threshhold) in enumerate(reverse(threshholds)) {
             if measurement >= threshhold {
                 let actualIndex = threshholds.count - i
-                return elements[actualIndex]
+                return actualIndex
             }
         }
-        return elements[0]
+        return 0
     }
 }
 
@@ -72,7 +90,6 @@ let globalLayout: [String:Double] = [
     "specialKeyWidth": 34,
     "doneKeyWidth": 50,
     //    "spaceWidth": 138,
-    "debugWidth": (DEBUG_SHOW_SPACERS ? 2 : 0)
 ]
 func layoutMetric(name: String) -> CGFloat { return CGFloat(globalLayout[name]!) }
 
@@ -298,7 +315,9 @@ class KeyboardLayout: KeyboardKeyProtocol {
             let topEdge: CGFloat = ((isLandscape ? layoutConstants.topEdgeLandscape : layoutConstants.topEdgePortrait(bounds.width)) + self.topBanner)
             
             // measurement
-            let rowGaps: CGFloat = (isLandscape ? layoutConstants.rowGapsLandscape : layoutConstants.rowGapsPortrait)
+            let rowGap: CGFloat = (isLandscape ? layoutConstants.rowGapLandscape : layoutConstants.rowGapPortrait(bounds.width))
+            let lastRowGap: CGFloat = (isLandscape ? rowGap : layoutConstants.rowGapPortraitLastRow(bounds.width))
+            let rowGapTotal = CGFloat(numRows - 1 - 1) * rowGap + lastRowGap
             
             // measurement
             let keyGaps: CGFloat = {
@@ -308,7 +327,7 @@ class KeyboardLayout: KeyboardKeyProtocol {
             
             // measurement
             let keyHeight: CGFloat = {
-                let totalGaps = bottomEdge + topEdge + (rowGaps * CGFloat(numRows - 1))
+                let totalGaps = bottomEdge + topEdge + rowGapTotal
                 return (bounds.height - totalGaps) / CGFloat(numRows)
             }()
             
@@ -319,7 +338,8 @@ class KeyboardLayout: KeyboardKeyProtocol {
             }()
             
             for (r, row) in enumerate(page.rows) {
-                let frame = CGRectMake(sideEdges, topEdge + CGFloat(r) * (keyHeight + rowGaps), bounds.width - CGFloat(2) * sideEdges, keyHeight)
+                let rowGapCurrentTotal = (r == page.rows.count - 1 ? rowGapTotal : CGFloat(r) * rowGap)
+                let frame = CGRectMake(sideEdges, topEdge + (CGFloat(r) * keyHeight) + rowGapCurrentTotal, bounds.width - CGFloat(2) * sideEdges, keyHeight)
                 self.handleRow(row, keyGaps: keyGaps, letterKeyWidth: letterKeyWidth, frame: frame)
             }
         }
