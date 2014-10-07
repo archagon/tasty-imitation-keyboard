@@ -299,12 +299,28 @@ class KeyboardLayout: KeyboardKeyProtocol {
     }
     
     func layoutKeys(model: Keyboard, views: [Key:KeyboardKey], bounds: CGRect) {
+        self.banner?.frame = CGRectMake(0, 0, self.superview.bounds.width, self.topBanner)
+        
         let isLandscape: Bool = {
             let boundsRatio = bounds.width / bounds.height
             return (boundsRatio >= layoutConstants.landscapeRatio)
         }()
         
-        self.banner?.frame = CGRectMake(0, 0, self.superview.bounds.width, self.topBanner)
+        var sideEdges = (isLandscape ? layoutConstants.sideEdgesPortrait(bounds.width) : layoutConstants.sideEdgesLandscape)
+        let bottomEdge = sideEdges
+        
+        let normalKeyboardSize = bounds.width - CGFloat(2) * sideEdges
+        let shrunkKeyboardSize = layoutConstants.keyboardShrunkSize(normalKeyboardSize)
+        
+        sideEdges += ((normalKeyboardSize - shrunkKeyboardSize) / CGFloat(2))
+        
+        let topEdge: CGFloat = ((isLandscape ? layoutConstants.topEdgeLandscape : layoutConstants.topEdgePortrait(bounds.width)) + self.topBanner)
+        
+        let rowGap: CGFloat = (isLandscape ? layoutConstants.rowGapLandscape : layoutConstants.rowGapPortrait(bounds.width))
+        let lastRowGap: CGFloat = (isLandscape ? rowGap : layoutConstants.rowGapPortraitLastRow(bounds.width))
+        
+        let flexibleEndRowM = (isLandscape ? layoutConstants.flexibleEndRowTotalWidthToKeyWidthMLandscape : layoutConstants.flexibleEndRowTotalWidthToKeyWidthMPortrait)
+        let flexibleEndRowC = (isLandscape ? layoutConstants.flexibleEndRowTotalWidthToKeyWidthCLandscape : layoutConstants.flexibleEndRowTotalWidthToKeyWidthCPortrait)
         
         for page in model.pages {
             let numRows = page.rows.count
@@ -317,20 +333,6 @@ class KeyboardLayout: KeyboardKeyProtocol {
                 return currentMax
             }()
             
-            var sideEdges = (isLandscape ? layoutConstants.sideEdgesPortrait(bounds.width) : layoutConstants.sideEdgesLandscape)
-            
-            let bottomEdge = sideEdges
-            
-            let normalKeyboardSize = bounds.width - CGFloat(2) * sideEdges
-            
-            let shrunkKeyboardSize = layoutConstants.keyboardShrunkSize(normalKeyboardSize)
-            
-            sideEdges += ((normalKeyboardSize - shrunkKeyboardSize) / CGFloat(2))
-
-            let topEdge: CGFloat = ((isLandscape ? layoutConstants.topEdgeLandscape : layoutConstants.topEdgePortrait(bounds.width)) + self.topBanner)
-            
-            let rowGap: CGFloat = (isLandscape ? layoutConstants.rowGapLandscape : layoutConstants.rowGapPortrait(bounds.width))
-            let lastRowGap: CGFloat = (isLandscape ? rowGap : layoutConstants.rowGapPortraitLastRow(bounds.width))
             let rowGapTotal = CGFloat(numRows - 1 - 1) * rowGap + lastRowGap
             
             let keyGap: CGFloat = (isLandscape ? layoutConstants.keyGapLandscape(bounds.width, rowCharacterCount: mostKeysInRow) : layoutConstants.keyGapPortrait(bounds.width, rowCharacterCount: mostKeysInRow))
@@ -344,9 +346,6 @@ class KeyboardLayout: KeyboardKeyProtocol {
                 let totalGaps = (sideEdges * CGFloat(2)) + (keyGap * CGFloat(mostKeysInRow - 1))
                 return (bounds.width - totalGaps) / CGFloat(mostKeysInRow)
             }()
-            
-            let flexibleEndRowM = (isLandscape ? layoutConstants.flexibleEndRowTotalWidthToKeyWidthMLandscape : layoutConstants.flexibleEndRowTotalWidthToKeyWidthMPortrait)
-            let flexibleEndRowC = (isLandscape ? layoutConstants.flexibleEndRowTotalWidthToKeyWidthCLandscape : layoutConstants.flexibleEndRowTotalWidthToKeyWidthCPortrait)
             
             for (r, row) in enumerate(page.rows) {
                 let rowGapCurrentTotal = (r == page.rows.count - 1 ? rowGapTotal : CGFloat(r) * rowGap)
@@ -466,93 +465,11 @@ class KeyboardLayout: KeyboardKeyProtocol {
     // END LAYOUT //
     ////////////////
     
-    // TODO: superview constraints not part of allConstraints array, and also allConstraints does not work recursively
-//    var extraConstraints: [(UIView, [NSLayoutConstraint])] = []
     func willShowPopup(key: KeyboardKey, direction: Direction) {
-//        if let popup = key.popup {
-//            let directionToAttribute = [
-//                Direction.Up: NSLayoutAttribute.Top,
-//                Direction.Down: NSLayoutAttribute.Bottom,
-//                Direction.Left: NSLayoutAttribute.Left,
-//                Direction.Right: NSLayoutAttribute.Right,
-//            ]
-//            
-//            for (view, constraintArray) in self.extraConstraints {
-//                if key == view {
-//                    for constraint in constraintArray {
-//                        self.superview.removeConstraint(constraint)
-//                    }
-//                }
-//            }
-//            
-//            var extraConstraints: [NSLayoutConstraint] = []
-//            
-//            var cantTouchTopConstraint = NSLayoutConstraint(
-//                item: popup,
-//                attribute: directionToAttribute[direction]!,
-//                relatedBy: (direction == Direction.Right ? NSLayoutRelation.LessThanOrEqual : NSLayoutRelation.GreaterThanOrEqual),
-//                toItem: self.superview,
-//                attribute: directionToAttribute[direction]!,
-//                multiplier: 1,
-//                constant: 2) // TODO: layout
-//            cantTouchTopConstraint.priority = 1000
-//            self.superview.addConstraint(cantTouchTopConstraint)
-//            extraConstraints.append(cantTouchTopConstraint)
-////            self.allConstraintObjects.append(cantTouchTopConstraint)
-//            
-//            if direction.horizontal() {
-//                var cantTouchTopConstraint = NSLayoutConstraint(
-//                    item: popup,
-//                    attribute: directionToAttribute[Direction.Up]!,
-//                    relatedBy: NSLayoutRelation.GreaterThanOrEqual,
-//                    toItem: self.superview,
-//                    attribute: directionToAttribute[Direction.Up]!,
-//                    multiplier: 1,
-//                    constant: 5) // TODO: layout
-//                cantTouchTopConstraint.priority = 1000
-//                self.superview.addConstraint(cantTouchTopConstraint)
-//                extraConstraints.append(cantTouchTopConstraint)
-////                self.allConstraintObjects.append(cantTouchTopConstraint)
-//            }
-//            else {
-//                var cantTouchSideConstraint = NSLayoutConstraint(
-//                    item: self.superview,
-//                    attribute: directionToAttribute[Direction.Right]!,
-//                    relatedBy: NSLayoutRelation.GreaterThanOrEqual,
-//                    toItem: popup,
-//                    attribute: directionToAttribute[Direction.Right]!,
-//                    multiplier: 1,
-//                    constant: 3) // TODO: layout
-//                cantTouchSideConstraint.priority = 1000
-//                var cantTouchSideConstraint2 = NSLayoutConstraint(
-//                    item: self.superview,
-//                    attribute: directionToAttribute[Direction.Left]!,
-//                    relatedBy: NSLayoutRelation.LessThanOrEqual,
-//                    toItem: popup,
-//                    attribute: directionToAttribute[Direction.Left]!,
-//                    multiplier: 1,
-//                    constant: -3) // TODO: layout
-//                cantTouchSideConstraint2.priority = 1000
-//                
-//                self.superview.addConstraint(cantTouchSideConstraint)
-//                self.superview.addConstraint(cantTouchSideConstraint2)
-//                extraConstraints.append(cantTouchSideConstraint)
-//                extraConstraints.append(cantTouchSideConstraint2)
-////                self.allConstraintObjects.append(cantTouchSideConstraint)
-////                self.allConstraintObjects.append(cantTouchSideConstraint2)
-//            }
-//            
-//            self.extraConstraints.append((key, extraConstraints) as (UIView, [NSLayoutConstraint]))
-//        }
+        if let popup = key.popup {
+        }
     }
     
     func willHidePopup(key: KeyboardKey) {
-//        for (view, constraintArray) in self.extraConstraints {
-//            if key == view {
-//                for constraint in constraintArray {
-//                    self.superview.removeConstraint(constraint)
-//                }
-//            }
-//        }
     }
 }
