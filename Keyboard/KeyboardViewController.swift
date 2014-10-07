@@ -97,12 +97,31 @@ class KeyboardViewController: UIInputViewController {
         
         self.layout = KeyboardLayout(model: self.keyboard, superview: self.forwardingView, topBanner: 0, banner: self.banner())
         self.view.addSubview(self.forwardingView)
-
+        
         self.view.setNeedsUpdateConstraints()
     }
     
     required init(coder: NSCoder) {
         fatalError("NSCoding not supported")
+    }
+    
+    // without this here kludge, the height constraint for the keyboard does not work for some reason
+    var kludge: UIView?
+    func setupKludge() {
+        if self.kludge == nil {
+            var kludge = UIView()
+            self.view.addSubview(kludge)
+            kludge.setTranslatesAutoresizingMaskIntoConstraints(false)
+            kludge.hidden = true
+            
+            let a = NSLayoutConstraint(item: kludge, attribute: NSLayoutAttribute.Left, relatedBy: NSLayoutRelation.Equal, toItem: self.view, attribute: NSLayoutAttribute.Left, multiplier: 1, constant: 0)
+            let b = NSLayoutConstraint(item: kludge, attribute: NSLayoutAttribute.Right, relatedBy: NSLayoutRelation.Equal, toItem: self.view, attribute: NSLayoutAttribute.Left, multiplier: 1, constant: 0)
+            let c = NSLayoutConstraint(item: kludge, attribute: NSLayoutAttribute.Top, relatedBy: NSLayoutRelation.Equal, toItem: self.view, attribute: NSLayoutAttribute.Top, multiplier: 1, constant: 0)
+            let d = NSLayoutConstraint(item: kludge, attribute: NSLayoutAttribute.Bottom, relatedBy: NSLayoutRelation.Equal, toItem: self.view, attribute: NSLayoutAttribute.Top, multiplier: 1, constant: 0)
+            self.view.addConstraints([a, b, c, d])
+            
+            self.kludge = kludge
+        }
     }
     
     /*
@@ -137,16 +156,7 @@ class KeyboardViewController: UIInputViewController {
     
     override func updateViewConstraints() {
         super.updateViewConstraints()
-        
-//        // suppresses constraint unsatisfiability on initial zero rect; mostly an issue of log spam
-//        // TODO: there's probably a more sensible/correct way to do this
-//        if CGRectIsEmpty(self.view.bounds) {
-//            NSLayoutConstraint.deactivateConstraints(self.layout.allConstraintObjects)
-//        }
-//        else {
-//            NSLayoutConstraint.activateConstraints(self.layout.allConstraintObjects)
-//        }
-        
+        self.setupKludge()
         self.setupConstraints()
     }
     
