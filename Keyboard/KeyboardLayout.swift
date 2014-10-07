@@ -313,7 +313,7 @@ class KeyboardLayout: KeyboardKeyProtocol {
             
         // bottom row with things like space, return, etc.
         else {
-            self.layoutSpecialKeysRow(row, modelToView: self.modelToView, gapWidth: keyGaps, spaceRatio: CGFloat(0.4), frame: frame)
+            self.layoutSpecialKeysRow(row, modelToView: self.modelToView, gapWidth: keyGaps, leftSideRatio: CGFloat(0.25), spaceRatio: CGFloat(0.5), frame: frame)
         }
     }
     
@@ -368,17 +368,27 @@ class KeyboardLayout: KeyboardKeyProtocol {
         }
     }
     
-    func layoutSpecialKeysRow(row: [Key], modelToView: [Key:KeyboardKey], gapWidth: CGFloat, spaceRatio: CGFloat, frame: CGRect) {
+    func layoutSpecialKeysRow(row: [Key], modelToView: [Key:KeyboardKey], gapWidth: CGFloat, leftSideRatio: CGFloat, spaceRatio: CGFloat, frame: CGRect) {
+        assert(row.count == 4, "no support for more than 4 keys on bottom row yet")
+        
         let keyCount = row.count
+        let leftSideWidth = (frame.width * leftSideRatio)
+        let leftSideIndividualKeyWidth = (leftSideWidth - gapWidth) / CGFloat(2)
         let spaceWidth = (frame.width * spaceRatio)
-        let otherKeyWidth = (frame.width - CGFloat(keyCount - 1) * gapWidth - spaceWidth) / CGFloat(keyCount - 1)
+        let otherKeyWidth = (frame.width - leftSideWidth - spaceWidth - gapWidth * CGFloat(2))
         
         var currentOrigin = frame.origin.x
+        var beforeSpace: Bool = true
         for (k, key) in enumerate(row) {
             if let view = modelToView[key] {
                 if key.type == Key.KeyType.Space {
                     view.frame = CGRectMake(currentOrigin, frame.origin.y, spaceWidth, frame.height)
                     currentOrigin += (spaceWidth + gapWidth)
+                    beforeSpace = false
+                }
+                else if beforeSpace {
+                    view.frame = CGRectMake(currentOrigin, frame.origin.y, leftSideIndividualKeyWidth, frame.height)
+                    currentOrigin += (leftSideIndividualKeyWidth + gapWidth)
                 }
                 else {
                     view.frame = CGRectMake(currentOrigin, frame.origin.y, otherKeyWidth, frame.height)
