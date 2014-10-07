@@ -107,6 +107,8 @@ class KeyboardLayout: KeyboardKeyProtocol {
         self.superview = superview
         self.topBanner = topBanner
         self.banner = banner
+        
+        self.superview.addSubview(banner)
     }
     
     func initialize() {
@@ -247,6 +249,8 @@ class KeyboardLayout: KeyboardKeyProtocol {
             let boundsRatio = bounds.width / bounds.height
             return (boundsRatio >= layoutConstants.landscapeRatio)
         }()
+        
+        self.banner?.frame = CGRectMake(0, 0, self.superview.bounds.width, self.topBanner)
         
         for page in model.pages {
             let numRows = page.rows.count
