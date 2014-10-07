@@ -13,19 +13,13 @@ var DEBUG_SHOW_SPACERS = false
 // TODO: create class from layout dictionary?
 
 struct layoutConstants {
-//    let sideEdgesNormal: CGFloat = 3
-//    let sideEdgesLarge: CGFloat = 4
-//    let sideEdgesLargeThreshhold: CGFloat =
-//    let topEdgePortraitNormal: CGFloat = 12
-//    let topEdgePortraitSmall: CGFloat = 10
-//    let topEdgePortraitSmallest: CGFloat = 8
-//    let topEdgeLandscapeNormal: CGFloat = 6
-//    let topEdgeLarge: CGFloat = 12
-    
     static let landscapeRatio: CGFloat = 2
     
-    static let sideEdges: CGFloat = 3
-    static let topEdgePortrait: CGFloat = 10
+    static let sideEdgesPortraitArray: [CGFloat] = [3, 4]
+    static let sideEdgesPortraitWidthThreshholds: [CGFloat] = [700]
+    static let sideEdgesLandscape: CGFloat = 3
+    static let topEdgePortraitArray: [CGFloat] = [12, 10, 8]
+    static let topEdgePortraitWidthThreshholds: [CGFloat] = [350, 400]
     static let topEdgeLandscape: CGFloat = 6
     
     static let rowGapsPortrait: CGFloat = 15
@@ -34,10 +28,21 @@ struct layoutConstants {
     static let keyGaps: CGFloat = 6
     static let keyGapsSmall: CGFloat = 5
     static let keyGapsSmallThreshhold: CGFloat = 10
+    
+    static func sideEdgesPortrait(width: CGFloat) -> CGFloat { return self.findThreshhold(self.sideEdgesPortraitArray, threshholds: self.sideEdgesPortraitWidthThreshholds, measurement: width) }
+    static func topEdgePortrait(width: CGFloat) -> CGFloat { return self.findThreshhold(self.topEdgePortraitArray, threshholds: self.topEdgePortraitWidthThreshholds, measurement: width) }
+    
+    static func findThreshhold(elements: [CGFloat], threshholds: [CGFloat], measurement: CGFloat) -> CGFloat {
+        assert(elements.count == threshholds.count + 1, "elements and threshholds do not match")
+        for (i, threshhold) in enumerate(reverse(threshholds)) {
+            if measurement >= threshhold {
+                let actualIndex = threshholds.count - i
+                return elements[actualIndex]
+            }
+        }
+        return elements[0]
+    }
 }
-
-
-
 
 let globalLayout: [String:Double] = [
     "leftGap": 3,
@@ -264,10 +269,10 @@ class KeyboardLayout: KeyboardKeyProtocol {
             }()
             
             // measurement
-            let sideEdges = layoutConstants.sideEdges
+            let sideEdges = (isLandscape ? layoutConstants.sideEdgesPortrait(bounds.width) : layoutConstants.sideEdgesLandscape)
 
             // measurement
-            let topEdge: CGFloat = ((isLandscape ? layoutConstants.topEdgeLandscape : layoutConstants.topEdgePortrait) + self.topBanner)
+            let topEdge: CGFloat = ((isLandscape ? layoutConstants.topEdgeLandscape : layoutConstants.topEdgePortrait(bounds.width)) + self.topBanner)
             
             // measurement
             let rowGaps: CGFloat = (isLandscape ? layoutConstants.rowGapsLandscape : layoutConstants.rowGapsPortrait)
