@@ -105,13 +105,13 @@ class KeyboardKey: UIControl, KeyboardView {
         super.init(frame: frame)
         
         self.clipsToBounds = false
-        self.keyView.setTranslatesAutoresizingMaskIntoConstraints(false)
+//        self.keyView.setTranslatesAutoresizingMaskIntoConstraints(false)
         self.addSubview(self.keyView)
         
-        self.addConstraint(NSLayoutConstraint(item: self, attribute: NSLayoutAttribute.Width, relatedBy: NSLayoutRelation.Equal, toItem: self.keyView, attribute: NSLayoutAttribute.Width, multiplier: 1, constant: 0))
-        self.addConstraint(NSLayoutConstraint(item: self, attribute: NSLayoutAttribute.Height, relatedBy: NSLayoutRelation.Equal, toItem: self.keyView, attribute: NSLayoutAttribute.Height, multiplier: 1, constant: 0))
-        self.addConstraint(NSLayoutConstraint(item: self, attribute: NSLayoutAttribute.Bottom, relatedBy: NSLayoutRelation.Equal, toItem: self.keyView, attribute: NSLayoutAttribute.Bottom, multiplier: 1, constant: 0))
-        self.addConstraint(NSLayoutConstraint(item: self, attribute: NSLayoutAttribute.Left, relatedBy: NSLayoutRelation.Equal, toItem: self.keyView, attribute: NSLayoutAttribute.Left, multiplier: 1, constant: 0))
+//        self.addConstraint(NSLayoutConstraint(item: self, attribute: NSLayoutAttribute.Width, relatedBy: NSLayoutRelation.Equal, toItem: self.keyView, attribute: NSLayoutAttribute.Width, multiplier: 1, constant: 0))
+//        self.addConstraint(NSLayoutConstraint(item: self, attribute: NSLayoutAttribute.Height, relatedBy: NSLayoutRelation.Equal, toItem: self.keyView, attribute: NSLayoutAttribute.Height, multiplier: 1, constant: 0))
+//        self.addConstraint(NSLayoutConstraint(item: self, attribute: NSLayoutAttribute.Bottom, relatedBy: NSLayoutRelation.Equal, toItem: self.keyView, attribute: NSLayoutAttribute.Bottom, multiplier: 1, constant: 0))
+//        self.addConstraint(NSLayoutConstraint(item: self, attribute: NSLayoutAttribute.Left, relatedBy: NSLayoutRelation.Equal, toItem: self.keyView, attribute: NSLayoutAttribute.Left, multiplier: 1, constant: 0))
         
         self.ambiguityTimer = NSTimer.scheduledTimerWithTimeInterval(0.1, target: self, selector: "timerLoop", userInfo: nil, repeats: true)
         
@@ -147,6 +147,8 @@ class KeyboardKey: UIControl, KeyboardView {
     override func layoutSubviews() {
         super.layoutSubviews()
 //        NSLog("updating subviews: \(self)")
+        
+        self.keyView.frame = self.bounds
         
         if self.popup != nil && self.popupDirection == nil {
             self.popupDirection = Direction.Up
@@ -238,6 +240,11 @@ class KeyboardKey: UIControl, KeyboardView {
     
     func setupPopupConstraints(dir: Direction) {
         assert(self.popup != nil, "popup not found")
+        
+        self.popup?.frame = self.bounds
+        self.popup?.center = CGPointMake(self.bounds.width / CGFloat(2), -self.bounds.height - 5)
+        
+        return;
         
         for (view, constraint) in self.constraintStore {
             view.removeConstraint(constraint)
@@ -349,7 +356,7 @@ class KeyboardKey: UIControl, KeyboardView {
             self.layer.zPosition = 1000
             
             self.popup = KeyboardKeyBackground(frame: CGRectZero)
-            self.popup!.setTranslatesAutoresizingMaskIntoConstraints(false)
+//            self.popup!.setTranslatesAutoresizingMaskIntoConstraints(false)
             self.popup!.cornerRadius = 9.0
             self.addSubview(self.popup!)
             

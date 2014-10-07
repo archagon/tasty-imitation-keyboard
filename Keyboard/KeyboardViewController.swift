@@ -150,9 +150,15 @@ class KeyboardViewController: UIInputViewController {
         self.setupConstraints()
     }
     
+    var oldBounds: CGRect?
     override func viewDidLayoutSubviews() {
-        self.forwardingView.frame = self.view.bounds
-        self.layout.layoutTemp()
+        // when a key gets a popup added, we don't want the entire layout to be redone
+        if oldBounds == nil || oldBounds! != self.view.bounds {
+            self.forwardingView.frame = self.view.bounds
+            self.layout.layoutTemp()
+            
+            oldBounds = self.view.bounds
+        }
     }
     
     override func viewDidAppear(animated: Bool) {

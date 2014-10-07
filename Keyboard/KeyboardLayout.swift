@@ -329,6 +329,26 @@ class KeyboardLayout: KeyboardKeyProtocol {
         self.layoutKeys(self.model, views: self.modelToView, bounds: self.superview.bounds)
     }
     
+    class KeyboardConstraint {
+        var subConstraints: [KeyboardConstraint] = []
+        var views: [UIView] = []
+        
+        func resolve() {
+            for constraint in self.subConstraints {
+                constraint.resolve()
+            }
+        }
+    }
+    
+    class ConstraintSpace: KeyboardConstraint {
+    }
+
+    class ConstraintFlexibleSpecialKeys: KeyboardConstraint {
+    }
+    
+    class ConstraintCharacters: KeyboardConstraint {
+    }
+    
     func layoutKeys(model: Keyboard, views: [Key:KeyboardKey], bounds: CGRect) {
         let isLandscape: Bool = {
             let boundsRatio = bounds.width / bounds.height
