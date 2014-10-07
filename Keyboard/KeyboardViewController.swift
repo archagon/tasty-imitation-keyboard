@@ -96,6 +96,7 @@ class KeyboardViewController: UIInputViewController {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
         
         self.layout = KeyboardLayout(model: self.keyboard, superview: self.forwardingView, topBanner: 0, banner: self.banner())
+        self.layout.banner?.hidden = true
         self.view.addSubview(self.forwardingView)
         
         self.view.setNeedsUpdateConstraints()
@@ -172,6 +173,7 @@ class KeyboardViewController: UIInputViewController {
     }
     
     override func viewDidAppear(animated: Bool) {
+        self.layout.banner?.hidden = false
         self.keyboardHeight = self.heightForOrientation(self.interfaceOrientation)
         self.layout.topBanner = metric("topBanner")
     }
@@ -182,7 +184,7 @@ class KeyboardViewController: UIInputViewController {
     }
     
     func heightForOrientation(orientation: UIInterfaceOrientation) -> CGFloat {
-        let canonicalPortraitHeight = CGFloat(216) //TODO: different size for 6+
+        let canonicalPortraitHeight = CGFloat(orientation.isPortrait && self.view.bounds.width >= 400 ? 226 : 216) //TODO: hack for 6+
         let canonicalLandscapeHeight = CGFloat(162)
         return CGFloat(orientation.isPortrait ? canonicalPortraitHeight + metric("topBanner") : canonicalLandscapeHeight + metric("topBanner"))
     }
