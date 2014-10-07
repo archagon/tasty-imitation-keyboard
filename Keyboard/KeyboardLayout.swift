@@ -394,56 +394,108 @@ class KeyboardLayout: KeyboardKeyProtocol {
             }()
             
             for (r, row) in enumerate(page.rows) {
-                let numKeysInRow = row.count
+                let frame = CGRectMake(sideEdges, topEdge + CGFloat(r) * (keyHeight + rowGaps), self.superview.bounds.width - CGFloat(2) * sideEdges, keyHeight)
+                self.handleRow(row, keyGaps: keyGaps, letterKeyWidth: letterKeyWidth, frame: frame)
                 
-                // running offsets from both sides
-                var offsets: (left: CGFloat, right: CGFloat) = (sideEdges, bounds.width - sideEdges)
-                
-                // if we're processing a span of character keys, this has the start and end indices of the range
-                var inCharacterRange: Bool = false
-                
-                for (k, key) in enumerate(row) {
-                    
-                    // character range state processing
-                    if !inCharacterRange {
-                        if key.type == Key.KeyType.Character {
-                            var endIndex = 0
-                            
-                            for (var k2: Int = k; k2 < row.count ; k2 += 1) {
-                                let key2 = row[k2]
-                                if key2.type == Key.KeyType.Character {
-                                    endIndex = k2
-                                }
-                                else {
-                                    break
-                                }
-                            }
-                            
-                            // ASSUMPTION: only one span per row
-                            let numberOfCharactersInSpan = (endIndex + 1) - k
-                            let sizeOfSpan = CGFloat(numberOfCharactersInSpan) * letterKeyWidth + CGFloat(numberOfCharactersInSpan - 1) * keyGaps
-                            let sizeDiff = ((offsets.right - offsets.left) - sizeOfSpan) / CGFloat(2)
-                            
-//                            assert(sizeDiff > 0, "character row does not fit in layout")
-                            
-                            offsets.left += sizeDiff
-                            offsets.right -= sizeDiff
-                        }
-                    }
-                    else {
-                        if key.type != Key.KeyType.Character {
-                            inCharacterRange = false
-                        }
-                    }
-                    
-                    var view = views[key]
-                    
-                    let verticalOffset = topEdge + CGFloat(r) * (keyHeight + rowGaps)
-                    let horizontalOffset = offsets.left
-
-                    view?.frame = CGRectMake(horizontalOffset, verticalOffset, letterKeyWidth, keyHeight)
-                    
-                    offsets.left += (letterKeyWidth + keyGaps)
+//                for (k, key) in enumerate(row) {
+//                    
+//                    // character range state processing
+//                    if !inCharacterRange {
+//                        if key.type == Key.KeyType.Character {
+//                            var endIndex = 0
+//                            
+//                            for (var k2: Int = k; k2 < row.count ; k2 += 1) {
+//                                let key2 = row[k2]
+//                                if key2.type == Key.KeyType.Character {
+//                                    endIndex = k2
+//                                }
+//                                else {
+//                                    break
+//                                }
+//                            }
+//                            
+//                            // ASSUMPTION: only one span per row
+//                            let numberOfCharactersInSpan = (endIndex + 1) - k
+//                            let sizeOfSpan = CGFloat(numberOfCharactersInSpan) * letterKeyWidth + CGFloat(numberOfCharactersInSpan - 1) * keyGaps
+//                            let sizeDiff = ((offsets.right - offsets.left) - sizeOfSpan) / CGFloat(2)
+//                            
+////                            assert(sizeDiff > 0, "character row does not fit in layout")
+//                            
+//                            offsets.left += sizeDiff
+//                            offsets.right -= sizeDiff
+//                        }
+//                    }
+//                    else {
+//                        if key.type != Key.KeyType.Character {
+//                            inCharacterRange = false
+//                        }
+//                    }
+//                    
+//                    var view = views[key]
+//                    
+//                    let verticalOffset = topEdge + CGFloat(r) * (keyHeight + rowGaps)
+//                    let horizontalOffset = offsets.left
+//
+//                    view?.frame = CGRectMake(horizontalOffset, verticalOffset, letterKeyWidth, keyHeight)
+//                    
+//                    offsets.left += (letterKeyWidth + keyGaps)
+//                }
+            }
+        }
+    }
+    
+    func handleRow(row: [Key], keyGaps: CGFloat, letterKeyWidth: CGFloat, frame: CGRect) {
+        // quick heuristics for default keyboard rows
+        if row[0].type == Key.KeyType.Character {
+            self.layoutCharacterRow(row, modelToView: self.modelToView, keyWidth: letterKeyWidth, gapWidth: keyGaps, frame: frame)
+        }
+        else if row[0].type == Key.KeyType.Shift {
+            self.layoutCharacterWithSidesRow(row, modelToView: self.modelToView, keyWidth: letterKeyWidth, gapWidth: keyGaps, otherKeyRatio: CGFloat(0.75), frame: frame)
+        }
+        else {
+            self.layoutSpecialKeysRow(row, modelToView: self.modelToView, gapWidth: keyGaps, spaceRatio: CGFloat(0.4), frame: frame)
+        }
+    }
+    
+    func layoutCharacterRow(row: [Key], modelToView: [Key:KeyboardKey], keyWidth: CGFloat, gapWidth: CGFloat, frame: CGRect) {
+        let keySpace = CGFloat(row.count) * keyWidth + CGFloat(row.count - 1) * gapWidth
+        let sideSpace = (frame.width - keySpace) / CGFloat(2)
+        
+        for (k, key) in enumerate(row) {
+            if let view = modelToView[key] {
+                let origin = frame.origin.x + sideSpace + CGFloat(k) * (keyWidth + gapWidth)
+                view.frame = CGRectMake(origin, frame.origin.y, keyWidth, frame.height)
+            }
+        }
+    }
+    
+    func layoutCharacterWithSidesRow(row: [Key], modelToView: [Key:KeyboardKey], keyWidth: CGFloat, gapWidth: CGFloat, otherKeyRatio: CGFloat, frame: CGRect) {
+        let keySpace = CGFloat(row.count) * keyWidth + CGFloat(row.count - 1) * gapWidth
+        let sideSpace = (frame.width - keySpace) / CGFloat(2)
+        
+        for (k, key) in enumerate(row) {
+            if let view = modelToView[key] {
+                let origin = frame.origin.x + sideSpace + CGFloat(k) * (keyWidth + gapWidth)
+                view.frame = CGRectMake(origin, frame.origin.y, keyWidth, frame.height)
+            }
+        }
+    }
+    
+    func layoutSpecialKeysRow(row: [Key], modelToView: [Key:KeyboardKey], gapWidth: CGFloat, spaceRatio: CGFloat, frame: CGRect) {
+        let keyCount = row.count
+        let spaceWidth = (frame.width * spaceRatio)
+        let otherKeyWidth = (frame.width - CGFloat(keyCount - 1) * gapWidth - spaceWidth) / CGFloat(keyCount - 1)
+        
+        var currentOrigin = frame.origin.x
+        for (k, key) in enumerate(row) {
+            if let view = modelToView[key] {
+                if key.type == Key.KeyType.Space {
+                    view.frame = CGRectMake(currentOrigin, frame.origin.y, spaceWidth, frame.height)
+                    currentOrigin += (spaceWidth + gapWidth)
+                }
+                else {
+                    view.frame = CGRectMake(currentOrigin, frame.origin.y, otherKeyWidth, frame.height)
+                    currentOrigin += (otherKeyWidth + gapWidth)
                 }
             }
         }
