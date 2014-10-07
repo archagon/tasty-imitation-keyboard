@@ -44,6 +44,13 @@ struct layoutConstants {
     // TODO: wider row gap on 6L
     static let keyCompressedThreshhold: Int = 11
     
+    // rows with two special keys on the side and characters in the middle (usually 3rd row)
+    // TODO: these are not pixel-perfect, but should be correct within a few pixels
+    static let flexibleEndRowTotalWidthToKeyWidthMPortrait: CGFloat = 1
+    static let flexibleEndRowTotalWidthToKeyWidthCPortrait: CGFloat = -14
+    static let flexibleEndRowTotalWidthToKeyWidthMLandscape: CGFloat = 0.9231
+    static let flexibleEndRowTotalWidthToKeyWidthCLandscape: CGFloat = -9.4615
+    
     static func sideEdgesPortrait(width: CGFloat) -> CGFloat { return self.findThreshhold(self.sideEdgesPortraitArray, threshholds: self.sideEdgesPortraitWidthThreshholds, measurement: width) }
     static func topEdgePortrait(width: CGFloat) -> CGFloat { return self.findThreshhold(self.topEdgePortraitArray, threshholds: self.topEdgePortraitWidthThreshholds, measurement: width) }
     static func rowGapPortrait(width: CGFloat) -> CGFloat { return self.findThreshhold(self.rowGapPortraitArray, threshholds: self.rowGapPortraitThreshholds, measurement: width) }
@@ -310,53 +317,48 @@ class KeyboardLayout: KeyboardKeyProtocol {
                 return currentMax
             }()
             
-            // measurement
             var sideEdges = (isLandscape ? layoutConstants.sideEdgesPortrait(bounds.width) : layoutConstants.sideEdgesLandscape)
             
-            // measurement
             let bottomEdge = sideEdges
             
             let normalKeyboardSize = bounds.width - CGFloat(2) * sideEdges
             
-            // measurement
             let shrunkKeyboardSize = layoutConstants.keyboardShrunkSize(normalKeyboardSize)
             
             sideEdges += ((normalKeyboardSize - shrunkKeyboardSize) / CGFloat(2))
 
-            // measurement
             let topEdge: CGFloat = ((isLandscape ? layoutConstants.topEdgeLandscape : layoutConstants.topEdgePortrait(bounds.width)) + self.topBanner)
             
-            // measurement
             let rowGap: CGFloat = (isLandscape ? layoutConstants.rowGapLandscape : layoutConstants.rowGapPortrait(bounds.width))
             let lastRowGap: CGFloat = (isLandscape ? rowGap : layoutConstants.rowGapPortraitLastRow(bounds.width))
             let rowGapTotal = CGFloat(numRows - 1 - 1) * rowGap + lastRowGap
             
-            // measurement
             let keyGap: CGFloat = (isLandscape ? layoutConstants.keyGapLandscape(bounds.width, rowCharacterCount: mostKeysInRow) : layoutConstants.keyGapPortrait(bounds.width, rowCharacterCount: mostKeysInRow))
             
-            // measurement
             let keyHeight: CGFloat = {
                 let totalGaps = bottomEdge + topEdge + rowGapTotal
                 return (bounds.height - totalGaps) / CGFloat(numRows)
             }()
             
-            // measurement
             let letterKeyWidth: CGFloat = {
                 let totalGaps = (sideEdges * CGFloat(2)) + (keyGap * CGFloat(mostKeysInRow - 1))
                 return (bounds.width - totalGaps) / CGFloat(mostKeysInRow)
             }()
             
+            let flexibleEndRowM = (isLandscape ? layoutConstants.flexibleEndRowTotalWidthToKeyWidthMLandscape : layoutConstants.flexibleEndRowTotalWidthToKeyWidthMPortrait)
+            let flexibleEndRowC = (isLandscape ? layoutConstants.flexibleEndRowTotalWidthToKeyWidthCLandscape : layoutConstants.flexibleEndRowTotalWidthToKeyWidthCPortrait)
+            
             for (r, row) in enumerate(page.rows) {
                 let rowGapCurrentTotal = (r == page.rows.count - 1 ? rowGapTotal : CGFloat(r) * rowGap)
                 let frame = CGRectMake(sideEdges, topEdge + (CGFloat(r) * keyHeight) + rowGapCurrentTotal, bounds.width - CGFloat(2) * sideEdges, keyHeight)
-                self.handleRow(row, keyGaps: keyGap, letterKeyWidth: letterKeyWidth, frame: frame)
+                self.handleRow(row, keyGaps: keyGap, letterKeyWidth: letterKeyWidth, m: flexibleEndRowM, c: flexibleEndRowC, frame: frame)
             }
         }
     }
     
     // quick heuristics for default keyboard rows
     // feel free to extend this method (calling super) with your own row layouts
-    func handleRow(row: [Key], keyGaps: CGFloat, letterKeyWidth: CGFloat, frame: CGRect) {
+    func handleRow(row: [Key], keyGaps: CGFloat, letterKeyWidth: CGFloat, m: CGFloat, c: CGFloat, frame: CGRect) {
         
         // basic character row: only typable characters
         if row[0].type == Key.KeyType.Character {
@@ -365,7 +367,7 @@ class KeyboardLayout: KeyboardKeyProtocol {
             
         // character row with side buttons: shift, backspace, etc.
         else if row[1].type == Key.KeyType.Character {
-            self.layoutCharacterWithSidesRow(row, modelToView: self.modelToView, keyWidth: letterKeyWidth, gapWidth: keyGaps, otherKeyRatio: CGFloat(0.75), frame: frame)
+            self.layoutCharacterWithSidesRow(row, modelToView: self.modelToView, keyWidth: letterKeyWidth, gapWidth: keyGaps, m: m, c: c, frame: frame)
         }
             
         // bottom row with things like space, return, etc.
@@ -390,11 +392,13 @@ class KeyboardLayout: KeyboardKeyProtocol {
         }
     }
     
-    func layoutCharacterWithSidesRow(row: [Key], modelToView: [Key:KeyboardKey], keyWidth: CGFloat, gapWidth: CGFloat, otherKeyRatio: CGFloat, frame: CGRect) {
+    func layoutCharacterWithSidesRow(row: [Key], modelToView: [Key:KeyboardKey], keyWidth: CGFloat, gapWidth: CGFloat, m: CGFloat, c: CGFloat, frame: CGRect) {
         let numCharacters = row.count - 2
         let keySpace = CGFloat(numCharacters) * keyWidth + CGFloat(numCharacters - 1) * gapWidth
         let sideSpace = (frame.width - keySpace) / CGFloat(2)
-        let specialCharacterWidth = sideSpace * otherKeyRatio
+        
+        var specialCharacterWidth = sideSpace * m + c
+        specialCharacterWidth = max(specialCharacterWidth, keyWidth)
         let specialCharacterGap = sideSpace - specialCharacterWidth
         
         var currentOrigin = frame.origin.x
