@@ -75,24 +75,6 @@ struct layoutConstants {
     }
 }
 
-let globalLayout: [String:Double] = [
-    "leftGap": 3,
-    "rightGap": 3,
-    "topGap": 12,
-    "bottomGap": 3,
-    "keyWidthRatio": Double((26.0 / 320.0)), //QQQ: this was messing up code completion... don't ask
-    "keyHeightRatio": (39 / 216.0),
-    "landscapeKeyWidthRatio": (52 / 568.0),
-    "landscapeKeyHeightRatio": (33 / 162.0),
-    "popupKeyHeight": 53,
-    "keyGap": 6, // 5 for russian, though still 6 on lower row
-    "shiftAndBackspaceMaxWidth": 36,
-    "specialKeyWidth": 34,
-    "doneKeyWidth": 50,
-    //    "spaceWidth": 138,
-]
-func layoutMetric(name: String) -> CGFloat { return CGFloat(globalLayout[name]!) }
-
 let globalColors: [String:UIColor] = [
     "lightColor": UIColor.whiteColor(),
     "lightShadowColor": UIColor(hue: (220/360.0), saturation: 0.04, brightness: 0.56, alpha: 1),
@@ -111,11 +93,6 @@ class KeyboardLayout: KeyboardKeyProtocol {
     dynamic var colors: [String:UIColor] {
         get {
             return globalColors
-        }
-    }
-    dynamic var layout: [String:Double] {
-        get {
-            return globalLayout
         }
     }
     
