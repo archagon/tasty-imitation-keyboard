@@ -322,16 +322,29 @@ class KeyboardLayout: KeyboardKeyProtocol {
         let flexibleEndRowM = (isLandscape ? layoutConstants.flexibleEndRowTotalWidthToKeyWidthMLandscape : layoutConstants.flexibleEndRowTotalWidthToKeyWidthMPortrait)
         let flexibleEndRowC = (isLandscape ? layoutConstants.flexibleEndRowTotalWidthToKeyWidthCLandscape : layoutConstants.flexibleEndRowTotalWidthToKeyWidthCPortrait)
         
-        for page in model.pages {
-            let numRows = page.rows.count
-            
-            let mostKeysInRow: Int = {
-                var currentMax: Int = 0
+        let mostKeysInRow: Int = {
+            var currentMax: Int = 0
+            for page in model.pages {
                 for (i, row) in enumerate(page.rows) {
                     currentMax = max(currentMax, row.count)
                 }
-                return currentMax
-            }()
+            }
+            return currentMax
+        }()
+        
+        let charactersInDoubleSidedRowOnFirstPage: Int = {
+            var currentMax: Int = 0
+            for (i, row) in enumerate(model.pages[0].rows) {
+                if self.doubleSidedRowHeuristic(row) {
+                    currentMax = max(currentMax, row.count - 2)
+                }
+            }
+            return currentMax
+        }()
+        NSLog("double sided characters: \(charactersInDoubleSidedRowOnFirstPage)")
+        
+        for page in model.pages {
+            let numRows = page.rows.count
             
             let rowGapTotal = CGFloat(numRows - 1 - 1) * rowGap + lastRowGap
             
@@ -350,29 +363,51 @@ class KeyboardLayout: KeyboardKeyProtocol {
             for (r, row) in enumerate(page.rows) {
                 let rowGapCurrentTotal = (r == page.rows.count - 1 ? rowGapTotal : CGFloat(r) * rowGap)
                 let frame = CGRectMake(sideEdges, topEdge + (CGFloat(r) * keyHeight) + rowGapCurrentTotal, bounds.width - CGFloat(2) * sideEdges, keyHeight)
-                self.handleRow(row, keyGaps: keyGap, letterKeyWidth: letterKeyWidth, m: flexibleEndRowM, c: flexibleEndRowC, frame: frame)
+                
+                // basic character row: only typable characters
+                if self.characterRowHeuristic(row) {
+                    self.layoutCharacterRow(row, modelToView: self.modelToView, keyWidth: letterKeyWidth, gapWidth: keyGap, frame: frame)
+                }
+                    
+                    // character row with side buttons: shift, backspace, etc.
+                else if self.doubleSidedRowHeuristic(row) {
+                    self.layoutCharacterWithSidesRow(row, modelToView: self.modelToView, keyWidth: letterKeyWidth, gapWidth: keyGap, mostCharactersInRowInAllPages: charactersInDoubleSidedRowOnFirstPage, m: flexibleEndRowM, c: flexibleEndRowC, frame: frame)
+                }
+                    
+                    // bottom row with things like space, return, etc.
+                else {
+                    self.layoutSpecialKeysRow(row, modelToView: self.modelToView, gapWidth: keyGap, leftSideRatio: CGFloat(0.25), spaceRatio: CGFloat(0.5), frame: frame)
+                }
             }
         }
     }
     
     // quick heuristics for default keyboard rows
     // feel free to extend this method (calling super) with your own row layouts
-    func handleRow(row: [Key], keyGaps: CGFloat, letterKeyWidth: CGFloat, m: CGFloat, c: CGFloat, frame: CGRect) {
+    func handleRow(row: [Key], keyGaps: CGFloat, letterKeyWidth: CGFloat, mostCharactersInRowInAllPages: Int, m: CGFloat, c: CGFloat, frame: CGRect) {
         
         // basic character row: only typable characters
-        if row[0].type == Key.KeyType.Character {
+        if self.characterRowHeuristic(row) {
             self.layoutCharacterRow(row, modelToView: self.modelToView, keyWidth: letterKeyWidth, gapWidth: keyGaps, frame: frame)
         }
             
         // character row with side buttons: shift, backspace, etc.
-        else if row[1].type == Key.KeyType.Character {
-            self.layoutCharacterWithSidesRow(row, modelToView: self.modelToView, keyWidth: letterKeyWidth, gapWidth: keyGaps, m: m, c: c, frame: frame)
+        else if self.doubleSidedRowHeuristic(row) {
+            self.layoutCharacterWithSidesRow(row, modelToView: self.modelToView, keyWidth: letterKeyWidth, gapWidth: keyGaps, mostCharactersInRowInAllPages: mostCharactersInRowInAllPages, m: m, c: c, frame: frame)
         }
             
         // bottom row with things like space, return, etc.
         else {
             self.layoutSpecialKeysRow(row, modelToView: self.modelToView, gapWidth: keyGaps, leftSideRatio: CGFloat(0.25), spaceRatio: CGFloat(0.5), frame: frame)
         }
+    }
+    
+    func characterRowHeuristic(row: [Key]) -> Bool {
+        return (row.count >= 1 && row[0].type == Key.KeyType.Character)
+    }
+    
+    func doubleSidedRowHeuristic(row: [Key]) -> Bool {
+        return (row.count >= 3 && row[0].type != Key.KeyType.Character && row[1].type == Key.KeyType.Character)
     }
     
     func layoutCharacterRow(row: [Key], modelToView: [Key:KeyboardKey], keyWidth: CGFloat, gapWidth: CGFloat, frame: CGRect) {
@@ -391,9 +426,11 @@ class KeyboardLayout: KeyboardKeyProtocol {
         }
     }
     
-    func layoutCharacterWithSidesRow(row: [Key], modelToView: [Key:KeyboardKey], keyWidth: CGFloat, gapWidth: CGFloat, m: CGFloat, c: CGFloat, frame: CGRect) {
+    // TODO: pass in actual widths instead
+    func layoutCharacterWithSidesRow(row: [Key], modelToView: [Key:KeyboardKey], keyWidth: CGFloat, gapWidth: CGFloat, mostCharactersInRowInAllPages: Int, m: CGFloat, c: CGFloat, frame: CGRect) {
+        let keySpace = CGFloat(mostCharactersInRowInAllPages) * keyWidth + CGFloat(mostCharactersInRowInAllPages - 1) * gapWidth
         let numCharacters = row.count - 2
-        let keySpace = CGFloat(numCharacters) * keyWidth + CGFloat(numCharacters - 1) * gapWidth
+        let actualKeyWidth = (keySpace - CGFloat(numCharacters - 1) * gapWidth) / CGFloat(numCharacters)
         let sideSpace = (frame.width - keySpace) / CGFloat(2)
         
         var specialCharacterWidth = sideSpace * m + c
@@ -413,12 +450,12 @@ class KeyboardLayout: KeyboardKeyProtocol {
                     currentOrigin += specialCharacterWidth
                 }
                 else {
-                    view.frame = CGRectMake(currentOrigin, frame.origin.y, keyWidth, frame.height)
+                    view.frame = CGRectMake(currentOrigin, frame.origin.y, actualKeyWidth, frame.height)
                     if k == row.count - 2 {
-                        currentOrigin += (keyWidth)
+                        currentOrigin += (actualKeyWidth)
                     }
                     else {
-                        currentOrigin += (keyWidth + gapWidth)
+                        currentOrigin += (actualKeyWidth + gapWidth)
                     }
                 }
             }
