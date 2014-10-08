@@ -10,7 +10,7 @@ I'm working on a 3rd party keyboard for iOS8 and I want it to look and feel as c
 ## Fantastic Features
 
 * No bitmaps! Everything is rendered using CoreGraphics.
-* Autolayout galore! All the keys are laid out using autolayout constraints, meaning that the keyboard is much easier to extend.
+* Dynamic layouts! All the keys are laid out programmatically, meaning that the keyboard is much easier to extend and will automatically work on devices of all sizes.
 * This keyboard is an iOS8 extension.
 
 ## Current State
