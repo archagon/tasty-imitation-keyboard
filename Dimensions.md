@@ -131,6 +131,14 @@
 * Return: 74 x 39 (including gap)
 * Space: 154 x 39 (including gap)
 
+## Popups
+
+* total size: 102.5
+* 53 x ~55 (51 RU)
+* 8.5 connector
+* 32 height C
+
+
 ## Sizes
 
 * Number key: 24 x 12
@@ -167,6 +175,13 @@
 * Return: 89 x 33 (including gap)
 * Space: 280 x 33 (including gap)
 
+## Popups
+
+* total size: 102.5
+* 69 x ~60 (66 RU)
+* 9.5 connector
+* ~34 height C
+
 ## Sizes
 
 * Number key: 24 x 12
@@ -201,6 +216,13 @@
 * Return: 107 x 33 (including gap)
 * Space: 335 x 33 (including gap)
 
+## Popups
+
+* total size: 102.5
+* 79 x ~60 (74 RU)
+* 9.5 connector
+* ~34 height C
+
 ## Sizes
 
 * Number key: 24 x 12
@@ -234,6 +256,13 @@
 * Special keys: 40.5-41 x 43 (including gap)
 * Return: 87.5 x 43
 * Space: 182.5 x 43
+
+## Popups
+
+* total size: 108.5
+* 58.5 x ~57 (55 RU)
+* 8.5 connector
+* ~30.5 height X
 
 ## Sizes
 
@@ -277,6 +306,13 @@
 * Return: 99 x 33
 * Space: 310 x 33
 
+## Popups
+
+* total size: 108.5
+* 74 x ~67 (70 RU)
+* 8.5 connector
+* ~37 height C (35 russian C)
+
 ---
 
 # iPhone 6+
@@ -303,6 +339,12 @@
 * Special keys: 46 x 46
 * Return: 97 x 46
 * Space: 199 x 46
+
+## Popups
+
+* total size: 108 2/3
+* 61+border x ~53+border (57 RU)
+* ~28 height X (29 C RU)
 
 ## Sizes
 
@@ -343,3 +385,9 @@
 * Special keys: 48 x 33 (including gap)
 * Return: 99 x 33
 * Space: 314 x 33
+
+## Popups
+
+* total size: 108 2/3
+* 74+border x ~66+border (69 RU)
+* ~34 height X (35 C RU)
