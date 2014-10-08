@@ -8,6 +8,7 @@
 
 import UIKit
 
+// TODO: need to rename, consolidate, and define terms
 struct layoutConstants {
     static let landscapeRatio: CGFloat = 2
     
@@ -51,6 +52,15 @@ struct layoutConstants {
     static let flexibleEndRowTotalWidthToKeyWidthCPortrait: CGFloat = -14
     static let flexibleEndRowTotalWidthToKeyWidthMLandscape: CGFloat = 0.9231
     static let flexibleEndRowTotalWidthToKeyWidthCLandscape: CGFloat = -9.4615
+    
+    static let lastRowKeyGapPortrait: CGFloat = 6
+    static let lastRowKeyGapLandscapeArray: [CGFloat] = [8, 7, 5]
+    static let lastRowKeyGapLandscapeWidthThreshholds: [CGFloat] = [500, 700]
+    
+    static let lastRowPortraitFirstTwoButtonAreaWidthToKeyboardAreaWidth: CGFloat = 0.24 // TODO: approxmiate, but close enough
+    static let lastRowLandscapeFirstTwoButtonAreaWidthToKeyboardAreaWidth: CGFloat = 0.19 // TODO: approxmiate, but close enough
+    static let lastRowPortraitLastButtonAreaWidthToKeyboardAreaWidth: CGFloat = 0.5
+    static let lastRowLandscapeLastButtonAreaWidthToKeyboardAreaWidth: CGFloat = 0.5
     
     static let popupGap: CGFloat = 8 // TODO: not exactly precise
     static let popupWidthIncrement: CGFloat = 26
@@ -100,6 +110,10 @@ struct layoutConstants {
         else {
             return self.keyGapLandscapeNormal
         }
+    }
+    
+    static func lastRowKeyGapLandscape(width: CGFloat) -> CGFloat {
+        return self.findThreshhold(self.lastRowKeyGapLandscapeArray, threshholds: self.lastRowKeyGapLandscapeWidthThreshholds, measurement: width)
     }
     
     static func keyboardIsShrunk(width: CGFloat) -> Bool {
@@ -338,6 +352,10 @@ class KeyboardLayout: KeyboardKeyProtocol {
         let flexibleEndRowM = (isLandscape ? layoutConstants.flexibleEndRowTotalWidthToKeyWidthMLandscape : layoutConstants.flexibleEndRowTotalWidthToKeyWidthMPortrait)
         let flexibleEndRowC = (isLandscape ? layoutConstants.flexibleEndRowTotalWidthToKeyWidthCLandscape : layoutConstants.flexibleEndRowTotalWidthToKeyWidthCPortrait)
         
+        let lastRowLeftSideRatio = (isLandscape ? layoutConstants.lastRowLandscapeFirstTwoButtonAreaWidthToKeyboardAreaWidth : layoutConstants.lastRowPortraitFirstTwoButtonAreaWidthToKeyboardAreaWidth)
+        let lastRowRightSideRatio = (isLandscape ? layoutConstants.lastRowLandscapeLastButtonAreaWidthToKeyboardAreaWidth : layoutConstants.lastRowPortraitLastButtonAreaWidthToKeyboardAreaWidth)
+        let lastRowKeyGap = (isLandscape ? layoutConstants.lastRowKeyGapLandscape(bounds.width) : layoutConstants.lastRowKeyGapPortrait)
+        
         let mostKeysInRow: Int = {
             var currentMax: Int = 0
             for page in model.pages {
@@ -391,7 +409,7 @@ class KeyboardLayout: KeyboardKeyProtocol {
                     
                     // bottom row with things like space, return, etc.
                 else {
-                    self.layoutSpecialKeysRow(row, modelToView: self.modelToView, gapWidth: keyGap, leftSideRatio: CGFloat(0.25), spaceRatio: CGFloat(0.5), frame: frame)
+                    self.layoutSpecialKeysRow(row, modelToView: self.modelToView, gapWidth: lastRowKeyGap, leftSideRatio: lastRowLeftSideRatio, rightSideRatio: lastRowRightSideRatio, frame: frame)
                 }
             }
         }
@@ -460,14 +478,32 @@ class KeyboardLayout: KeyboardKeyProtocol {
         }
     }
     
-    func layoutSpecialKeysRow(row: [Key], modelToView: [Key:KeyboardKey], gapWidth: CGFloat, leftSideRatio: CGFloat, spaceRatio: CGFloat, frame: CGRect) {
-        assert(row.count == 4, "no support for more than 4 keys on bottom row yet")
+    func layoutSpecialKeysRow(row: [Key], modelToView: [Key:KeyboardKey], gapWidth: CGFloat, leftSideRatio: CGFloat, rightSideRatio: CGFloat, frame: CGRect) {
+        var keysBeforeSpace = 0
+        var keysAfterSpace = 0
+        var reachedSpace = false
+        for (k, key) in enumerate(row) {
+            if key.type == Key.KeyType.Space {
+                reachedSpace = true
+            }
+            else {
+                if !reachedSpace {
+                    keysBeforeSpace += 1
+                }
+                else {
+                    keysAfterSpace += 1
+                }
+            }
+        }
         
-        let keyCount = row.count
-        let leftSideWidth = (frame.width * leftSideRatio)
-        let leftSideIndividualKeyWidth = (leftSideWidth - gapWidth) / CGFloat(2)
-        let spaceWidth = (frame.width * spaceRatio)
-        let otherKeyWidth = (frame.width - leftSideWidth - spaceWidth - gapWidth * CGFloat(2))
+        assert(keysBeforeSpace == 2, "invalid number of keys before space (only default 2 currently supported)")
+        assert(keysAfterSpace == 1, "invalid number of keys after space (only default 1 currently supported)")
+        
+        let leftSideAreaWidth = frame.width * leftSideRatio
+        let rightSideAreaWidth = frame.width * rightSideRatio
+        let leftButtonWidth = (leftSideAreaWidth - (gapWidth * CGFloat(keysBeforeSpace - 1))) / CGFloat(keysBeforeSpace)
+        let rightButtonWidth = (rightSideAreaWidth - (gapWidth * CGFloat(keysAfterSpace - 1))) / CGFloat(keysAfterSpace)
+        let spaceWidth = frame.width - leftSideAreaWidth - rightSideAreaWidth - gapWidth * CGFloat(2)
         
         var currentOrigin = frame.origin.x
         var beforeSpace: Bool = true
@@ -479,12 +515,12 @@ class KeyboardLayout: KeyboardKeyProtocol {
                     beforeSpace = false
                 }
                 else if beforeSpace {
-                    view.frame = CGRectMake(currentOrigin, frame.origin.y, leftSideIndividualKeyWidth, frame.height)
-                    currentOrigin += (leftSideIndividualKeyWidth + gapWidth)
+                    view.frame = CGRectMake(currentOrigin, frame.origin.y, leftButtonWidth, frame.height)
+                    currentOrigin += (leftButtonWidth + gapWidth)
                 }
                 else {
-                    view.frame = CGRectMake(currentOrigin, frame.origin.y, otherKeyWidth, frame.height)
-                    currentOrigin += (otherKeyWidth + gapWidth)
+                    view.frame = CGRectMake(currentOrigin, frame.origin.y, rightButtonWidth, frame.height)
+                    currentOrigin += (rightButtonWidth + gapWidth)
                 }
             }
             else {
