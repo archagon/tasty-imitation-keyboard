@@ -27,6 +27,7 @@ import UIKit
 
 // popup constraints have to be setup with the superview in mind; hence these callbacks
 protocol KeyboardKeyProtocol {
+    func frameForPopup(key: KeyboardKey, direction: Direction) -> CGRect
     func willShowPopup(key: KeyboardKey, direction: Direction) //may be called multiple times during layout
     func willHidePopup(key: KeyboardKey)
 }
@@ -210,13 +211,15 @@ class KeyboardKey: UIControl, KeyboardView {
     func layoutPopup(dir: Direction) {
         assert(self.popup != nil, "popup not found")
         
-        let multiplier: CGSize = CGSizeMake(2, 1.5)
-        let gap: CGFloat = 8
-        let gapMinimum: CGFloat = 3
-        
         if let popup = self.popup {
-            popup.frame.size = CGSizeMake(self.bounds.width * multiplier.width, self.bounds.height * multiplier.height)
-            popup.center = CGPointMake(self.bounds.width / CGFloat(2), -popup.bounds.height / CGFloat(2) - gap)
+            if let delegate = self.delegate {
+                let frame = delegate.frameForPopup(self, direction: dir)
+                popup.frame = frame
+            }
+            else {
+                popup.frame = CGRectZero
+                popup.center = self.center
+            }
         }
     }
     

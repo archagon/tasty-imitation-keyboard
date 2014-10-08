@@ -46,14 +46,26 @@ struct layoutConstants {
     
     // rows with two special keys on the side and characters in the middle (usually 3rd row)
     // TODO: these are not pixel-perfect, but should be correct within a few pixels
+    // TODO: are there any "hidden constants" that would allow us to get rid of the multiplier? see: popup dimensions
     static let flexibleEndRowTotalWidthToKeyWidthMPortrait: CGFloat = 1
     static let flexibleEndRowTotalWidthToKeyWidthCPortrait: CGFloat = -14
     static let flexibleEndRowTotalWidthToKeyWidthMLandscape: CGFloat = 0.9231
     static let flexibleEndRowTotalWidthToKeyWidthCLandscape: CGFloat = -9.4615
     
-    static func sideEdgesPortrait(width: CGFloat) -> CGFloat { return self.findThreshhold(self.sideEdgesPortraitArray, threshholds: self.sideEdgesPortraitWidthThreshholds, measurement: width) }
-    static func topEdgePortrait(width: CGFloat) -> CGFloat { return self.findThreshhold(self.topEdgePortraitArray, threshholds: self.topEdgePortraitWidthThreshholds, measurement: width) }
-    static func rowGapPortrait(width: CGFloat) -> CGFloat { return self.findThreshhold(self.rowGapPortraitArray, threshholds: self.rowGapPortraitThreshholds, measurement: width) }
+    static let popupGap: CGFloat = 8 // TODO: not exactly precise
+    static let popupWidthIncrement: CGFloat = 26
+    static let popupTotalHeightArray: [CGFloat] = [102, 108]
+    static let popupTotalHeightDeviceWidthThreshholds: [CGFloat] = [350]
+    
+    static func sideEdgesPortrait(width: CGFloat) -> CGFloat {
+        return self.findThreshhold(self.sideEdgesPortraitArray, threshholds: self.sideEdgesPortraitWidthThreshholds, measurement: width)
+    }
+    static func topEdgePortrait(width: CGFloat) -> CGFloat {
+        return self.findThreshhold(self.topEdgePortraitArray, threshholds: self.topEdgePortraitWidthThreshholds, measurement: width)
+    }
+    static func rowGapPortrait(width: CGFloat) -> CGFloat {
+        return self.findThreshhold(self.rowGapPortraitArray, threshholds: self.rowGapPortraitThreshholds, measurement: width)
+    }
     
     static func rowGapPortraitLastRow(width: CGFloat) -> CGFloat {
         let index = self.findThreshholdIndex(self.rowGapPortraitThreshholds, measurement: width)
@@ -100,6 +112,10 @@ struct layoutConstants {
         else {
             return width
         }
+    }
+    
+    static func popupTotalHeight(deviceWidth: CGFloat) -> CGFloat {
+        return self.findThreshhold(self.popupTotalHeightArray, threshholds: self.popupTotalHeightDeviceWidthThreshholds, measurement: deviceWidth)
     }
     
     static func findThreshhold(elements: [CGFloat], threshholds: [CGFloat], measurement: CGFloat) -> CGFloat {
@@ -480,6 +496,17 @@ class KeyboardLayout: KeyboardKeyProtocol {
     ////////////////
     // END LAYOUT //
     ////////////////
+    
+    func frameForPopup(key: KeyboardKey, direction: Direction) -> CGRect {
+        let actualScreenWidth = (UIScreen.mainScreen().nativeBounds.size.width / UIScreen.mainScreen().nativeScale)
+        let totalHeight = layoutConstants.popupTotalHeight(actualScreenWidth)
+        
+        let popupWidth = key.bounds.width + layoutConstants.popupWidthIncrement
+        let popupHeight = totalHeight - layoutConstants.popupGap - key.bounds.height
+        let popupCenterY = 0
+        
+        return CGRectMake((key.bounds.width - popupWidth) / CGFloat(2), -popupHeight - layoutConstants.popupGap, popupWidth, popupHeight)
+    }
     
     func willShowPopup(key: KeyboardKey, direction: Direction) {
         // TODO: actual numbers, not standins
