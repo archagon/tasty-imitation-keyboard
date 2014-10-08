@@ -211,7 +211,7 @@ func defaultKeyboard() -> Keyboard {
     
     defaultKeyboard.addKey(Key(keyModel3), row: 2, page: 1)
     
-    for key in [".", ",", "?", "?", "!", "'"] {
+    for key in [".", ",", "?", "!", "'"] {
         var keyModel = Key(.Character)
         keyModel.setLetter(key)
         defaultKeyboard.addKey(keyModel, row: 2, page: 1)
@@ -233,7 +233,7 @@ func defaultKeyboard() -> Keyboard {
         defaultKeyboard.addKey(keyModel, row: 0, page: 2)
     }
     
-    for key in ["_", "\\", "|", "~", "<", ">", "€", "£", "Y", "*"] {
+    for key in ["_", "\\", "|", "~", "<", ">", "€", "£", "Y", "•"] {
         var keyModel = Key(.Character)
         keyModel.setLetter(key)
         defaultKeyboard.addKey(keyModel, row: 1, page: 2)
@@ -241,7 +241,7 @@ func defaultKeyboard() -> Keyboard {
     
     defaultKeyboard.addKey(Key(keyModel3), row: 2, page: 2)
     
-    for key in [".", ",", "?", "?", "!", "'"] {
+    for key in [".", ",", "?", "!", "'"] {
         var keyModel = Key(.Character)
         keyModel.setLetter(key)
         defaultKeyboard.addKey(keyModel, row: 2, page: 2)
