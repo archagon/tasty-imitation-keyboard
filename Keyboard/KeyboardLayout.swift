@@ -14,7 +14,7 @@ struct layoutConstants {
     
     // side edges increase on 6 in portrait
     static let sideEdgesPortraitArray: [CGFloat] = [3, 4]
-    static let sideEdgesPortraitWidthThreshholds: [CGFloat] = [700]
+    static let sideEdgesPortraitWidthThreshholds: [CGFloat] = [400]
     static let sideEdgesLandscape: CGFloat = 3
     
     // top edges decrease on various devices in portrait
@@ -336,7 +336,7 @@ class KeyboardLayout: KeyboardKeyProtocol {
             return (boundsRatio >= layoutConstants.landscapeRatio)
         }()
         
-        var sideEdges = (isLandscape ? layoutConstants.sideEdgesPortrait(bounds.width) : layoutConstants.sideEdgesLandscape)
+        var sideEdges = (isLandscape ? layoutConstants.sideEdgesLandscape : layoutConstants.sideEdgesPortrait(bounds.width))
         let bottomEdge = sideEdges
         
         let normalKeyboardSize = bounds.width - CGFloat(2) * sideEdges
