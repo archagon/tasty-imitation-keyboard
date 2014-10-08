@@ -341,7 +341,6 @@ class KeyboardLayout: KeyboardKeyProtocol {
             }
             return currentMax
         }()
-        NSLog("double sided characters: \(charactersInDoubleSidedRowOnFirstPage)")
         
         for page in model.pages {
             let numRows = page.rows.count
@@ -379,26 +378,6 @@ class KeyboardLayout: KeyboardKeyProtocol {
                     self.layoutSpecialKeysRow(row, modelToView: self.modelToView, gapWidth: keyGap, leftSideRatio: CGFloat(0.25), spaceRatio: CGFloat(0.5), frame: frame)
                 }
             }
-        }
-    }
-    
-    // quick heuristics for default keyboard rows
-    // feel free to extend this method (calling super) with your own row layouts
-    func handleRow(row: [Key], keyGaps: CGFloat, letterKeyWidth: CGFloat, mostCharactersInRowInAllPages: Int, m: CGFloat, c: CGFloat, frame: CGRect) {
-        
-        // basic character row: only typable characters
-        if self.characterRowHeuristic(row) {
-            self.layoutCharacterRow(row, modelToView: self.modelToView, keyWidth: letterKeyWidth, gapWidth: keyGaps, frame: frame)
-        }
-            
-        // character row with side buttons: shift, backspace, etc.
-        else if self.doubleSidedRowHeuristic(row) {
-            self.layoutCharacterWithSidesRow(row, modelToView: self.modelToView, keyWidth: letterKeyWidth, gapWidth: keyGaps, mostCharactersInRowInAllPages: mostCharactersInRowInAllPages, m: m, c: c, frame: frame)
-        }
-            
-        // bottom row with things like space, return, etc.
-        else {
-            self.layoutSpecialKeysRow(row, modelToView: self.modelToView, gapWidth: keyGaps, leftSideRatio: CGFloat(0.25), spaceRatio: CGFloat(0.5), frame: frame)
         }
     }
     
