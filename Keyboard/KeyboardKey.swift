@@ -52,8 +52,6 @@ class KeyboardKey: UIControl, KeyboardView {
     var downTextColor: UIColor? { didSet { updateColors() }}
     
     var popupDirection: Direction?
-    var ambiguityTimer: NSTimer! // QQQ:
-    var constraintStore: [(UIView, NSLayoutConstraint)] = [] // QQQ:
     
     override var enabled: Bool { didSet { updateColors() }}
     override var selected: Bool
@@ -105,15 +103,7 @@ class KeyboardKey: UIControl, KeyboardView {
         super.init(frame: frame)
         
         self.clipsToBounds = false
-//        self.keyView.setTranslatesAutoresizingMaskIntoConstraints(false)
         self.addSubview(self.keyView)
-        
-//        self.addConstraint(NSLayoutConstraint(item: self, attribute: NSLayoutAttribute.Width, relatedBy: NSLayoutRelation.Equal, toItem: self.keyView, attribute: NSLayoutAttribute.Width, multiplier: 1, constant: 0))
-//        self.addConstraint(NSLayoutConstraint(item: self, attribute: NSLayoutAttribute.Height, relatedBy: NSLayoutRelation.Equal, toItem: self.keyView, attribute: NSLayoutAttribute.Height, multiplier: 1, constant: 0))
-//        self.addConstraint(NSLayoutConstraint(item: self, attribute: NSLayoutAttribute.Bottom, relatedBy: NSLayoutRelation.Equal, toItem: self.keyView, attribute: NSLayoutAttribute.Bottom, multiplier: 1, constant: 0))
-//        self.addConstraint(NSLayoutConstraint(item: self, attribute: NSLayoutAttribute.Left, relatedBy: NSLayoutRelation.Equal, toItem: self.keyView, attribute: NSLayoutAttribute.Left, multiplier: 1, constant: 0))
-        
-        self.ambiguityTimer = NSTimer.scheduledTimerWithTimeInterval(0.1, target: self, selector: "timerLoop", userInfo: nil, repeats: true)
         
 //        self.holder0.contentView.addSubview(self.holder)
 //        self.holder0.clipsToBounds = false
@@ -128,39 +118,18 @@ class KeyboardKey: UIControl, KeyboardView {
         fatalError("NSCoding not supported")
     }
     
-    override func updateConstraints() {
-        super.updateConstraints()
-        
-        if self.popupDirection != nil {
-            self.setupPopupConstraints(self.popupDirection!)
-            self.configurePopup(self.popupDirection!)
-        }
-    }
-
-    func timerLoop() {
-        if self.popup != nil && self.popup!.hasAmbiguousLayout() {
-            NSLog("exercising ambiguity...")
-            self.popup!.exerciseAmbiguityInLayout()
-        }
-    }
-    
     override func layoutSubviews() {
         super.layoutSubviews()
-//        NSLog("updating subviews: \(self)")
         
         self.keyView.frame = self.bounds
         
         if self.popup != nil && self.popupDirection == nil {
             self.popupDirection = Direction.Up
-//            self.popupSetupDirection = self.popupDirection!
-//            self.setupPopupConstraints(self.popupDirection!)
-//            self.configurePopup(self.popupDirection!)
-//            self.popup?.layoutIfNeeded()
-//            self.setNeedsUpdateConstraints()
-//            self.updateConstraintsIfNeeded()
+            
+            self.layoutPopup(self.popupDirection!)
+            self.configurePopup(self.popupDirection!)
 
-            self.setNeedsUpdateConstraints()
-            super.layoutSubviews()
+//            super.layoutSubviews()
             self.delegate?.willShowPopup(self, direction: self.popupDirection!)
             
             var upperLeftCorner = self.popup!.frame.origin
@@ -238,94 +207,16 @@ class KeyboardKey: UIControl, KeyboardView {
         }
     }
     
-    func setupPopupConstraints(dir: Direction) {
+    func layoutPopup(dir: Direction) {
         assert(self.popup != nil, "popup not found")
         
-        self.popup?.frame = self.bounds
-        self.popup?.center = CGPointMake(self.bounds.width / CGFloat(2), -self.bounds.height - 5)
-        
-        return;
-        
-        for (view, constraint) in self.constraintStore {
-            view.removeConstraint(constraint)
-        }
-        self.constraintStore = []
-        
+        let multiplier: CGSize = CGSizeMake(2, 1.5)
         let gap: CGFloat = 8
         let gapMinimum: CGFloat = 3
-       
-        // size ratios
         
-        // TODO: fix for direction
-        
-        var widthConstraint = NSLayoutConstraint(
-            item: self.popup!,
-            attribute: NSLayoutAttribute.Width,
-            relatedBy: NSLayoutRelation.Equal,
-            toItem: self.keyView,
-            attribute: NSLayoutAttribute.Width,
-            multiplier: 1,
-            constant: 26)
-        self.constraintStore.append((self, widthConstraint) as (UIView, NSLayoutConstraint))
-        
-        // TODO: is this order right???
-        var heightConstraint = NSLayoutConstraint(
-            item: self.popup!,
-            attribute: NSLayoutAttribute.Height,
-            relatedBy: NSLayoutRelation.Equal,
-            toItem: self.keyView,
-            attribute: NSLayoutAttribute.Height,
-            multiplier: -1,
-            constant: 94)
-//        heightConstraint.priority = 750
-        self.constraintStore.append((self, heightConstraint) as (UIView, NSLayoutConstraint))
-        
-        // gap from key
-        
-        let directionToAttribute = [
-            Direction.Up: NSLayoutAttribute.Top,
-            Direction.Down: NSLayoutAttribute.Bottom,
-            Direction.Left: NSLayoutAttribute.Left,
-            Direction.Right: NSLayoutAttribute.Right,
-        ]
-        
-        var gapConstraint = NSLayoutConstraint(
-            item: self.keyView,
-            attribute: directionToAttribute[dir]!,
-            relatedBy: NSLayoutRelation.Equal,
-            toItem: self.popup,
-            attribute: directionToAttribute[dir.opposite()]!,
-            multiplier: 1,
-            constant: gap)
-        gapConstraint.priority = 500
-        self.constraintStore.append((self, gapConstraint) as (UIView, NSLayoutConstraint))
-        
-        var gapMinConstraint = NSLayoutConstraint(
-            item: self.keyView,
-            attribute: directionToAttribute[dir]!,
-            relatedBy: NSLayoutRelation.Equal,
-            toItem: self.popup,
-            attribute: directionToAttribute[dir.opposite()]!,
-            multiplier: 1,
-            constant: (dir.horizontal() ? -1 : 1) * gapMinimum)
-        gapMinConstraint.priority = 700
-        self.constraintStore.append((self, gapMinConstraint) as (UIView, NSLayoutConstraint))
-        
-        // centering
-        
-        var centerConstraint = NSLayoutConstraint(
-            item: self.keyView,
-            attribute: (dir.horizontal() ? NSLayoutAttribute.CenterY : NSLayoutAttribute.CenterX),
-            relatedBy: NSLayoutRelation.Equal,
-            toItem: self.popup,
-            attribute: (dir.horizontal() ? NSLayoutAttribute.CenterY : NSLayoutAttribute.CenterX),
-            multiplier: 1,
-            constant: 0)
-        centerConstraint.priority = 500
-        self.constraintStore.append((self, centerConstraint) as (UIView, NSLayoutConstraint))
-        
-        for (view, constraint) in self.constraintStore {
-            view.addConstraint(constraint)
+        if let popup = self.popup {
+            popup.frame.size = CGSizeMake(self.bounds.width * multiplier.width, self.bounds.height * multiplier.height)
+            popup.center = CGPointMake(self.bounds.width / CGFloat(2), -popup.bounds.height / CGFloat(2) - gap)
         }
     }
     
@@ -356,7 +247,6 @@ class KeyboardKey: UIControl, KeyboardView {
             self.layer.zPosition = 1000
             
             self.popup = KeyboardKeyBackground(frame: CGRectZero)
-//            self.popup!.setTranslatesAutoresizingMaskIntoConstraints(false)
             self.popup!.cornerRadius = 9.0
             self.addSubview(self.popup!)
             
@@ -365,7 +255,6 @@ class KeyboardKey: UIControl, KeyboardView {
             self.popup!.label.font = self.popup!.label.font.fontWithSize(22 * 2.0)
             
 //            self.popupDirection = .Up
-//            self.setNeedsUpdateConstraints()
         }
     }
     

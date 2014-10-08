@@ -503,7 +503,23 @@ class KeyboardLayout: KeyboardKeyProtocol {
     ////////////////
     
     func willShowPopup(key: KeyboardKey, direction: Direction) {
+        // TODO: actual numbers, not standins
         if let popup = key.popup {
+            var localFrame = self.superview.convertRect(popup.frame, fromView: popup.superview)
+            
+            if localFrame.origin.y < 3 {
+                localFrame.origin.y = 3
+            }
+            
+            if localFrame.origin.x < 3 {
+                localFrame.origin.x = 3
+            }
+            
+            if localFrame.origin.x + localFrame.width > superview.bounds.width - 3 {
+                localFrame.origin.x = superview.bounds.width - localFrame.width - 3
+            }
+            
+            popup.frame = self.superview.convertRect(localFrame, toView: popup.superview)
         }
     }
     
