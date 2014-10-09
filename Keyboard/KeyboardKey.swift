@@ -8,23 +8,6 @@
 
 import UIKit
 
-// components
-//     - large letter popup
-//     - if hold, show extra menu — default if finger slides off
-//     - translucent buttons
-//     - light and dark themes
-//     - iPad sizes
-//     - iPad slide apart keyboard
-//     - JSON-like parsing
-//     > storyboard + custom widget
-//     > framework
-
-// system bugs
-//      - attach() receives incorrect enum when using -O
-//      - inability to use class generics without compiler crashes
-//      - inability to use method generics without compiler crashes when using -O
-//      - framework (?) compiler crashes when using -Ofast
-
 // popup constraints have to be setup with the superview in mind; hence these callbacks
 protocol KeyboardKeyProtocol {
     func frameForPopup(key: KeyboardKey, direction: Direction) -> CGRect
@@ -32,15 +15,22 @@ protocol KeyboardKeyProtocol {
     func willHidePopup(key: KeyboardKey)
 }
 
+// properties: vibrancy alpha percentage, underlay color, corner radius, graphics size
+
 class KeyboardKey: UIControl, KeyboardView {
     
     var delegate: KeyboardKeyProtocol?
     
-    var keyView: KeyboardKeyBackground
+    var background: KeyboardKeyBackground
+    var vibrancyView: UIVisualEffectView?
+    var underlay: KeyboardKeyBackground
+    var overlay: KeyboardKeyBackground?
+    
     var popup: KeyboardKeyBackground?
     var connector: KeyboardConnector?
     
     var label: UILabel
+    var popupLabel: UILabel?
     var text: String {
         didSet {
             self.label.text = text
@@ -90,12 +80,8 @@ class KeyboardKey: UIControl, KeyboardView {
         }
     }
     
-    var vibrancyView: UIVisualEffectView?
-    var underlay: KeyboardKeyBackground
-    var overlay: KeyboardKeyBackground?
-    
     init(vibrancy: Bool) {
-        self.keyView = KeyboardKeyBackground(frame: CGRectZero)
+        self.background = KeyboardKeyBackground(frame: CGRectZero)
         self.label = UILabel()
         self.text = ""
         
@@ -123,7 +109,7 @@ class KeyboardKey: UIControl, KeyboardView {
             
             self.addSubview(vibrancyView)
             
-            vibrancyView.contentView.addSubview(self.keyView)
+            vibrancyView.contentView.addSubview(self.background)
             self.vibrancyView = vibrancyView
             
             self.overlay = KeyboardKeyBackground(frame: CGRectZero)
@@ -132,7 +118,7 @@ class KeyboardKey: UIControl, KeyboardView {
             self.addSubview(self.overlay!)
         }
         else {
-            self.addSubview(self.keyView)
+            self.addSubview(self.background)
         }
         
         self.label.textAlignment = NSTextAlignment.Center
@@ -154,8 +140,9 @@ class KeyboardKey: UIControl, KeyboardView {
         self.vibrancyView?.frame = self.bounds
         self.underlay.frame = self.bounds
         self.overlay?.frame = self.bounds
-        if let keyViewSuperview = keyView.superview {
-            self.keyView.frame = keyViewSuperview.bounds
+        
+        if let superview = background.superview {
+            self.background.frame = superview.bounds
         }
         
         self.label.frame = self.bounds
@@ -220,14 +207,14 @@ class KeyboardKey: UIControl, KeyboardView {
     }
     
     func updateColors() {
-        var keyboardViews: [KeyboardView] = [self.keyView]
+        var keyboardViews: [KeyboardView] = [self.background]
         if self.popup != nil { keyboardViews.append(self.popup!) }
         if self.connector != nil { keyboardViews.append(self.connector!) }
         
         var switchColors = self.highlighted || self.selected
         
         self.underlay.hidden = !self.drawUnder
-        self.keyView.drawUnder = false
+        self.background.drawUnder = false
 //        self.underlay.hidden = true
 //        self.keyView.drawUnder = true
         
@@ -245,7 +232,7 @@ class KeyboardKey: UIControl, KeyboardView {
         }
         
         if vibrancyView != nil {
-            self.keyView.color = UIColor.whiteColor().colorWithAlphaComponent(0.25)
+            self.background.color = UIColor.whiteColor().colorWithAlphaComponent(0.25)
             self.overlay?.hidden = !switchColors
         }
         
@@ -259,6 +246,7 @@ class KeyboardKey: UIControl, KeyboardView {
             if let delegate = self.delegate {
                 let frame = delegate.frameForPopup(self, direction: dir)
                 popup.frame = frame
+                popupLabel?.frame = popup.bounds
             }
             else {
                 popup.frame = CGRectZero
@@ -270,10 +258,10 @@ class KeyboardKey: UIControl, KeyboardView {
     func configurePopup(direction: Direction) {
         assert(self.popup != nil, "popup not found")
         
-        self.keyView.attach(direction)
+        self.background.attach(direction)
         self.popup!.attach(direction.opposite())
         
-        let kv = self.keyView
+        let kv = self.background
         let p = self.popup!
         
         self.connector?.removeFromSuperview()
@@ -293,13 +281,21 @@ class KeyboardKey: UIControl, KeyboardView {
         if self.popup == nil {
             self.layer.zPosition = 1000
             
-            self.popup = KeyboardKeyBackground(frame: CGRectZero)
-            self.popup!.cornerRadius = 9.0
-            self.addSubview(self.popup!)
+            var popup = KeyboardKeyBackground(frame: CGRectZero)
+            popup.cornerRadius = 9.0
+            self.addSubview(popup)
+            self.popup = popup
             
-//            self.popup!.text = self.keyView.text
+            var popupLabel = UILabel()
+            popupLabel.textColor = UIColor.blackColor()
+            popupLabel.textAlignment = self.label.textAlignment
+            popupLabel.font = self.label.font.fontWithSize(22 * 2)
+            popupLabel.frame = popup.bounds
+            popupLabel.text = self.label.text
+            popup.addSubview(popupLabel)
+            self.popupLabel = popupLabel
+            
             self.label.hidden = true
-//            self.popup!.label.font = self.popup!.label.font.fontWithSize(22 * 2.0)
             
 //            self.popupDirection = .Up
         }
@@ -309,6 +305,9 @@ class KeyboardKey: UIControl, KeyboardView {
         if self.popup != nil {
             self.delegate?.willHidePopup(self)
             
+            self.popupLabel?.removeFromSuperview()
+            self.popupLabel = nil
+            
             self.connector?.removeFromSuperview()
             self.connector = nil
             
@@ -316,9 +315,9 @@ class KeyboardKey: UIControl, KeyboardView {
             self.popup = nil
             
             self.label.hidden = false
-            self.keyView.attach(nil)
+            self.background.attach(nil)
             
-            self.keyView.drawBorder = false
+            self.background.drawBorder = false
             
             self.layer.zPosition = 0
             
