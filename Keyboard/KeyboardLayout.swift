@@ -272,7 +272,7 @@ class KeyboardLayout: KeyboardKeyProtocol {
                         if (j < numKeys) {
                             var key = page.rows[i][j]
                             
-                            var keyView = KeyboardKey(frame: CGRectZero) // TODO:
+                            var keyView = KeyboardKey(vibrancy: key.type.specialButton()) // TODO:
                             let keyViewName = "key\(j)x\(i)p\(h)"
                             keyView.enabled = true
                             keyView.text = key.keyCapForCase(false)

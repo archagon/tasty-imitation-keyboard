@@ -87,11 +87,10 @@ class KeyboardKey: UIControl, KeyboardView {
         }
     }
     
-    override init(frame: CGRect) {
+    var vibrancyView: UIVisualEffectView?
+    
+    init(vibrancy: Bool) {
         self.keyView = KeyboardKeyBackground(frame: CGRectZero)
-        let blurEffectoverride  = UIBlurEffect(style: UIBlurEffectStyle.Dark)
-//        self.holder0 = UIVisualEffectView(effect: blurEffect)
-//        self.holder = UIVisualEffectView(effect: UIVibrancyEffect(forBlurEffect: blurEffect))
         
         self.color = UIColor.whiteColor()
         self.underColor = UIColor.grayColor()
@@ -103,16 +102,17 @@ class KeyboardKey: UIControl, KeyboardView {
         
         super.init(frame: frame)
         
-        self.clipsToBounds = false
-        self.addSubview(self.keyView)
-        
-//        self.holder0.contentView.addSubview(self.holder)
-//        self.holder0.clipsToBounds = false
-//        self.holder0.contentView.clipsToBounds = false
-//        self.addSubview(self.holder0)
-//        self.holder.contentView.addSubview(self.keyView)
-//        self.holder.clipsToBounds = false
-//        self.holder.contentView.clipsToBounds = false
+        if vibrancy {
+            let blur = UIBlurEffect(style: UIBlurEffectStyle.ExtraLight)
+            let vibrancy = UIVibrancyEffect(forBlurEffect: blur)
+            var vibrancyView = UIVisualEffectView(effect: vibrancy)
+            self.addSubview(vibrancyView)
+            vibrancyView.contentView.addSubview(self.keyView)
+            self.vibrancyView = vibrancyView
+        }
+        else {
+            self.addSubview(self.keyView)
+        }
     }
     
     required init(coder: NSCoder) {
@@ -122,7 +122,10 @@ class KeyboardKey: UIControl, KeyboardView {
     override func layoutSubviews() {
         super.layoutSubviews()
         
-        self.keyView.frame = self.bounds
+        self.vibrancyView?.frame = self.bounds
+        if let keyViewSuperview = keyView.superview {
+            self.keyView.frame = keyViewSuperview.bounds
+        }
         
         if self.popup != nil && self.popupDirection == nil {
             self.popupDirection = Direction.Up
@@ -185,7 +188,6 @@ class KeyboardKey: UIControl, KeyboardView {
         }
     }
     
-    // TODO: StyleKit?
     func updateColors() {
         var keyboardViews: [KeyboardView] = [self.keyView]
         if self.popup != nil { keyboardViews.append(self.popup!) }
@@ -205,6 +207,11 @@ class KeyboardKey: UIControl, KeyboardView {
         self.keyView.label.textColor = (switchColors && self.downTextColor != nil ? self.downTextColor! : self.textColor)
         if self.popup != nil {
             self.popup!.label.textColor = (switchColors && self.downTextColor != nil ? self.downTextColor! : self.textColor)
+        }
+        
+        if vibrancyView != nil {
+            self.keyView.color = UIColor.whiteColor().colorWithAlphaComponent(0.25)
+            self.keyView.drawUnder = false
         }
     }
     

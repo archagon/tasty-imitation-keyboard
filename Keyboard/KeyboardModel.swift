@@ -57,6 +57,23 @@ class Key: Hashable {
         case Period
         case Space
         case Return
+        
+        func specialButton() -> Bool {
+            switch self {
+            case Shift:
+                return true
+            case Backspace:
+                return true
+            case ModeChange:
+                return true
+            case KeyboardChange:
+                return true
+            case Return:
+                return true
+            default:
+                return false
+            }
+        }
     }
     
     var type: KeyType
