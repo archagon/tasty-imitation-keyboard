@@ -40,6 +40,15 @@ class KeyboardKey: UIControl, KeyboardView {
     var popup: KeyboardKeyBackground?
     var connector: KeyboardConnector?
     
+    var label: UILabel
+    var text: String {
+        didSet {
+            self.label.text = text
+            self.label.frame = self.bounds
+            self.redrawText()
+        }
+    }
+    
     var color: UIColor { didSet { updateColors() }}
     var underColor: UIColor { didSet { updateColors() }}
     var borderColor: UIColor { didSet { updateColors() }}
@@ -69,12 +78,6 @@ class KeyboardKey: UIControl, KeyboardView {
         }
     }
     
-    var text: String! {
-        didSet {
-            self.redrawText()
-        }
-    }
-    
     var shape: Shape? {
         didSet {
             self.redrawShape()
@@ -93,6 +96,8 @@ class KeyboardKey: UIControl, KeyboardView {
     
     init(vibrancy: Bool) {
         self.keyView = KeyboardKeyBackground(frame: CGRectZero)
+        self.label = UILabel()
+        self.text = ""
         
         self.color = UIColor.whiteColor()
         self.underColor = UIColor.grayColor()
@@ -115,13 +120,28 @@ class KeyboardKey: UIControl, KeyboardView {
             let blur = UIBlurEffect(style: UIBlurEffectStyle.ExtraLight)
             let vibrancy = UIVibrancyEffect(forBlurEffect: blur)
             var vibrancyView = UIVisualEffectView(effect: vibrancy)
+            
             self.addSubview(vibrancyView)
+            
             vibrancyView.contentView.addSubview(self.keyView)
             self.vibrancyView = vibrancyView
+            
+            self.overlay = KeyboardKeyBackground(frame: CGRectZero)
+            self.overlay?.color = UIColor.whiteColor()
+            self.overlay?.drawUnder = false
+            self.addSubview(self.overlay!)
         }
         else {
             self.addSubview(self.keyView)
         }
+        
+        self.label.textAlignment = NSTextAlignment.Center
+        self.label.font = self.label.font.fontWithSize(22)
+        self.label.adjustsFontSizeToFitWidth = true
+        self.label.userInteractionEnabled = false
+        self.clipsToBounds = false
+        
+        self.addSubview(self.label)
     }
     
     required init(coder: NSCoder) {
@@ -133,9 +153,12 @@ class KeyboardKey: UIControl, KeyboardView {
         
         self.vibrancyView?.frame = self.bounds
         self.underlay.frame = self.bounds
+        self.overlay?.frame = self.bounds
         if let keyViewSuperview = keyView.superview {
             self.keyView.frame = keyViewSuperview.bounds
         }
+        
+        self.label.frame = self.bounds
         
         if self.popup != nil && self.popupDirection == nil {
             self.popupDirection = Direction.Up
@@ -176,13 +199,11 @@ class KeyboardKey: UIControl, KeyboardView {
 //        self.button.frame = self.bounds
 //        
 //        self.button.setTitle(self.text, forState: UIControlState.Normal)
-        
-        self.keyView.text = ((self.text != nil) ? self.text : "")
     }
     
     func redrawShape() {
         if let shape = self.shape {
-            self.text = nil
+            self.text = ""
             shape.removeFromSuperview()
             self.addSubview(shape)
             
@@ -218,13 +239,14 @@ class KeyboardKey: UIControl, KeyboardView {
             keyboardView.drawBorder = self.drawBorder
         }
         
-        self.keyView.label.textColor = (switchColors && self.downTextColor != nil ? self.downTextColor! : self.textColor)
+        self.label.textColor = (switchColors && self.downTextColor != nil ? self.downTextColor! : self.textColor)
         if self.popup != nil {
-            self.popup!.label.textColor = (switchColors && self.downTextColor != nil ? self.downTextColor! : self.textColor)
+//            self.popup!.label.textColor = (switchColors && self.downTextColor != nil ? self.downTextColor! : self.textColor)
         }
         
         if vibrancyView != nil {
             self.keyView.color = UIColor.whiteColor().colorWithAlphaComponent(0.25)
+            self.overlay?.hidden = !switchColors
         }
         
         self.underlay.color = UIColor(red: CGFloat(38.6)/CGFloat(255), green: CGFloat(18)/CGFloat(255), blue: CGFloat(39.3)/CGFloat(255), alpha: 0.4)
@@ -275,9 +297,9 @@ class KeyboardKey: UIControl, KeyboardView {
             self.popup!.cornerRadius = 9.0
             self.addSubview(self.popup!)
             
-            self.popup!.text = self.keyView.text
-            self.keyView.label.hidden = true
-            self.popup!.label.font = self.popup!.label.font.fontWithSize(22 * 2.0)
+//            self.popup!.text = self.keyView.text
+            self.label.hidden = true
+//            self.popup!.label.font = self.popup!.label.font.fontWithSize(22 * 2.0)
             
 //            self.popupDirection = .Up
         }
@@ -293,7 +315,7 @@ class KeyboardKey: UIControl, KeyboardView {
             self.popup?.removeFromSuperview()
             self.popup = nil
             
-            self.keyView.label.hidden = false
+            self.label.hidden = false
             self.keyView.attach(nil)
             
             self.keyView.drawBorder = false

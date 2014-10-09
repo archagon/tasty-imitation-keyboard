@@ -14,10 +14,10 @@ class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
     
     var shadowOffset: Double { didSet { self.setNeedsDisplay() }}
     var cornerRadius: Double {
-    didSet {
-        self.generatePointsForDrawing()
-        self.setNeedsDisplay()
-    }
+        didSet {
+            self.generatePointsForDrawing()
+            self.setNeedsDisplay()
+        }
     }
     
     var color: UIColor { didSet { self.setNeedsDisplay() }}
@@ -34,21 +34,7 @@ class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
     
     var _attached: Direction? { didSet { self.setNeedsDisplay() }}
     
-    let arcHeightPercentageRadius = 0.15
-    
-    var text: String {
-    didSet {
-        self.label.text = text
-        self.label.frame = self.bounds
-        self.setNeedsDisplay()
-    }
-    }
-    
-    var label: UILabel
-    
     override init(frame: CGRect) {
-        text = "" // TODO: does this call the setter?
-        label = UILabel()
         _attached = nil
         
         _startingPoints = []
@@ -72,14 +58,6 @@ class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
         self.opaque = false
         self.userInteractionEnabled = false
         
-        self.label.textAlignment = NSTextAlignment.Center
-        self.label.font = self.label.font.fontWithSize(22)
-        self.label.adjustsFontSizeToFitWidth = true
-        //            self.label.minimumFontSize = 10
-        self.label.userInteractionEnabled = false
-        self.clipsToBounds = false
-        self.addSubview(self.label)
-        
         generatePointsForDrawing()
     }
     
@@ -89,9 +67,7 @@ class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        
         generatePointsForDrawing()
-        self.label.frame = self.bounds
     }
     
     override func drawRect(rect: CGRect) {

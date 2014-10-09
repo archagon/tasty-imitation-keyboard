@@ -292,9 +292,9 @@ class KeyboardLayout: KeyboardKeyProtocol {
                             Key.KeyType.ModeChange,
                             Key.KeyType.Space,
                             Key.KeyType.Return:
-                                keyView.keyView.label.adjustsFontSizeToFitWidth = false
-                                keyView.keyView.label.minimumScaleFactor = 0.1
-                                keyView.keyView.label.font = keyView.keyView.label.font.fontWithSize(16)
+                                keyView.label.adjustsFontSizeToFitWidth = false
+                                keyView.label.minimumScaleFactor = 0.1
+                                keyView.label.font = keyView.label.font.fontWithSize(16)
                             default:
                                 break
                             }
