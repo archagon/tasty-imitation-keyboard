@@ -8,11 +8,9 @@
 
 import UIKit
 
-// TODO: CAShapeLayer
-// TODO: dark keys semi-transparent, pass through blur; dark theme?
 class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
     
-    var shadowOffset: Double { didSet { self.setNeedsDisplay() }}
+    var underOffset: Double { didSet { self.setNeedsDisplay() }}
     var cornerRadius: Double {
         didSet {
             self.generatePointsForDrawing()
@@ -27,38 +25,41 @@ class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
     var drawOver: Bool { didSet { self.setNeedsDisplay() }}
     var drawBorder: Bool { didSet { self.setNeedsDisplay() }}
     
-    var _startingPoints: [CGPoint]
-    var _segmentPoints: [(CGPoint, CGPoint)]
-    var _arcCenters: [CGPoint]
-    var _arcStartingAngles: [CGFloat]
+    private var startingPoints: [CGPoint]
+    private var segmentPoints: [(CGPoint, CGPoint)]
+    private var arcCenters: [CGPoint]
+    private var arcStartingAngles: [CGFloat]
     
-    var _attached: Direction? { didSet { self.setNeedsDisplay() }}
+    private var attached: Direction? { didSet { self.setNeedsDisplay() }}
+
+    //// TODO: does this increase performance (if used correctly?)
+    //override class func layerClass() -> AnyClass {
+    //    return CAShapeLayer.self
+    //}
     
     override init(frame: CGRect) {
-        _attached = nil
+        attached = nil
         
-        _startingPoints = []
-        _segmentPoints = []
-        _arcCenters = []
-        _arcStartingAngles = []
+        startingPoints = []
+        segmentPoints = []
+        arcCenters = []
+        arcStartingAngles = []
         
-        shadowOffset = 1.0
+        underOffset = 1.0
         cornerRadius = 3.0
         
-        self.color = UIColor.whiteColor()
-        self.underColor = UIColor.grayColor()
-        self.borderColor = UIColor.blackColor()
-        self.drawUnder = true
-        self.drawOver = true
-        self.drawBorder = false
+        color = UIColor.whiteColor()
+        underColor = UIColor.grayColor()
+        borderColor = UIColor.blackColor()
+        drawUnder = true
+        drawOver = true
+        drawBorder = false
         
         super.init(frame: frame)
         
         self.contentMode = UIViewContentMode.Redraw
         self.opaque = false
         self.userInteractionEnabled = false
-        
-        generatePointsForDrawing()
     }
     
     required init(coder: NSCoder) {
@@ -101,86 +102,83 @@ class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
         var firstEdge = false
         
         for i in 0..<4 {
-            if self._attached != nil && self._attached!.toRaw() == i {
+            if self.attached != nil && self.attached!.toRaw() == i {
                 continue
             }
             
             var edgePath = CGPathCreateMutable()
             
-            CGPathMoveToPoint(edgePath, nil, self._segmentPoints[i].0.x, self._segmentPoints[i].0.y)
-            CGPathAddLineToPoint(edgePath, nil, self._segmentPoints[i].1.x, self._segmentPoints[i].1.y)
+            CGPathMoveToPoint(edgePath, nil, self.segmentPoints[i].0.x, self.segmentPoints[i].0.y)
+            CGPathAddLineToPoint(edgePath, nil, self.segmentPoints[i].1.x, self.segmentPoints[i].1.y)
             
             // TODO: figure out if this is ncessary
             if !firstEdge {
-                CGPathMoveToPoint(fillPath, nil, self._segmentPoints[i].0.x, self._segmentPoints[i].0.y)
+                CGPathMoveToPoint(fillPath, nil, self.segmentPoints[i].0.x, self.segmentPoints[i].0.y)
                 firstEdge = true
             }
             else {
-                CGPathAddLineToPoint(fillPath, nil, self._segmentPoints[i].0.x, self._segmentPoints[i].0.y)
+                CGPathAddLineToPoint(fillPath, nil, self.segmentPoints[i].0.x, self.segmentPoints[i].0.y)
             }
-            CGPathAddLineToPoint(fillPath, nil, self._segmentPoints[i].1.x, self._segmentPoints[i].1.y)
+            CGPathAddLineToPoint(fillPath, nil, self.segmentPoints[i].1.x, self.segmentPoints[i].1.y)
             
-            if (self._attached != nil && self._attached!.toRaw() == ((i + 1) % 4)) {
+            if (self.attached != nil && self.attached!.toRaw() == ((i + 1) % 4)) {
                 // do nothing
             } else {
-                CGPathAddRelativeArc(edgePath, nil, self._arcCenters[(i + 1) % 4].x, self._arcCenters[(i + 1) % 4].y, CGFloat(self.cornerRadius), self._arcStartingAngles[(i + 1) % 4], CGFloat(M_PI/2.0))
-                CGPathAddRelativeArc(fillPath, nil, self._arcCenters[(i + 1) % 4].x, self._arcCenters[(i + 1) % 4].y, CGFloat(self.cornerRadius), self._arcStartingAngles[(i + 1) % 4], CGFloat(M_PI/2.0))
+                CGPathAddRelativeArc(edgePath, nil, self.arcCenters[(i + 1) % 4].x, self.arcCenters[(i + 1) % 4].y, CGFloat(self.cornerRadius), self.arcStartingAngles[(i + 1) % 4], CGFloat(M_PI/2.0))
+                CGPathAddRelativeArc(fillPath, nil, self.arcCenters[(i + 1) % 4].x, self.arcCenters[(i + 1) % 4].y, CGFloat(self.cornerRadius), self.arcStartingAngles[(i + 1) % 4], CGFloat(M_PI/2.0))
             }
             
             edgePaths.append(edgePath)
         }
         
-        if self.drawUnder && self._attached != Direction.Down {
-            // TODO: is this the right way to do this? either way, it works for now
+        if self.drawUnder && self.attached != Direction.Down {
             CGContextSaveGState(ctx)
-                CGContextTranslateCTM(ctx, 0, -CGFloat(shadowOffset))
+                // TODO: is this the right way to do this? either way, it works for now
+                CGContextTranslateCTM(ctx, 0, -CGFloat(underOffset))
                 CGContextAddPath(ctx, fillPath)
-                CGContextTranslateCTM(ctx, 0, CGFloat(shadowOffset))
+                CGContextTranslateCTM(ctx, 0, CGFloat(underOffset))
                 CGContextAddPath(ctx, fillPath)
                 CGContextEOClip(ctx)
             
-                CGContextTranslateCTM(ctx, 0, CGFloat(shadowOffset))
+                CGContextTranslateCTM(ctx, 0, CGFloat(underOffset))
                 CGContextSetFillColorWithColor(ctx, self.underColor.CGColor)
                 CGContextAddPath(ctx, fillPath)
                 CGContextFillPath(ctx)
             CGContextRestoreGState(ctx)
         }
         
-        if self.drawOver {
-            CGContextSetFillColorWithColor(ctx, self.color.CGColor)
-            CGContextSetStrokeColorWithColor(ctx, self.borderColor.CGColor)
-            CGContextSetLineWidth(ctx, 1)
-        }
-        
         // TODO: border stroke outside, not inside
-        CGContextTranslateCTM(ctx, 0, -CGFloat(shadowOffset))
+        CGContextTranslateCTM(ctx, 0, -CGFloat(underOffset))
         CGContextSaveGState(ctx)
-        CGContextAddPath(ctx, fillPath)
-        CGContextClip(ctx)
-        CGContextAddPath(ctx, fillPath)
-        CGContextFillPath(ctx)
-        if self.drawBorder {
-            for path in edgePaths {
-                CGContextAddPath(ctx, path)
-                CGContextStrokePath(ctx)
+            if self.drawOver {
+                // if we don't clip this draw call, the border will look messed up on account of exceeding the view bounds
+                // TODO: OverflowCanvas
+                CGContextAddPath(ctx, fillPath)
+                CGContextClip(ctx)
+                
+                CGContextSetFillColorWithColor(ctx, self.color.CGColor)
+                CGContextSetStrokeColorWithColor(ctx, self.borderColor.CGColor)
+                CGContextSetLineWidth(ctx, 1)
+                CGContextAddPath(ctx, fillPath)
+                CGContextFillPath(ctx)
             }
-        }
+        
+            if self.drawBorder {
+                for path in edgePaths {
+                    CGContextAddPath(ctx, path)
+                    CGContextStrokePath(ctx)
+                }
+            }
         CGContextRestoreGState(ctx)
-        CGContextTranslateCTM(ctx, 0, CGFloat(shadowOffset))
-        
-        /////////////
-        // cleanup //
-        /////////////
-        
-        // TODO: apparently you don't need to call CFRelease for "annotated" CG APIs... does this apply to paths and color spaces?
+        CGContextTranslateCTM(ctx, 0, CGFloat(underOffset))
     }
     
     func generatePointsForDrawing() {
         let segmentWidth = self.bounds.width
-        let segmentHeight = self.bounds.height - CGFloat(shadowOffset)
+        let segmentHeight = self.bounds.height - CGFloat(underOffset)
         
         // base, untranslated corner points
-        self._startingPoints = [
+        self.startingPoints = [
             CGPointMake(0, segmentHeight),
             CGPointMake(0, 0),
             CGPointMake(segmentWidth, 0),
@@ -188,83 +186,72 @@ class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
         ]
         
         // actual coordinates for each edge, including translation
-        self._segmentPoints = [] // TODO: is this declaration correct?
+        self.segmentPoints = [] // TODO: is this declaration correct?
         
         // actual coordinates for arc centers for each corner
-        self._arcCenters = []
+        self.arcCenters = []
         
-        self._arcStartingAngles = []
+        self.arcStartingAngles = []
         
-        for i in 0 ..< self._startingPoints.count {
-            let currentPoint = self._startingPoints[i]
-            let nextPoint = self._startingPoints[(i + 1) % self._startingPoints.count]
+        for i in 0 ..< self.startingPoints.count {
+            let currentPoint = self.startingPoints[i]
+            let nextPoint = self.startingPoints[(i + 1) % self.startingPoints.count]
             
             var xDir = 0.0
             var yDir = 0.0
             
             if (i == 1) {
                 xDir = 1.0
-                self._arcStartingAngles.append(CGFloat(M_PI))
+                self.arcStartingAngles.append(CGFloat(M_PI))
             }
             else if (i == 3) {
                 xDir = -1.0
-                self._arcStartingAngles.append(CGFloat(0))
+                self.arcStartingAngles.append(CGFloat(0))
             }
             
             if (i == 0) {
                 yDir = -1.0
-                self._arcStartingAngles.append(CGFloat(M_PI/2.0))
+                self.arcStartingAngles.append(CGFloat(M_PI/2.0))
             }
             else if (i == 2) {
                 yDir = 1.0
-                self._arcStartingAngles.append(CGFloat(-M_PI/2.0))
+                self.arcStartingAngles.append(CGFloat(-M_PI/2.0))
             }
             
             let p0 = CGPointMake(
                 currentPoint.x + CGFloat(xDir * cornerRadius),
-                currentPoint.y + CGFloat(shadowOffset) + CGFloat(yDir * cornerRadius))
+                currentPoint.y + CGFloat(underOffset) + CGFloat(yDir * cornerRadius))
             let p1 = CGPointMake(
                 nextPoint.x - CGFloat(xDir * cornerRadius),
-                nextPoint.y + CGFloat(shadowOffset) - CGFloat(yDir * cornerRadius))
+                nextPoint.y + CGFloat(underOffset) - CGFloat(yDir * cornerRadius))
             
-            self._segmentPoints.append((p0, p1))
+            self.segmentPoints.append((p0, p1))
             
             let c = CGPointMake(
                 p0.x - CGFloat(yDir * cornerRadius),
                 p0.y + CGFloat(xDir * cornerRadius))
             
-            self._arcCenters.append(c)
+            self.arcCenters.append(c)
         }
     }
     
     func attachmentPoints(direction: Direction) -> (CGPoint, CGPoint) {
         var returnValue = (
-            self._segmentPoints[direction.clockwise().toRaw()].0,
-            self._segmentPoints[direction.counterclockwise().toRaw()].1)
+            self.segmentPoints[direction.clockwise().toRaw()].0,
+            self.segmentPoints[direction.counterclockwise().toRaw()].1)
         
         // TODO: quick hack
-        returnValue.0.y -= CGFloat(self.shadowOffset)
-        returnValue.1.y -= CGFloat(self.shadowOffset)
+        returnValue.0.y -= CGFloat(self.underOffset)
+        returnValue.1.y -= CGFloat(self.underOffset)
         
         return returnValue
     }
     
     func attachmentDirection() -> Direction? {
-        return self._attached
+        return self.attached
     }
     
     func attach(direction: Direction?) {
-        self._attached = direction
+        self.attached = direction
     }
 }
-
-//class KeyboardKeyPopup: KeyboardKeyBackground {
-//    
-//    init(frame: CGRect, vertical: Bool) {
-//        super.init(frame: frame)
-//    }
-//    
-//    // if action is nil, the key is not selectable
-//    func addOption(option: String, action: String?) {
-//    }
-//}
