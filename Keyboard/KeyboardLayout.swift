@@ -329,6 +329,10 @@ class KeyboardLayout: KeyboardKeyProtocol {
         self.layoutKeys(self.model, views: self.modelToView, bounds: self.superview.bounds)
     }
     
+    func rounded(measurement: CGFloat) -> CGFloat {
+        return round(measurement * UIScreen.mainScreen().scale) / UIScreen.mainScreen().scale
+    }
+    
     func layoutKeys(model: Keyboard, views: [Key:KeyboardKey], bounds: CGRect) {
         self.banner?.frame = CGRectMake(0, 0, self.superview.bounds.width, self.topBanner)
         
@@ -386,29 +390,31 @@ class KeyboardLayout: KeyboardKeyProtocol {
             
             let keyHeight: CGFloat = {
                 let totalGaps = bottomEdge + topEdge + rowGapTotal
-                return (bounds.height - totalGaps) / CGFloat(numRows)
+                var returnHeight = (bounds.height - totalGaps) / CGFloat(numRows)
+                return self.rounded(returnHeight)
             }()
             
             let letterKeyWidth: CGFloat = {
                 let totalGaps = (sideEdges * CGFloat(2)) + (keyGap * CGFloat(mostKeysInRow - 1))
-                return (bounds.width - totalGaps) / CGFloat(mostKeysInRow)
+                var returnWidth = (bounds.width - totalGaps) / CGFloat(mostKeysInRow)
+                return self.rounded(returnWidth)
             }()
             
             for (r, row) in enumerate(page.rows) {
                 let rowGapCurrentTotal = (r == page.rows.count - 1 ? rowGapTotal : CGFloat(r) * rowGap)
-                let frame = CGRectMake(sideEdges, topEdge + (CGFloat(r) * keyHeight) + rowGapCurrentTotal, bounds.width - CGFloat(2) * sideEdges, keyHeight)
+                let frame = CGRectMake(rounded(sideEdges), rounded(topEdge + (CGFloat(r) * keyHeight) + rowGapCurrentTotal), rounded(bounds.width - CGFloat(2) * sideEdges), rounded(keyHeight))
                 
                 // basic character row: only typable characters
                 if self.characterRowHeuristic(row) {
                     self.layoutCharacterRow(row, modelToView: self.modelToView, keyWidth: letterKeyWidth, gapWidth: keyGap, frame: frame)
                 }
                     
-                    // character row with side buttons: shift, backspace, etc.
+                // character row with side buttons: shift, backspace, etc.
                 else if self.doubleSidedRowHeuristic(row) {
                     self.layoutCharacterWithSidesRow(row, modelToView: self.modelToView, keyWidth: letterKeyWidth, gapWidth: keyGap, mostCharactersInRowInAllPages: charactersInDoubleSidedRowOnFirstPage, m: flexibleEndRowM, c: flexibleEndRowC, frame: frame)
                 }
                     
-                    // bottom row with things like space, return, etc.
+                // bottom row with things like space, return, etc.
                 else {
                     self.layoutSpecialKeysRow(row, modelToView: self.modelToView, gapWidth: lastRowKeyGap, leftSideRatio: lastRowLeftSideRatio, rightSideRatio: lastRowRightSideRatio, frame: frame)
                 }
@@ -431,7 +437,7 @@ class KeyboardLayout: KeyboardKeyProtocol {
         var currentOrigin = frame.origin.x + sideSpace
         for (k, key) in enumerate(row) {
             if let view = modelToView[key] {
-                view.frame = CGRectMake(currentOrigin, frame.origin.y, keyWidth, frame.height)
+                view.frame = CGRectMake(rounded(currentOrigin), frame.origin.y, keyWidth, frame.height)
                 currentOrigin += (keyWidth + gapWidth)
             }
             else {
@@ -449,22 +455,23 @@ class KeyboardLayout: KeyboardKeyProtocol {
         
         var specialCharacterWidth = sideSpace * m + c
         specialCharacterWidth = max(specialCharacterWidth, keyWidth)
+        specialCharacterWidth = rounded(specialCharacterWidth)
         let specialCharacterGap = sideSpace - specialCharacterWidth
         
         var currentOrigin = frame.origin.x
         for (k, key) in enumerate(row) {
             if let view = modelToView[key] {
                 if k == 0 {
-                    view.frame = CGRectMake(currentOrigin, frame.origin.y, specialCharacterWidth, frame.height)
+                    view.frame = CGRectMake(rounded(currentOrigin), frame.origin.y, specialCharacterWidth, frame.height)
                     currentOrigin += (specialCharacterWidth + specialCharacterGap)
                 }
                 else if k == row.count - 1 {
                     currentOrigin += specialCharacterGap
-                    view.frame = CGRectMake(currentOrigin, frame.origin.y, specialCharacterWidth, frame.height)
+                    view.frame = CGRectMake(rounded(currentOrigin), frame.origin.y, specialCharacterWidth, frame.height)
                     currentOrigin += specialCharacterWidth
                 }
                 else {
-                    view.frame = CGRectMake(currentOrigin, frame.origin.y, actualKeyWidth, frame.height)
+                    view.frame = CGRectMake(rounded(currentOrigin), frame.origin.y, actualKeyWidth, frame.height)
                     if k == row.count - 2 {
                         currentOrigin += (actualKeyWidth)
                     }
@@ -502,25 +509,28 @@ class KeyboardLayout: KeyboardKeyProtocol {
         
         let leftSideAreaWidth = frame.width * leftSideRatio
         let rightSideAreaWidth = frame.width * rightSideRatio
-        let leftButtonWidth = (leftSideAreaWidth - (gapWidth * CGFloat(keysBeforeSpace - 1))) / CGFloat(keysBeforeSpace)
-        let rightButtonWidth = (rightSideAreaWidth - (gapWidth * CGFloat(keysAfterSpace - 1))) / CGFloat(keysAfterSpace)
-        let spaceWidth = frame.width - leftSideAreaWidth - rightSideAreaWidth - gapWidth * CGFloat(2)
+        var leftButtonWidth = (leftSideAreaWidth - (gapWidth * CGFloat(keysBeforeSpace - 1))) / CGFloat(keysBeforeSpace)
+        leftButtonWidth = rounded(leftButtonWidth)
+        var rightButtonWidth = (rightSideAreaWidth - (gapWidth * CGFloat(keysAfterSpace - 1))) / CGFloat(keysAfterSpace)
+        rightButtonWidth = rounded(rightButtonWidth)
+        var spaceWidth = frame.width - leftSideAreaWidth - rightSideAreaWidth - gapWidth * CGFloat(2)
+        spaceWidth = rounded(spaceWidth)
         
         var currentOrigin = frame.origin.x
         var beforeSpace: Bool = true
         for (k, key) in enumerate(row) {
             if let view = modelToView[key] {
                 if key.type == Key.KeyType.Space {
-                    view.frame = CGRectMake(currentOrigin, frame.origin.y, spaceWidth, frame.height)
+                    view.frame = CGRectMake(rounded(currentOrigin), frame.origin.y, spaceWidth, frame.height)
                     currentOrigin += (spaceWidth + gapWidth)
                     beforeSpace = false
                 }
                 else if beforeSpace {
-                    view.frame = CGRectMake(currentOrigin, frame.origin.y, leftButtonWidth, frame.height)
+                    view.frame = CGRectMake(rounded(currentOrigin), frame.origin.y, leftButtonWidth, frame.height)
                     currentOrigin += (leftButtonWidth + gapWidth)
                 }
                 else {
-                    view.frame = CGRectMake(currentOrigin, frame.origin.y, rightButtonWidth, frame.height)
+                    view.frame = CGRectMake(rounded(currentOrigin), frame.origin.y, rightButtonWidth, frame.height)
                     currentOrigin += (rightButtonWidth + gapWidth)
                 }
             }
