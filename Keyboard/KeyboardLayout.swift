@@ -57,10 +57,11 @@ struct layoutConstants {
     static let lastRowKeyGapLandscapeArray: [CGFloat] = [8, 7, 5]
     static let lastRowKeyGapLandscapeWidthThreshholds: [CGFloat] = [500, 700]
     
-    static let lastRowPortraitFirstTwoButtonAreaWidthToKeyboardAreaWidth: CGFloat = 0.24 // TODO: approxmiate, but close enough
-    static let lastRowLandscapeFirstTwoButtonAreaWidthToKeyboardAreaWidth: CGFloat = 0.19 // TODO: approxmiate, but close enough
-    static let lastRowPortraitLastButtonAreaWidthToKeyboardAreaWidth: CGFloat = 0.5
-    static let lastRowLandscapeLastButtonAreaWidthToKeyboardAreaWidth: CGFloat = 0.5
+    // TODO: approxmiate, but close enough
+    static let lastRowPortraitFirstTwoButtonAreaWidthToKeyboardAreaWidth: CGFloat = 0.24
+    static let lastRowLandscapeFirstTwoButtonAreaWidthToKeyboardAreaWidth: CGFloat = 0.19
+    static let lastRowPortraitLastButtonAreaWidthToKeyboardAreaWidth: CGFloat = 0.24
+    static let lastRowLandscapeLastButtonAreaWidthToKeyboardAreaWidth: CGFloat = 0.19
     
     static let popupGap: CGFloat = 8 // TODO: not exactly precise
     static let popupWidthIncrement: CGFloat = 26
