@@ -88,6 +88,8 @@ class KeyboardKey: UIControl, KeyboardView {
     }
     
     var vibrancyView: UIVisualEffectView?
+    var underlay: KeyboardKeyBackground
+    var overlay: KeyboardKeyBackground?
     
     init(vibrancy: Bool) {
         self.keyView = KeyboardKeyBackground(frame: CGRectZero)
@@ -100,7 +102,14 @@ class KeyboardKey: UIControl, KeyboardView {
         self.textColor = UIColor.blackColor()
         self.popupDirection = nil
         
+        self.underlay = KeyboardKeyBackground(frame: CGRectZero)
+        
         super.init(frame: frame)
+        
+        self.underlay.drawOver = false
+        self.underlay.drawBorder = false
+        self.underlay.drawUnder = true
+        self.addSubview(self.underlay)
         
         if vibrancy {
             let blur = UIBlurEffect(style: UIBlurEffectStyle.ExtraLight)
@@ -123,6 +132,7 @@ class KeyboardKey: UIControl, KeyboardView {
         super.layoutSubviews()
         
         self.vibrancyView?.frame = self.bounds
+        self.underlay.frame = self.bounds
         if let keyViewSuperview = keyView.superview {
             self.keyView.frame = keyViewSuperview.bounds
         }
@@ -195,12 +205,16 @@ class KeyboardKey: UIControl, KeyboardView {
         
         var switchColors = self.highlighted || self.selected
         
+        self.underlay.hidden = !self.drawUnder
+        self.keyView.drawUnder = false
+//        self.underlay.hidden = true
+//        self.keyView.drawUnder = true
+        
         for kv in keyboardViews {
             var keyboardView = kv
             keyboardView.color = (switchColors && self.downColor != nil ? self.downColor! : self.color)
             keyboardView.underColor = (switchColors && self.downUnderColor != nil ? self.downUnderColor! : self.underColor)
             keyboardView.borderColor = (switchColors && self.downBorderColor != nil ? self.downBorderColor! : self.borderColor)
-            keyboardView.drawUnder = self.drawUnder
             keyboardView.drawBorder = self.drawBorder
         }
         
@@ -211,8 +225,9 @@ class KeyboardKey: UIControl, KeyboardView {
         
         if vibrancyView != nil {
             self.keyView.color = UIColor.whiteColor().colorWithAlphaComponent(0.25)
-            self.keyView.drawUnder = false
         }
+        
+        self.underlay.color = UIColor(red: CGFloat(38.6)/CGFloat(255), green: CGFloat(18)/CGFloat(255), blue: CGFloat(39.3)/CGFloat(255), alpha: 0.4)
     }
     
     func layoutPopup(dir: Direction) {

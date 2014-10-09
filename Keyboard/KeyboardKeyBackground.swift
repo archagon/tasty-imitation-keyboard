@@ -24,6 +24,7 @@ class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
     var underColor: UIColor { didSet { self.setNeedsDisplay() }}
     var borderColor: UIColor { didSet { self.setNeedsDisplay() }}
     var drawUnder: Bool { didSet { self.setNeedsDisplay() }}
+    var drawOver: Bool { didSet { self.setNeedsDisplay() }}
     var drawBorder: Bool { didSet { self.setNeedsDisplay() }}
     
     var _startingPoints: [CGPoint]
@@ -62,6 +63,7 @@ class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
         self.underColor = UIColor.grayColor()
         self.borderColor = UIColor.blackColor()
         self.drawUnder = true
+        self.drawOver = true
         self.drawBorder = false
         
         super.init(frame: frame)
@@ -153,14 +155,26 @@ class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
         }
         
         if self.drawUnder && self._attached != Direction.Down {
-            CGContextSetFillColorWithColor(ctx, self.underColor.CGColor)
-            CGContextAddPath(ctx, fillPath)
-            CGContextFillPath(ctx)
+            // TODO: is this the right way to do this? either way, it works for now
+            CGContextSaveGState(ctx)
+                CGContextTranslateCTM(ctx, 0, -CGFloat(shadowOffset))
+                CGContextAddPath(ctx, fillPath)
+                CGContextTranslateCTM(ctx, 0, CGFloat(shadowOffset))
+                CGContextAddPath(ctx, fillPath)
+                CGContextEOClip(ctx)
+            
+                CGContextTranslateCTM(ctx, 0, CGFloat(shadowOffset))
+                CGContextSetFillColorWithColor(ctx, self.underColor.CGColor)
+                CGContextAddPath(ctx, fillPath)
+                CGContextFillPath(ctx)
+            CGContextRestoreGState(ctx)
         }
         
-        CGContextSetFillColorWithColor(ctx, self.color.CGColor)
-        CGContextSetStrokeColorWithColor(ctx, self.borderColor.CGColor)
-        CGContextSetLineWidth(ctx, 1)
+        if self.drawOver {
+            CGContextSetFillColorWithColor(ctx, self.color.CGColor)
+            CGContextSetStrokeColorWithColor(ctx, self.borderColor.CGColor)
+            CGContextSetLineWidth(ctx, 1)
+        }
         
         // TODO: border stroke outside, not inside
         CGContextTranslateCTM(ctx, 0, -CGFloat(shadowOffset))
