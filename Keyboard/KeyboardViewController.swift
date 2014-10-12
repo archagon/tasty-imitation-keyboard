@@ -23,6 +23,8 @@ class KeyboardViewController: UIInputViewController {
     var layout: KeyboardLayout!
     var heightConstraint: NSLayoutConstraint?
     
+    var bannerView: BannerView?
+    
     var currentMode: Int {
         didSet {
             setMode(currentMode)
@@ -95,9 +97,16 @@ class KeyboardViewController: UIInputViewController {
         
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
         
-        self.layout = KeyboardLayout(model: self.keyboard, superview: self.forwardingView, topBanner: 0, banner: self.banner())
-        self.layout.banner?.hidden = true
+        self.layout = KeyboardLayout(model: self.keyboard, superview: self.forwardingView)
+        
+        self.bannerView = self.banner()
+        self.bannerView?.hidden = true
+        
         self.view.addSubview(self.forwardingView)
+        
+        if let banner = self.bannerView {
+            self.view.addSubview(banner)
+        }
         
         self.view.setNeedsUpdateConstraints()
     }
@@ -161,32 +170,40 @@ class KeyboardViewController: UIInputViewController {
         self.setupConstraints()
     }
     
-    var oldBounds: CGRect?
+    var lastLayoutBounds: CGRect?
     override func viewDidLayoutSubviews() {
-        // when a key gets a popup added, we don't want the entire layout to be redone
-        if oldBounds == nil || oldBounds! != self.view.bounds {
-            self.forwardingView.frame = self.view.bounds
-            self.layout.layoutTemp()
-            
-            oldBounds = self.view.bounds
+        let orientationSavvyBounds = CGRectMake(0, 0, self.view.bounds.width, self.heightForOrientation(self.interfaceOrientation, withTopBanner: false))
+        
+        if (lastLayoutBounds != nil && lastLayoutBounds == orientationSavvyBounds) {
+            // do nothing
         }
+        else {
+            self.forwardingView.frame = orientationSavvyBounds
+            self.layout.layoutTemp()
+            self.lastLayoutBounds = orientationSavvyBounds
+            
+            NSLog("did actual layout with \(orientationSavvyBounds)!")
+        }
+        
+        self.bannerView?.frame = CGRectMake(0, 0, self.view.bounds.width, metric("topBanner"))
+        self.forwardingView.frame.origin = CGPointMake(0, self.view.bounds.height - self.forwardingView.bounds.height)
     }
     
     override func viewDidAppear(animated: Bool) {
-        self.layout.banner?.hidden = false
-        self.keyboardHeight = self.heightForOrientation(self.interfaceOrientation)
-        self.layout.topBanner = metric("topBanner")
+        self.bannerView?.hidden = false
+        self.keyboardHeight = self.heightForOrientation(self.interfaceOrientation, withTopBanner: true)
     }
     
     // TODO: the new size "snaps" into place on rotation, which I believe is related to performance
     override func willRotateToInterfaceOrientation(toInterfaceOrientation: UIInterfaceOrientation, duration: NSTimeInterval) {
-        self.keyboardHeight = self.heightForOrientation(toInterfaceOrientation)
+        self.keyboardHeight = self.heightForOrientation(toInterfaceOrientation, withTopBanner: true)
     }
     
-    func heightForOrientation(orientation: UIInterfaceOrientation) -> CGFloat {
+    func heightForOrientation(orientation: UIInterfaceOrientation, withTopBanner: Bool) -> CGFloat {
         let canonicalPortraitHeight = CGFloat(orientation.isPortrait && self.view.bounds.width >= 400 ? 226 : 216) //TODO: hack for 6+
         let canonicalLandscapeHeight = CGFloat(162)
-        return CGFloat(orientation.isPortrait ? canonicalPortraitHeight + metric("topBanner") : canonicalLandscapeHeight + metric("topBanner"))
+        let topBannerHeight = (withTopBanner ? metric("topBanner") : 0)
+        return CGFloat(orientation.isPortrait ? canonicalPortraitHeight + topBannerHeight : canonicalLandscapeHeight + topBannerHeight)
     }
     
     /*

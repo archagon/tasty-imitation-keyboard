@@ -177,23 +177,10 @@ class KeyboardLayout: KeyboardKeyProtocol {
     
     var initialized: Bool
     
-    var topBanner: CGFloat = 0 {
-        didSet {
-            self.layoutTemp()
-        }
-    }
-    var topSpacerConstraint: NSLayoutConstraint?
-    
-    var banner: BannerView?
-    
-    init(model: Keyboard, superview: UIView, topBanner: CGFloat, banner: BannerView) {
+    init(model: Keyboard, superview: UIView) {
         self.initialized = false
         self.model = model
         self.superview = superview
-        self.topBanner = topBanner
-        self.banner = banner
-        
-        self.superview.addSubview(banner)
     }
     
     func initialize() {
@@ -334,7 +321,9 @@ class KeyboardLayout: KeyboardKeyProtocol {
     }
     
     func layoutKeys(model: Keyboard, views: [Key:KeyboardKey], bounds: CGRect) {
-        self.banner?.frame = CGRectMake(0, 0, self.superview.bounds.width, self.topBanner)
+        if bounds.height == 0 || bounds.width == 0 {
+            return
+        }
         
         let isLandscape: Bool = {
             let boundsRatio = bounds.width / bounds.height
@@ -349,7 +338,7 @@ class KeyboardLayout: KeyboardKeyProtocol {
         
         sideEdges += ((normalKeyboardSize - shrunkKeyboardSize) / CGFloat(2))
         
-        let topEdge: CGFloat = ((isLandscape ? layoutConstants.topEdgeLandscape : layoutConstants.topEdgePortrait(bounds.width)) + self.topBanner)
+        let topEdge: CGFloat = (isLandscape ? layoutConstants.topEdgeLandscape : layoutConstants.topEdgePortrait(bounds.width))
         
         let rowGap: CGFloat = (isLandscape ? layoutConstants.rowGapLandscape : layoutConstants.rowGapPortrait(bounds.width))
         let lastRowGap: CGFloat = (isLandscape ? rowGap : layoutConstants.rowGapPortraitLastRow(bounds.width))

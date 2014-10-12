@@ -68,7 +68,16 @@ class Shape: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    var oldBounds: CGRect?
     override func layoutSubviews() {
+        if self.bounds.width == 0 || self.bounds.height == 0 {
+            return
+        }
+        if oldBounds != nil && CGRectEqualToRect(self.bounds, oldBounds!) {
+            return
+        }
+        oldBounds = self.bounds
+        
         super.layoutSubviews()
         
         let overflowCanvasSizeRatio = CGFloat(1.25)

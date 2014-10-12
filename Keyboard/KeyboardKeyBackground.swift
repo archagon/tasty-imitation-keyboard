@@ -66,7 +66,16 @@ class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
         fatalError("NSCoding not supported")
     }
     
+    var oldBounds: CGRect?
     override func layoutSubviews() {
+        if self.bounds.width == 0 || self.bounds.height == 0 {
+            return
+        }
+        if oldBounds != nil && CGRectEqualToRect(self.bounds, oldBounds!) {
+            return
+        }
+        oldBounds = self.bounds
+        
         super.layoutSubviews()
         generatePointsForDrawing()
     }

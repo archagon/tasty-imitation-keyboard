@@ -21,7 +21,6 @@ class ForwardingView: UIView {
         
         super.init(frame: frame)
         
-        self.contentMode = UIViewContentMode.Redraw
         self.multipleTouchEnabled = true
         self.userInteractionEnabled = true
         self.opaque = false
