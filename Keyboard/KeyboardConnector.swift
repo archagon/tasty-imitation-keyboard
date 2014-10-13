@@ -23,11 +23,6 @@ class KeyboardConnector: KeyboardKeyBackground {
     var startDir: Direction
     var endDir: Direction
 
-    var shadowAlpha: CGFloat { didSet { self.setNeedsDisplay() }}
-    var shadowOffset: CGPoint { didSet { self.setNeedsDisplay() }}
-    var shadowBlurRadius: CGFloat { didSet { self.setNeedsDisplay() }}
-
-    // TODO: temporary fix for Swift compiler crash
     var startConnectable: Connectable
     var endConnectable: Connectable
     var convertedStartPoints: (CGPoint, CGPoint)!
@@ -36,7 +31,7 @@ class KeyboardConnector: KeyboardKeyBackground {
     var offset: CGPoint
     
     // TODO: until bug is fixed, make sure start/end and startConnectable/endConnectable are the same object
-    init(blur: Bool, start s: UIView, end e: UIView, startConnectable sC: Connectable, endConnectable eC: Connectable, startDirection: Direction, endDirection: Direction) {
+    init(blur: Bool, cornerRadius: CGFloat, underOffset: CGFloat, start s: UIView, end e: UIView, startConnectable sC: Connectable, endConnectable eC: Connectable, startDirection: Direction, endDirection: Direction) {
         start = s
         end = e
         startDir = startDirection
@@ -44,13 +39,9 @@ class KeyboardConnector: KeyboardKeyBackground {
         startConnectable = sC
         endConnectable = eC
 
-        shadowAlpha = CGFloat(0.35)
-        shadowOffset = CGPointMake(0, 1.5)
-        shadowBlurRadius = CGFloat(12)
-
         offset = CGPointZero
 
-        super.init(blur: blur, cornerRadius: 0)
+        super.init(blur: blur, cornerRadius: cornerRadius, underOffset: underOffset)
     }
     
     required init(coder: NSCoder) {
@@ -64,10 +55,7 @@ class KeyboardConnector: KeyboardKeyBackground {
 
     override func layoutSubviews() {
         self.resizeFrame()
-        
         super.layoutSubviews()
-        
-        
     }
 
     func generateConvertedPoints() {
@@ -101,8 +89,6 @@ class KeyboardConnector: KeyboardKeyBackground {
     }
     
     override func generatePointsForDrawing(bounds: CGRect) {
-//        self.fillPath = UIBezierPath(ovalInRect: bounds)
-        
         //////////////////
         // prepare data //
         //////////////////
@@ -144,7 +130,11 @@ class KeyboardConnector: KeyboardKeyBackground {
         }
 
         var bezierPath = UIBezierPath()
+        var currentEdgePath = UIBezierPath()
+        var edgePaths = [UIBezierPath]()
+        
         bezierPath.moveToPoint(myConvertedStartPoints.0)
+        
         bezierPath.addCurveToPoint(
             myConvertedEndPoints.1,
             controlPoint1: (isVertical ?
@@ -153,7 +143,21 @@ class KeyboardConnector: KeyboardKeyBackground {
             controlPoint2: (isVertical ?
                 CGPointMake(myConvertedEndPoints.1.x, midpoint) :
                 CGPointMake(midpoint, myConvertedEndPoints.1.y)))
+        
+        currentEdgePath = UIBezierPath()
+        currentEdgePath.moveToPoint(myConvertedStartPoints.0)
+        currentEdgePath.addCurveToPoint(
+            myConvertedEndPoints.1,
+            controlPoint1: (isVertical ?
+                CGPointMake(myConvertedStartPoints.0.x, midpoint) :
+                CGPointMake(midpoint, myConvertedStartPoints.0.y)),
+            controlPoint2: (isVertical ?
+                CGPointMake(myConvertedEndPoints.1.x, midpoint) :
+                CGPointMake(midpoint, myConvertedEndPoints.1.y)))
+        edgePaths.append(currentEdgePath)
+        
         bezierPath.addLineToPoint(myConvertedEndPoints.0)
+        
         bezierPath.addCurveToPoint(
             myConvertedStartPoints.1,
             controlPoint1: (isVertical ?
@@ -163,9 +167,25 @@ class KeyboardConnector: KeyboardKeyBackground {
                 CGPointMake(myConvertedStartPoints.1.x, midpoint) :
                 CGPointMake(midpoint, myConvertedStartPoints.1.y)))
         bezierPath.addLineToPoint(myConvertedStartPoints.0)
+        
+        currentEdgePath = UIBezierPath()
+        currentEdgePath.moveToPoint(myConvertedEndPoints.0)
+        currentEdgePath.addCurveToPoint(
+            myConvertedStartPoints.1,
+            controlPoint1: (isVertical ?
+                CGPointMake(myConvertedEndPoints.0.x, midpoint) :
+                CGPointMake(midpoint, myConvertedEndPoints.0.y)),
+            controlPoint2: (isVertical ?
+                CGPointMake(myConvertedStartPoints.1.x, midpoint) :
+                CGPointMake(midpoint, myConvertedStartPoints.1.y)))
+        edgePaths.append(currentEdgePath)
+        
+        bezierPath.addLineToPoint(myConvertedStartPoints.0)
+        
         bezierPath.closePath()
         
         self.fillPath = bezierPath
+        self.edgePaths = edgePaths
     }
 
 }
