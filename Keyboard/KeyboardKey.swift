@@ -217,6 +217,72 @@ class KeyboardKey: UIControl, KeyboardView {
         }
     }
     
+    var awesomeBackground: UIView?
+    func createAwesomeBackground() {
+        self.popup?.drawBorder = true
+        self.background.drawBorder = true
+        self.connector?.drawBorder = true
+        
+        if self.blurryTemp {
+            self.popup?.hidden = true
+            self.background.hidden = true
+            self.connector?.hidden = true
+        }
+        else {
+            self.popup?.hidden = false
+            self.background.hidden = false
+            self.connector?.hidden = false
+            
+            return
+        }
+        
+        self.popup?.drawUnder = false
+        self.connector?.drawUnder = false
+        
+        self.background.layoutIfNeeded()
+        self.popup?.layoutIfNeeded()
+        self.connector?.layoutIfNeeded()
+        
+        var testPath = UIBezierPath()
+//        testPath.usesEvenOddFillRule = true
+        
+        var boundingBox = CGRectUnion(self.bounds, self.popup!.frame)
+        var prettyView = UIVisualEffectView(effect: UIBlurEffect(style: UIBlurEffectStyle.Light))
+        prettyView.backgroundColor = (self.blurryTemp ? nil : UIColor.yellowColor())
+        prettyView.frame = boundingBox
+        self.addSubview(prettyView)
+        
+        let unitSquare = CGRectMake(0, 0, 1, 1)
+        
+        var backgroundPath = self.background.fillPath!
+        var translatedUnitSquare = prettyView.convertRect(unitSquare, fromView: self.background)
+        let transformFromBackgroundToView = CGAffineTransformMakeTranslation(translatedUnitSquare.origin.x, translatedUnitSquare.origin.y)
+        backgroundPath.applyTransform(transformFromBackgroundToView)
+        testPath.appendPath(backgroundPath)
+        
+        var connectorPath = self.connector!.fillPath!
+        translatedUnitSquare = prettyView.convertRect(unitSquare, fromView: self.connector!)
+        let transformFromConnectorToView = CGAffineTransformMakeTranslation(translatedUnitSquare.origin.x, translatedUnitSquare.origin.y)
+        connectorPath.applyTransform(transformFromConnectorToView)
+        testPath.appendPath(connectorPath)
+        
+        var popupPath = self.popup!.fillPath!
+        translatedUnitSquare = prettyView.convertRect(unitSquare, fromView: self.popup!)
+        let transformFromPopupToView = CGAffineTransformMakeTranslation(translatedUnitSquare.origin.x, translatedUnitSquare.origin.y)
+        popupPath.applyTransform(transformFromPopupToView)
+        testPath.appendPath(popupPath)
+        
+        var shapeLayer = CAShapeLayer()
+        shapeLayer.path = testPath.CGPath
+//        shapeLayer.borderWidth = 2
+//        shapeLayer.borderColor = UIColor.blackColor().CGColor
+        prettyView.layer.mask = shapeLayer
+        prettyView.layer.borderWidth = 3
+        prettyView.layer.borderColor = UIColor.blackColor().CGColor
+        
+        self.awesomeBackground = prettyView
+    }
+    
     func redrawText() {
 //        self.keyView.frame = self.bounds
 //        self.button.frame = self.bounds
