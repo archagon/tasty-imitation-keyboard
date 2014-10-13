@@ -10,13 +10,6 @@ import UIKit
 
 class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
     
-    var cornerRadius: Double {
-        didSet {
-            self.generatePointsForDrawing()
-            self.setNeedsDisplay()
-        }
-    }
-    
     var color: UIColor { didSet { self.setNeedsDisplay() }}
     var underColor: UIColor { didSet { self.setNeedsDisplay() }}
     var borderColor: UIColor { didSet { self.setNeedsDisplay() }}
@@ -25,26 +18,30 @@ class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
     var drawBorder: Bool { didSet { self.setNeedsDisplay() }}
     var underOffset: CGFloat { didSet { self.setNeedsDisplay() }}
     
-    private var underView: UIView
-    private var overView: UIView?
-    private var lowerBorderView: UIView?
-    private var maskLayer: CAShapeLayer
+    var fillPath: UIBezierPath?
+    var edgePaths: [UIBezierPath]?
     
-    private var startingPoints: [CGPoint]
-    private var segmentPoints: [(CGPoint, CGPoint)]
-    private var arcCenters: [CGPoint]
-    private var arcStartingAngles: [CGFloat]
-    private var fillPath: UIBezierPath?
-    private var edgePaths: [UIBezierPath]?
+    // do not set this manually
+    var cornerRadius: CGFloat
     
-    private var attached: Direction? { didSet { self.setNeedsDisplay() }}
+    var underView: UIView
+    var overView: UIView?
+    var lowerBorderView: UIView?
+    var maskLayer: CAShapeLayer
+    
+    var startingPoints: [CGPoint]
+    var segmentPoints: [(CGPoint, CGPoint)]
+    var arcCenters: [CGPoint]
+    var arcStartingAngles: [CGFloat]
+    
+    var attached: Direction? { didSet { self.setNeedsDisplay() }}
 
     //// TODO: does this increase performance (if used correctly?)
     //override class func layerClass() -> AnyClass {
     //    return CAShapeLayer.self
     //}
     
-    init(blur: Bool) {
+    init(blur: Bool, cornerRadius: CGFloat) {
         attached = nil
         
         startingPoints = []
@@ -52,7 +49,7 @@ class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
         arcCenters = []
         arcStartingAngles = []
         
-        cornerRadius = 3.0
+        self.cornerRadius = cornerRadius
         
         color = UIColor.whiteColor()
         underColor = UIColor.grayColor()
@@ -76,6 +73,9 @@ class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
         if let overView = self.overView { self.addSubview(overView) }
         
         self.underView.layer.mask = self.maskLayer
+        
+        self.overView?.hidden = true
+        self.lowerBorderView?.hidden = true
     }
     
     required init(coder: NSCoder) {
@@ -98,7 +98,7 @@ class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
         self.underView.frame = self.bounds
         self.overView?.frame = self.bounds
         
-        self.generatePointsForDrawing()
+        self.generatePointsForDrawing(self.bounds)
         
         self.maskLayer.path = self.fillPath?.CGPath
     }
@@ -171,9 +171,9 @@ class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
         }
     }
     
-    func generatePointsForDrawing() {
-        let segmentWidth = self.bounds.width
-        let segmentHeight = self.bounds.height - CGFloat(underOffset)
+    func generatePointsForDrawing(bounds: CGRect) {
+        let segmentWidth = bounds.width
+        let segmentHeight = bounds.height - CGFloat(underOffset)
         
         // base, untranslated corner points
         self.startingPoints = [
@@ -217,17 +217,17 @@ class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
             }
             
             let p0 = CGPointMake(
-                currentPoint.x + CGFloat(xDir * cornerRadius),
-                currentPoint.y + CGFloat(underOffset) + CGFloat(yDir * cornerRadius))
+                currentPoint.x + (CGFloat(xDir) * cornerRadius),
+                currentPoint.y + CGFloat(underOffset) + (CGFloat(yDir) * cornerRadius))
             let p1 = CGPointMake(
-                nextPoint.x - CGFloat(xDir * cornerRadius),
-                nextPoint.y + CGFloat(underOffset) - CGFloat(yDir * cornerRadius))
+                nextPoint.x - (CGFloat(xDir) * cornerRadius),
+                nextPoint.y + CGFloat(underOffset) - (CGFloat(yDir) * cornerRadius))
             
             self.segmentPoints.append((p0, p1))
             
             let c = CGPointMake(
-                p0.x - CGFloat(yDir * cornerRadius),
-                p0.y + CGFloat(xDir * cornerRadius))
+                p0.x - (CGFloat(yDir) * cornerRadius),
+                p0.y + (CGFloat(xDir) * cornerRadius))
             
             self.arcCenters.append(c)
         }
@@ -285,8 +285,8 @@ class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
             self.segmentPoints[direction.counterclockwise().toRaw()].1)
         
         // TODO: quick hack
-        returnValue.0.y -= CGFloat(self.underOffset)
-        returnValue.1.y -= CGFloat(self.underOffset)
+        //returnValue.0.y -= CGFloat(self.underOffset)
+        //returnValue.1.y -= CGFloat(self.underOffset)
         
         return returnValue
     }
@@ -297,5 +297,6 @@ class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
     
     func attach(direction: Direction?) {
         self.attached = direction
+        generatePointsForDrawing(self.bounds)
     }
 }
