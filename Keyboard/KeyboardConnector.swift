@@ -14,7 +14,7 @@ protocol Connectable {
     func attach(direction: Direction?) // call with nil to detach
 }
 
-// TODO: Xcode crashes
+// TODO: Xcode crashes -- as of 2014-10-9, still crashes if implemented
 // <ConnectableView: UIView where ConnectableView: Connectable>
 class KeyboardConnector: UIView, KeyboardView {
     
@@ -22,6 +22,10 @@ class KeyboardConnector: UIView, KeyboardView {
     var end: UIView
     var startDir: Direction
     var endDir: Direction
+    
+    var shadowAlpha: CGFloat { didSet { self.setNeedsDisplay() }}
+    var shadowOffset: CGPoint { didSet { self.setNeedsDisplay() }}
+    var shadowBlurRadius: CGFloat { didSet { self.setNeedsDisplay() }}
     
     // TODO: temporary fix for Swift compiler crash
     var startConnectable: Connectable
@@ -33,33 +37,42 @@ class KeyboardConnector: UIView, KeyboardView {
     var underColor: UIColor { didSet { self.setNeedsDisplay() }}
     var borderColor: UIColor { didSet { self.setNeedsDisplay() }}
     var drawUnder: Bool { didSet { self.setNeedsDisplay() }}
+    var drawOver: Bool { didSet { self.setNeedsDisplay() }}
     var drawBorder: Bool { didSet { self.setNeedsDisplay() }}
     var drawShadow: Bool { didSet { self.setNeedsDisplay() }}
+    var underOffset: CGFloat { didSet { self.setNeedsDisplay() }}
     
-    var _offset: CGPoint
+    var offset: CGPoint
     
     // TODO: until bug is fixed, make sure start/end and startConnectable/endConnectable are the same object
-    init(start: UIView, end: UIView, startConnectable: Connectable, endConnectable: Connectable, startDirection: Direction, endDirection: Direction) {
-        self.start = start
-        self.end = end
-        self.startDir = startDirection
-        self.endDir = endDirection
-        self.startConnectable = startConnectable
-        self.endConnectable = endConnectable
+    init(start s: UIView, end e: UIView, startConnectable sC: Connectable, endConnectable eC: Connectable, startDirection: Direction, endDirection: Direction) {
+        start = s
+        end = e
+        startDir = startDirection
+        endDir = endDirection
+        startConnectable = sC
+        endConnectable = eC
         
-        self.color = UIColor.whiteColor()
-        self.underColor = UIColor.grayColor()
-        self.borderColor = UIColor.blackColor()
-        self.drawUnder = true
-        self.drawBorder = true
-        self.drawShadow = true
+        shadowAlpha = CGFloat(0.35)
+        shadowOffset = CGPointMake(0, 1.5)
+        shadowBlurRadius = CGFloat(12)
         
-        self._offset = CGPointZero
+        color = UIColor.whiteColor()
+        underColor = UIColor.grayColor()
+        borderColor = UIColor.blackColor()
+        drawUnder = true
+        drawOver = true
+        drawBorder = true
+        drawShadow = true
+        underOffset = 1.0
+        
+        offset = CGPointZero
         
         super.init(frame: CGRectZero)
         
-        self.userInteractionEnabled = false // TODO: why is this even necessary if it's under all the other views?
-        self.backgroundColor = UIColor.clearColor()
+        self.contentMode = UIViewContentMode.Redraw
+        self.opaque = false
+        self.userInteractionEnabled = false
     }
     
     required init(coder: NSCoder) {
@@ -68,36 +81,33 @@ class KeyboardConnector: UIView, KeyboardView {
     
     override func didMoveToSuperview() {
         super.didMoveToSuperview()
-        self.resizeFrame()
+        self.setNeedsLayout()
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
         self.resizeFrame()
-        self.setNeedsDisplay()
     }
     
     func generateConvertedPoints() {
-        if self.superview == nil {
-            return
+        if let superview = self.superview {
+            let startPoints = self.startConnectable.attachmentPoints(self.startDir)
+            let endPoints = self.endConnectable.attachmentPoints(self.endDir)
+            
+            self.convertedStartPoints = (
+                superview.convertPoint(startPoints.0, fromView: self.start),
+                superview.convertPoint(startPoints.1, fromView: self.start))
+            self.convertedEndPoints = (
+                superview.convertPoint(endPoints.0, fromView: self.end),
+                superview.convertPoint(endPoints.1, fromView: self.end))
         }
-        
-        let startPoints = self.startConnectable.attachmentPoints(self.startDir)
-        let endPoints = self.endConnectable.attachmentPoints(self.endDir)
-        
-        self.convertedStartPoints = (
-            self.superview!.convertPoint(startPoints.0, fromView: self.start),
-            self.superview!.convertPoint(startPoints.1, fromView: self.start))
-        self.convertedEndPoints = (
-            self.superview!.convertPoint(endPoints.0, fromView: self.end),
-            self.superview!.convertPoint(endPoints.1, fromView: self.end))
     }
     
     func resizeFrame() {
         generateConvertedPoints()
         
         let buffer: CGFloat = 32
-        self._offset = CGPointMake(buffer/2, buffer/2)
+        self.offset = CGPointMake(buffer/2, buffer/2)
         
         let minX = min(convertedStartPoints.0.x, convertedStartPoints.1.x, convertedEndPoints.0.x, convertedEndPoints.1.x)
         let minY = min(convertedStartPoints.0.y, convertedStartPoints.1.y, convertedEndPoints.0.y, convertedEndPoints.1.y)
@@ -110,8 +120,9 @@ class KeyboardConnector: UIView, KeyboardView {
     }
     
     override func drawRect(rect: CGRect) {
-        // TODO: quick hack
-        resizeFrame()
+        //////////////////
+        // prepare data //
+        //////////////////
         
         let startPoints = self.startConnectable.attachmentPoints(self.startDir)
         let endPoints = self.endConnectable.attachmentPoints(self.endDir)
@@ -128,9 +139,6 @@ class KeyboardConnector: UIView, KeyboardView {
             myConvertedStartPoints.0 = myConvertedStartPoints.1
             myConvertedStartPoints.1 = tempPoint
         }
-        
-        let ctx = UIGraphicsGetCurrentContext()
-        let csp = CGColorSpaceCreateDeviceRGB()
         
         var path = CGPathCreateMutable();
         
@@ -174,9 +182,20 @@ class KeyboardConnector: UIView, KeyboardView {
         bezierPath.addLineToPoint(myConvertedStartPoints.0)
         bezierPath.closePath()
         
-        let shadow = UIColor.blackColor().colorWithAlphaComponent(0.35)
-        let shadowOffset = CGSizeMake(0, 1.5)
-        let shadowBlurRadius: CGFloat = 12
+        let shadow = UIColor.blackColor().colorWithAlphaComponent(self.shadowAlpha)
+        let shadowOffset = self.shadowOffset
+        let shadowBlurRadius: CGFloat = self.shadowBlurRadius
+        
+        ///////////
+        // setup //
+        ///////////
+        
+        let ctx = UIGraphicsGetCurrentContext()
+        let csp = CGColorSpaceCreateDeviceRGB()
+        
+        //////////////////
+        // shadow stuff //
+        //////////////////
         
         // shadow is drawn separate from the fill
         // http://stackoverflow.com/questions/6709064/coregraphics-quartz-drawing-shadow-on-transparent-alpha-path
@@ -197,11 +216,19 @@ class KeyboardConnector: UIView, KeyboardView {
 //        CGContextAddPath(ctx, bezierPath.CGPath)
 //        CGContextClip(ctx)
         
+        /////////////////
+        // draw shadow //
+        /////////////////
+        
         CGContextSaveGState(ctx)
         UIColor.blackColor().setFill()
-        CGContextSetShadowWithColor(ctx, shadowOffset, shadowBlurRadius, shadow.CGColor)
+        CGContextSetShadowWithColor(ctx, CGSizeMake(shadowOffset.x, shadowOffset.y), shadowBlurRadius, shadow.CGColor)
         bezierPath.fill()
         CGContextRestoreGState(ctx)
+        
+        ////////////////
+        // draw under //
+        ////////////////
         
         if self.drawUnder {
             CGContextTranslateCTM(ctx, 0, 1)
@@ -209,10 +236,30 @@ class KeyboardConnector: UIView, KeyboardView {
             CGContextAddPath(ctx, bezierPath.CGPath)
             CGContextFillPath(ctx)
             CGContextTranslateCTM(ctx, 0, -1)
+            
+//            CGContextSaveGState(ctx)
+//            CGContextTranslateCTM(ctx, 0, -CGFloat(underOffset))
+//            bezierPath.bezierPathByReversingPath().addClip()
+////            CGContextAddPath(ctx, bezierPath.CGPath)
+////            CGContextTranslateCTM(ctx, 0, CGFloat(underOffset))
+////            CGContextAddPath(ctx, bezierPath.CGPath)
+////            CGContextEOClip(ctx)
+//            
+////            CGContextTranslateCTM(ctx, 0, CGFloat(underOffset))
+//            CGContextSetFillColorWithColor(ctx, self.underColor.CGColor)
+//            CGContextAddPath(ctx, bezierPath.CGPath)
+//            CGContextFillPath(ctx)
+//            CGContextRestoreGState(ctx)
         }
         
-        self.color.setFill()
-        bezierPath.fill()
+        ///////////////
+        // draw over //
+        ///////////////
+        
+        if self.drawOver {
+            self.color.setFill()
+            bezierPath.fill()
+        }
         
         if self.drawBorder {
             self.borderColor.setStroke()

@@ -14,5 +14,7 @@ protocol KeyboardView {
     var underColor: UIColor { get set }
     var borderColor: UIColor { get set }
     var drawUnder: Bool { get set }
+    var drawOver: Bool { get set }
     var drawBorder: Bool { get set }
+    var underOffset: CGFloat { get set }
 }

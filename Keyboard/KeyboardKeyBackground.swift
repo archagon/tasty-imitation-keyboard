@@ -10,7 +10,6 @@ import UIKit
 
 class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
     
-    var underOffset: Double { didSet { self.setNeedsDisplay() }}
     var cornerRadius: Double {
         didSet {
             self.generatePointsForDrawing()
@@ -24,11 +23,19 @@ class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
     var drawUnder: Bool { didSet { self.setNeedsDisplay() }}
     var drawOver: Bool { didSet { self.setNeedsDisplay() }}
     var drawBorder: Bool { didSet { self.setNeedsDisplay() }}
+    var underOffset: CGFloat { didSet { self.setNeedsDisplay() }}
+    
+    private var underView: UIView
+    private var overView: UIView?
+    private var lowerBorderView: UIView?
+    private var maskLayer: CAShapeLayer
     
     private var startingPoints: [CGPoint]
     private var segmentPoints: [(CGPoint, CGPoint)]
     private var arcCenters: [CGPoint]
     private var arcStartingAngles: [CGFloat]
+    private var fillPath: UIBezierPath?
+    private var edgePaths: [UIBezierPath]?
     
     private var attached: Direction? { didSet { self.setNeedsDisplay() }}
 
@@ -37,7 +44,7 @@ class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
     //    return CAShapeLayer.self
     //}
     
-    override init(frame: CGRect) {
+    init(blur: Bool) {
         attached = nil
         
         startingPoints = []
@@ -45,7 +52,6 @@ class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
         arcCenters = []
         arcStartingAngles = []
         
-        underOffset = 1.0
         cornerRadius = 3.0
         
         color = UIColor.whiteColor()
@@ -54,12 +60,22 @@ class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
         drawUnder = true
         drawOver = true
         drawBorder = false
+        underOffset = 1.0
+        
+        underView = (blur ? UIVisualEffectView(effect: UIBlurEffect(style: UIBlurEffectStyle.Light)) : UIView())
+        maskLayer = CAShapeLayer()
         
         super.init(frame: frame)
         
         self.contentMode = UIViewContentMode.Redraw
         self.opaque = false
         self.userInteractionEnabled = false
+        
+        if let lowerBorderView = self.lowerBorderView { self.addSubview(lowerBorderView) }
+        self.addSubview(self.underView)
+        if let overView = self.overView { self.addSubview(overView) }
+        
+        self.underView.layer.mask = self.maskLayer
     }
     
     required init(coder: NSCoder) {
@@ -77,109 +93,82 @@ class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
         oldBounds = self.bounds
         
         super.layoutSubviews()
-        generatePointsForDrawing()
+        
+        self.lowerBorderView?.frame = self.bounds
+        self.underView.frame = self.bounds
+        self.overView?.frame = self.bounds
+        
+        self.generatePointsForDrawing()
+        
+        self.maskLayer.path = self.fillPath?.CGPath
     }
     
     override func drawRect(rect: CGRect) {
-        ///////////
-        // setup //
-        ///////////
-        
-        let ctx = UIGraphicsGetCurrentContext()
-        let csp = CGColorSpaceCreateDeviceRGB()
-        
-        /////////////////////////
-        // draw the background //
-        /////////////////////////
-        
-        CGContextSetFillColorWithColor(ctx, UIColor.clearColor().CGColor)
-        CGContextFillRect(ctx, self.bounds)
-        
-        /////////////////////
-        // draw the border //
-        /////////////////////
-        
-        // order of edge drawing: left edge, down edge, right edge, up edge
-        
-        // We need to have separate paths for all the edges so we can toggle them as needed.
-        // Unfortunately, it doesn't seem possible to assemble the connected fill path
-        // by simply using CGPathAddPath, since it closes all the subpaths, so we have to
-        // duplicate the code a little bit.
-        
-        var fillPath = CGPathCreateMutable();
-        var edgePaths: [CGMutablePathRef] = []
-        var firstEdge = false
-        
-        for i in 0..<4 {
-            if self.attached != nil && self.attached!.toRaw() == i {
-                continue
-            }
-            
-            var edgePath = CGPathCreateMutable()
-            
-            CGPathMoveToPoint(edgePath, nil, self.segmentPoints[i].0.x, self.segmentPoints[i].0.y)
-            CGPathAddLineToPoint(edgePath, nil, self.segmentPoints[i].1.x, self.segmentPoints[i].1.y)
-            
-            // TODO: figure out if this is ncessary
-            if !firstEdge {
-                CGPathMoveToPoint(fillPath, nil, self.segmentPoints[i].0.x, self.segmentPoints[i].0.y)
-                firstEdge = true
+        if let fillPath = self.fillPath {
+            if let edgePaths = self.edgePaths {
+                ///////////
+                // setup //
+                ///////////
+                
+                let ctx = UIGraphicsGetCurrentContext()
+                let csp = CGColorSpaceCreateDeviceRGB()
+                
+                ////////////////
+                // draw under //
+                ////////////////
+                
+                if self.drawUnder && self.attached != Direction.Down {
+                    CGContextSaveGState(ctx)
+                        // TODO: is this the right way to do this? either way, it works for now
+                        CGContextTranslateCTM(ctx, 0, -CGFloat(underOffset))
+                        CGContextAddPath(ctx, fillPath.CGPath)
+                        CGContextTranslateCTM(ctx, 0, CGFloat(underOffset))
+                        CGContextAddPath(ctx, fillPath.CGPath)
+                        CGContextEOClip(ctx)
+                    
+                        CGContextTranslateCTM(ctx, 0, CGFloat(underOffset))
+                        CGContextSetFillColorWithColor(ctx, self.underColor.CGColor)
+                        CGContextAddPath(ctx, fillPath.CGPath)
+                        CGContextFillPath(ctx)
+                    CGContextRestoreGState(ctx)
+                }
+                
+                ///////////////
+                // draw over //
+                ///////////////
+                
+                // TODO: border stroke outside, not inside
+                CGContextTranslateCTM(ctx, 0, -CGFloat(underOffset))
+                CGContextSaveGState(ctx)
+                    if self.drawOver {
+                        // if we don't clip this draw call, the border will look messed up on account of exceeding the view bounds
+                        // TODO: OverflowCanvas
+                        CGContextAddPath(ctx, fillPath.CGPath)
+                        CGContextClip(ctx)
+                        
+                        CGContextSetFillColorWithColor(ctx, self.color.CGColor)
+                        CGContextSetStrokeColorWithColor(ctx, self.borderColor.CGColor)
+                        CGContextSetLineWidth(ctx, 1)
+                        CGContextAddPath(ctx, fillPath.CGPath)
+                        CGContextFillPath(ctx)
+                    }
+                
+                    if self.drawBorder {
+                        for path in edgePaths {
+                            CGContextAddPath(ctx, path.CGPath)
+                            CGContextStrokePath(ctx)
+                        }
+                    }
+                CGContextRestoreGState(ctx)
+                CGContextTranslateCTM(ctx, 0, CGFloat(underOffset))
             }
             else {
-                CGPathAddLineToPoint(fillPath, nil, self.segmentPoints[i].0.x, self.segmentPoints[i].0.y)
+                return
             }
-            CGPathAddLineToPoint(fillPath, nil, self.segmentPoints[i].1.x, self.segmentPoints[i].1.y)
-            
-            if (self.attached != nil && self.attached!.toRaw() == ((i + 1) % 4)) {
-                // do nothing
-            } else {
-                CGPathAddRelativeArc(edgePath, nil, self.arcCenters[(i + 1) % 4].x, self.arcCenters[(i + 1) % 4].y, CGFloat(self.cornerRadius), self.arcStartingAngles[(i + 1) % 4], CGFloat(M_PI/2.0))
-                CGPathAddRelativeArc(fillPath, nil, self.arcCenters[(i + 1) % 4].x, self.arcCenters[(i + 1) % 4].y, CGFloat(self.cornerRadius), self.arcStartingAngles[(i + 1) % 4], CGFloat(M_PI/2.0))
-            }
-            
-            edgePaths.append(edgePath)
         }
-        
-        if self.drawUnder && self.attached != Direction.Down {
-            CGContextSaveGState(ctx)
-                // TODO: is this the right way to do this? either way, it works for now
-                CGContextTranslateCTM(ctx, 0, -CGFloat(underOffset))
-                CGContextAddPath(ctx, fillPath)
-                CGContextTranslateCTM(ctx, 0, CGFloat(underOffset))
-                CGContextAddPath(ctx, fillPath)
-                CGContextEOClip(ctx)
-            
-                CGContextTranslateCTM(ctx, 0, CGFloat(underOffset))
-                CGContextSetFillColorWithColor(ctx, self.underColor.CGColor)
-                CGContextAddPath(ctx, fillPath)
-                CGContextFillPath(ctx)
-            CGContextRestoreGState(ctx)
+        else {
+            return
         }
-        
-        // TODO: border stroke outside, not inside
-        CGContextTranslateCTM(ctx, 0, -CGFloat(underOffset))
-        CGContextSaveGState(ctx)
-            if self.drawOver {
-                // if we don't clip this draw call, the border will look messed up on account of exceeding the view bounds
-                // TODO: OverflowCanvas
-                CGContextAddPath(ctx, fillPath)
-                CGContextClip(ctx)
-                
-                CGContextSetFillColorWithColor(ctx, self.color.CGColor)
-                CGContextSetStrokeColorWithColor(ctx, self.borderColor.CGColor)
-                CGContextSetLineWidth(ctx, 1)
-                CGContextAddPath(ctx, fillPath)
-                CGContextFillPath(ctx)
-            }
-        
-            if self.drawBorder {
-                for path in edgePaths {
-                    CGContextAddPath(ctx, path)
-                    CGContextStrokePath(ctx)
-                }
-            }
-        CGContextRestoreGState(ctx)
-        CGContextTranslateCTM(ctx, 0, CGFloat(underOffset))
     }
     
     func generatePointsForDrawing() {
@@ -242,6 +231,52 @@ class KeyboardKeyBackground: UIView, KeyboardView, Connectable {
             
             self.arcCenters.append(c)
         }
+        
+        // order of edge drawing: left edge, down edge, right edge, up edge
+        
+        // We need to have separate paths for all the edges so we can toggle them as needed.
+        // Unfortunately, it doesn't seem possible to assemble the connected fill path
+        // by simply using CGPathAddPath, since it closes all the subpaths, so we have to
+        // duplicate the code a little bit.
+        
+        var fillPath = UIBezierPath()
+        var edgePaths: [UIBezierPath] = []
+        var firstEdge = false
+        
+        for i in 0..<4 {
+            if self.attached != nil && self.attached!.toRaw() == i {
+                continue
+            }
+            
+            var edgePath = UIBezierPath()
+            
+            edgePath.moveToPoint(self.segmentPoints[i].0)
+            edgePath.addLineToPoint(self.segmentPoints[i].1)
+            
+            // TODO: figure out if this is ncessary
+            if !firstEdge {
+                fillPath.moveToPoint(self.segmentPoints[i].0)
+                firstEdge = true
+            }
+            else {
+                fillPath.addLineToPoint(self.segmentPoints[i].0)
+            }
+            fillPath.addLineToPoint(self.segmentPoints[i].1)
+            
+            if (self.attached != nil && self.attached!.toRaw() == ((i + 1) % 4)) {
+                // do nothing
+            } else {
+                let startAngle = self.arcStartingAngles[(i + 1) % 4]
+                let endAngle = startAngle + CGFloat(M_PI/2.0)
+                edgePath.addArcWithCenter(self.arcCenters[(i + 1) % 4], radius: CGFloat(self.cornerRadius), startAngle: startAngle, endAngle: endAngle, clockwise: true)
+                fillPath.addArcWithCenter(self.arcCenters[(i + 1) % 4], radius: CGFloat(self.cornerRadius), startAngle: startAngle, endAngle: endAngle, clockwise: true)
+            }
+            
+            edgePaths.append(edgePath)
+        }
+        
+        self.fillPath = fillPath
+        self.edgePaths = edgePaths
     }
     
     func attachmentPoints(direction: Direction) -> (CGPoint, CGPoint) {
