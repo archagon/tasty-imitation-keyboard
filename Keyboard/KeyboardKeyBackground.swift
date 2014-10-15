@@ -13,6 +13,7 @@ import UIKit
 class KeyboardKeyBackground: UIView, Connectable {
     
     var fillPath: UIBezierPath?
+    var underPath: UIBezierPath?
     var edgePaths: [UIBezierPath]?
     
     // do not set this manually
@@ -215,8 +216,41 @@ class KeyboardKeyBackground: UIView, Connectable {
         
         fillPath.closePath()
         
+        var underPath = { () -> UIBezierPath in
+            var underPath = UIBezierPath()
+            
+            underPath.moveToPoint(self.segmentPoints[2].1)
+            
+            var startAngle = self.arcStartingAngles[3]
+            var endAngle = startAngle + CGFloat(M_PI/2.0)
+            underPath.addArcWithCenter(self.arcCenters[3], radius: CGFloat(self.cornerRadius), startAngle: startAngle, endAngle: endAngle, clockwise: true)
+
+            underPath.addLineToPoint(self.segmentPoints[3].1)
+            
+            startAngle = self.arcStartingAngles[0]
+            endAngle = startAngle + CGFloat(M_PI/2.0)
+            underPath.addArcWithCenter(self.arcCenters[0], radius: CGFloat(self.cornerRadius), startAngle: startAngle, endAngle: endAngle, clockwise: true)
+            
+            underPath.addLineToPoint(CGPointMake(self.segmentPoints[0].0.x, self.segmentPoints[0].0.y - self.underOffset))
+            
+            startAngle = self.arcStartingAngles[1]
+            endAngle = startAngle - CGFloat(M_PI/2.0)
+            underPath.addArcWithCenter(CGPointMake(self.arcCenters[0].x, self.arcCenters[0].y - self.underOffset), radius: CGFloat(self.cornerRadius), startAngle: startAngle, endAngle: endAngle, clockwise: false)
+            
+            underPath.addLineToPoint(CGPointMake(self.segmentPoints[2].1.x - self.cornerRadius, self.segmentPoints[2].1.y + self.cornerRadius - self.underOffset))
+            
+            startAngle = self.arcStartingAngles[0]
+            endAngle = startAngle - CGFloat(M_PI/2.0)
+            underPath.addArcWithCenter(CGPointMake(self.arcCenters[3].x, self.arcCenters[3].y - self.underOffset), radius: CGFloat(self.cornerRadius), startAngle: startAngle, endAngle: endAngle, clockwise: false)
+            
+            underPath.closePath()
+            
+            return underPath
+        }()
+        
         self.fillPath = fillPath
         self.edgePaths = edgePaths
+        self.underPath = underPath
     }
     
     func attachmentPoints(direction: Direction) -> (CGPoint, CGPoint) {
