@@ -554,6 +554,10 @@ class KeyboardLayout: KeyboardKeyProtocol {
             
             if localFrame.origin.y < 3 {
                 localFrame.origin.y = 3
+                
+                key.background.attached = Direction.Down
+                key.connector?.startDir = Direction.Down
+                key.background.hideDirectionIsOpposite = true
             }
             
             if localFrame.origin.x < 3 {

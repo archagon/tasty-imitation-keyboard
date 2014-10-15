@@ -30,9 +30,16 @@ class KeyboardKeyBackground: UIView, Connectable {
             self.setNeedsDisplay()
         }
     }
+    var hideDirectionIsOpposite: Bool {
+        didSet {
+            self.generatePointsForDrawing(self.bounds)
+            self.setNeedsDisplay()
+        }
+    }
     
     init(blur: Bool, cornerRadius: CGFloat, underOffset: CGFloat) {
         attached = nil
+        hideDirectionIsOpposite = false
         
         startingPoints = []
         segmentPoints = []
@@ -139,7 +146,7 @@ class KeyboardKeyBackground: UIView, Connectable {
         var firstEdge = false
         
         for i in 0..<4 {
-            if self.attached != nil && self.attached!.toRaw() == i {
+            if self.attached != nil && (self.hideDirectionIsOpposite ? self.attached!.toRaw() != i : self.attached!.toRaw() == i) {
                 continue
             }
             
@@ -158,7 +165,7 @@ class KeyboardKeyBackground: UIView, Connectable {
             }
             fillPath.addLineToPoint(self.segmentPoints[i].1)
             
-            if (self.attached != nil && self.attached!.toRaw() == ((i + 1) % 4)) {
+            if (self.attached != nil && (self.hideDirectionIsOpposite ? self.attached!.toRaw() != ((i + 1) % 4) : self.attached!.toRaw() == ((i + 1) % 4))) {
                 // do nothing
             } else {
                 let startAngle = self.arcStartingAngles[(i + 1) % 4]
