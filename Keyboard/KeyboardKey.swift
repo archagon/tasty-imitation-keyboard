@@ -29,12 +29,6 @@ class KeyboardKey: UIControl {
     
     var vibrancy: VibrancyType?
     
-    var background: KeyboardKeyBackground
-    var popup: KeyboardKeyBackground?
-    var connector: KeyboardConnector?
-    
-    var label: UILabel
-    var popupLabel: UILabel?
     var text: String {
         didSet {
             self.label.text = text
@@ -74,25 +68,63 @@ class KeyboardKey: UIControl {
         }
     }
     
-    var shape: Shape? {
-        didSet {
-            self.redrawShape()
-        }
-    }
-    
     override var frame: CGRect {
         didSet {
             self.redrawText()
         }
     }
     
-    var blurryTemp: Bool = false
+    var label: UILabel
+    var popupLabel: UILabel?
+    var shape: Shape? {
+        didSet {
+            self.redrawShape()
+        }
+    }
+    
+    var withBlur: Bool
+    
+    var background: KeyboardKeyBackground
+    var popup: KeyboardKeyBackground?
+    var connector: KeyboardConnector?
+    
+    var displayView: UIView
+    var displayViewContentView: UIView
+    var maskLayer: CAShapeLayer
+    var borderLayer: CAShapeLayer
+    var underLayer: CAShapeLayer
+    var shadowView: UIView
+    var shadowLayer: CAShapeLayer
+    
     init(vibrancy: Bool) {
         self.vibrancy = VibrancyType.DarkRegular
         
-        self.blurryTemp = (arc4random() % 2 == 0 ? true : false)
-        self.background = KeyboardKeyBackground(blur: blurryTemp, cornerRadius: 3, underOffset: 2)
-//        self.backgroundContainer = VibrancyContainer(view: self.background, vibrancyType: self.vibrancy)
+//        let withBlur = (arc4random() % 2 == 0 ? true : false)
+        let withBlur = false
+        self.withBlur = withBlur
+        
+        self.background = KeyboardKeyBackground(blur: withBlur, cornerRadius: 3, underOffset: 2)
+        
+        self.displayView = {
+            if withBlur {
+                return UIVisualEffectView(effect: UIBlurEffect(style: UIBlurEffectStyle.Light))
+            }
+            else {
+                return UIView()
+            }
+        }()
+        self.borderLayer = CAShapeLayer()
+        self.underLayer = CAShapeLayer()
+        self.shadowLayer = CAShapeLayer()
+        self.maskLayer = CAShapeLayer()
+        self.shadowView = UIView()
+        
+        if let effectView = self.displayView as? UIVisualEffectView {
+            self.displayViewContentView = effectView.contentView
+        }
+        else {
+            self.displayViewContentView = self.displayView
+        }
         
         self.label = UILabel()
         self.text = ""
@@ -109,38 +141,22 @@ class KeyboardKey: UIControl {
         self.popupDirection = nil
         
         super.init(frame: frame)
-
-//        self.addSubview(self.backgroundContainer)
         
-//        if vibrancy {
-////            let blur = UIBlurEffect(style: UIBlurEffectStyle.ExtraLight)
-//            let blur = UIBlurEffect(style: UIBlurEffectStyle.Dark)
-//            let vibrancy = UIVibrancyEffect(forBlurEffect: blur)
-//            var vibrancyView = UIVisualEffectView(effect: vibrancy)
-//            
-//            self.addSubview(vibrancyView)
-//            
-//            vibrancyView.contentView.addSubview(self.background)
-//            self.vibrancyView = vibrancyView
-//            
-//            self.overlay = KeyboardKeyBackground(frame: CGRectZero)
-//            self.overlay?.color = UIColor.whiteColor()
-//            self.overlay?.drawUnder = false
-//            self.addSubview(self.overlay!)
-//        }
-//        else {
-//            self.addSubview(self.background)
-//        }
+        self.addSubview(self.shadowView)
+        self.shadowView.layer.addSublayer(self.shadowLayer)
+        
+        self.addSubview(self.displayView)
+        self.displayView.layer.mask = self.maskLayer
+        self.displayViewContentView.layer.addSublayer(self.borderLayer)
         
         self.addSubview(self.background)
+        self.background.addSubview(self.label)
         
         self.label.textAlignment = NSTextAlignment.Center
         self.label.font = self.label.font.fontWithSize(22)
         self.label.adjustsFontSizeToFitWidth = true
         self.label.userInteractionEnabled = false
         self.clipsToBounds = false
-        
-        self.addSubview(self.label)
     }
     
     required init(coder: NSCoder) {
@@ -165,15 +181,78 @@ class KeyboardKey: UIControl {
         
         super.layoutSubviews()
         
-//        self.backgroundContainer.frame = self.bounds
-        self.background.frame = self.bounds
-//        self.underlay.frame = self.bounds
-//        self.overlay?.frame = self.bounds
+        // TODO: no on 0, sam
         
+        
+        if self.text == "a" {
+            NSLog("relayingout a: \(self.bounds)")
+        }
+        
+        self.background.frame = self.bounds
         self.label.frame = self.bounds
+        
+        var boundingBox = CGRectUnion(self.bounds, self.popup!.frame)
+        self.displayView.frame = boundingBox
+        self.shadowView.frame = boundingBox
+        
+        self.refreshShapes()
+        
+        //        self.label.
         
         self.redrawText()
         self.redrawShape()
+    }
+    
+    func refreshShapes() {
+        self.background.layoutIfNeeded()
+        self.popup?.layoutIfNeeded()
+        self.connector?.layoutIfNeeded()
+        
+        var testPath = UIBezierPath()
+        var edgePath = UIBezierPath()
+        
+        let addCurves = { (fromShape: KeyboardKeyBackground?, toPath: UIBezierPath, toEdgePaths: UIBezierPath) -> Void in
+            let unitSquare = CGRectMake(0, 0, 1, 1)
+            if let shape = fromShape {
+                var path = shape.fillPath
+                var translatedUnitSquare = self.displayView.convertRect(unitSquare, fromView: shape)
+                let transformFromShapeToView = CGAffineTransformMakeTranslation(translatedUnitSquare.origin.x, translatedUnitSquare.origin.y)
+                path?.applyTransform(transformFromShapeToView)
+                if path != nil { toPath.appendPath(path!) }
+                if let edgePaths = shape.edgePaths {
+                    for (e, anEdgePath) in enumerate(edgePaths) {
+                        var editablePath = anEdgePath
+                        editablePath.applyTransform(transformFromShapeToView)
+                        toEdgePaths.appendPath(editablePath)
+                    }
+                }
+            }
+        }
+        
+        addCurves(self.background, testPath, edgePath)
+        addCurves(self.connector, testPath, edgePath)
+        addCurves(self.popup, testPath, edgePath)
+        
+        // SHADOW
+        
+        self.shadowLayer.shadowOpacity = Float(0.5)
+        self.shadowLayer.shadowRadius = 5
+//        shadowView.frame = boundingBox
+        self.shadowLayer.shadowPath = UIBezierPath(ovalInRect: CGRectMake(2, (shadowView.bounds.height / CGFloat(2)) - CGFloat(10) + CGFloat(5), shadowView.bounds.width - CGFloat(4), 20)).CGPath
+        
+        // UNDERLAY
+        
+        // BACKGROUND MASK
+        
+        self.maskLayer.path = testPath.CGPath
+//        self.displayViewContentView.layer.backgroundColor = UIColor.yellowColor().CGColor
+        
+        // BORDER
+        
+        self.borderLayer.path = edgePath.CGPath
+        self.borderLayer.borderWidth = 5
+        borderLayer.strokeColor = UIColor.blueColor().CGColor
+        borderLayer.fillColor = UIColor.clearColor().CGColor
     }
     
     func layoutPopup() {
@@ -203,7 +282,7 @@ class KeyboardKey: UIControl {
             //                super.layoutSubviews()
             //            }
             
-            self.createAwesomeBackground()
+//            self.createAwesomeBackground()
         }
     }
     
@@ -215,7 +294,10 @@ class KeyboardKey: UIControl {
     //    shadowBlurRadius = CGFloat(12)
     
     var awesomeBackground: UIView?
+    var awesomeShadow: UIView?
     func createAwesomeBackground() {
+        return;
+        
 //        self.popup?.hidden = true
 //        self.background.hidden = true
 //        self.connector?.hidden = true
@@ -229,8 +311,30 @@ class KeyboardKey: UIControl {
         
         var boundingBox = CGRectUnion(self.bounds, self.popup!.frame)
         var prettyView = UIVisualEffectView(effect: UIBlurEffect(style: UIBlurEffectStyle.Light))
-        prettyView.backgroundColor = (self.blurryTemp ? nil : UIColor.yellowColor())
+//        prettyView.backgroundColor = (self.blurryTemp ? nil : UIColor.yellowColor())
+//        prettyView.backgroundColor = UIColor.whiteColor().colorWithAlphaComponent(CGFloat(0.25))
+        prettyView.contentView.backgroundColor = UIColor.whiteColor().colorWithAlphaComponent(CGFloat(0.25))
         prettyView.frame = boundingBox
+        
+//        var shadowShapeLayer = CAShapeLayer()
+////        shadowView.layer = shadowShapeLayer
+//        let scalingFactor: CGSize = CGSizeMake(3, 1.5)
+//        var shadowViewFrame = CGRectZero
+////        shadowViewFrame.size = CGSizeMake(boundingBox.width * scalingFactor.width, boundingBox.height * scalingFactor.height)
+////        shadowViewFrame.origin.x = boundingBox.origin.x + ((boundingBox.width - shadowViewFrame.width) / CGFloat(2))
+////        shadowViewFrame.origin.y = boundingBox.origin.y + ((boundingBox.height - shadowViewFrame.height) / CGFloat(2))
+////        shadowView.frame = shadowViewFrame
+////        shadowView.frame = boundingBox
+//        shadowShapeLayer.frame = boundingBox
+//        shadowShapeLayer.opaque = false
+        
+//        shadowView.backgroundColor = UIColor.greenColor()
+        
+        self.awesomeBackground = prettyView
+//        self.awesomeShadow = shadowView
+        
+//        self.addSubview(shadowView)
+//        self.layer.addSublayer(shadowShapeLayer)
         self.addSubview(prettyView)
         
         let unitSquare = CGRectMake(0, 0, 1, 1)
@@ -268,11 +372,50 @@ class KeyboardKey: UIControl {
             edgePath.appendPath(editablePath)
         }
 
+        // SHADOW
+        
+//        shadowShapeLayer.path = testPath.CGPath
+//        shadowShapeLayer.fillColor = UIColor.redColor().colorWithAlphaComponent(CGFloat(0.25)).CGColor
+//        shadowShapeLayer.shadowColor = UIColor.blackColor().CGColor
+//        shadowShapeLayer.shadowOffset = CGSizeMake(10, 10)
+//        shadowShapeLayer.shadowOpacity = Float(0.75)
+        
+        var shapeLayer1 = CAShapeLayer()
+//        shapeLayer1.fillColor = UIColor.blueColor().CGColor
+//        maskLayer.path = testPath.bezierPathByReversingPath().CGPath
+        var shadowView = UIView()
+//        shapeLayer1.fillColor = UIColor.redColor().CGColor
+        shapeLayer1.shadowOpacity = Float(0.5)
+        shadowView.frame = boundingBox
+//        shadowView.frame.origin.x -= 40
+        shadowView.layer.addSublayer(shapeLayer1)
+        shapeLayer1.shadowRadius = 5
+        shapeLayer1.shadowPath = UIBezierPath(ovalInRect: CGRectMake(2, (shadowView.bounds.height / CGFloat(2)) - CGFloat(10) + CGFloat(5), shadowView.bounds.width - CGFloat(4), 20)).CGPath
+        
+//        shapeLayer1.shadowOpacity = Float(1)
+//        shapeLayer1.mask = maskLayer
+//        shapeLayer1.shadowOffset = CGSizeMake(-20, 20)
+//        shapeLayer1.frame = shadowView.bounds
+//        maskLayer.frame = shadowView.bounds
+        var clipRectPath = UIBezierPath(rect: shadowView.bounds)
+        clipRectPath.appendPath(testPath)
+//        maskLayer.path = clipRectPath.CGPath
+        self.addSubview(shadowView)
+        awesomeShadow = shadowView
+        
+        
+        // UNDERLAY
+        
+        // BG MASK
         
         var shapeLayer = CAShapeLayer()
         shapeLayer.path = testPath.CGPath
         prettyView.layer.mask = shapeLayer
-        prettyView.layer.borderColor = UIColor.blackColor().CGColor
+//        shadowShapeLayer.removeFromSuperlayer()
+//        shadowShapeLayer.frame.origin = CGPointZero
+//        prettyView.layer.addSublayer(shadowShapeLayer)
+        
+        // BORDER
         
         var borderLayer = CAShapeLayer()
         borderLayer.path = edgePath.CGPath
@@ -280,9 +423,10 @@ class KeyboardKey: UIControl {
 //        borderLayer.borderColor = UIColor.blueColor().CGColor
         borderLayer.strokeColor = UIColor.blueColor().CGColor
         borderLayer.fillColor = UIColor.clearColor().CGColor
-        prettyView.layer.addSublayer(borderLayer)
+        prettyView.contentView.layer.addSublayer(borderLayer)
         
-        self.awesomeBackground = prettyView
+        prettyView.removeFromSuperview()
+        self.addSubview(prettyView)
     }
     
     func redrawText() {
@@ -311,28 +455,28 @@ class KeyboardKey: UIControl {
     }
     
     func updateColors() {
-        var keyboardViews: [KeyboardKeyBackground] = [self.background]
-        if self.popup != nil { keyboardViews.append(self.popup!) }
-        if self.connector != nil { keyboardViews.append(self.connector!) }
+        if self.withBlur {
+            self.displayViewContentView.backgroundColor = UIColor.whiteColor().colorWithAlphaComponent(CGFloat(0.25))
+        }
+        else {
+            self.displayViewContentView.backgroundColor = self.color
+        }
         
-        var switchColors = self.highlighted || self.selected
+        let switchColors = self.highlighted || self.selected
         
-//        self.background.drawUnder = false
-//        self.underlay.hidden = true
-//        self.keyView.drawUnder = true
-        
-        for kv in keyboardViews {
-//            var keyboardView = kv
-//            keyboardView.color = (switchColors && self.downColor != nil ? self.downColor! : self.color)
-//            keyboardView.underColor = (switchColors && self.downUnderColor != nil ? self.downUnderColor! : self.underColor)
-//            keyboardView.borderColor = (switchColors && self.downBorderColor != nil ? self.downBorderColor! : self.borderColor)
-//            keyboardView.drawBorder = self.drawBorder
+        if switchColors {
+            if let downColor = self.downColor {
+                self.displayViewContentView.backgroundColor = downColor
+            }
         }
         
         self.label.textColor = (switchColors && self.downTextColor != nil ? self.downTextColor! : self.textColor)
         if self.popup != nil {
 //            self.popup!.label.textColor = (switchColors && self.downTextColor != nil ? self.downTextColor! : self.textColor)
         }
+        
+//        self.borderLayer.hidden = !switchColors
+        self.borderLayer.hidden = true
         
 //        if self.backgroundContainer.vibrancyView != nil {
 ////            self.background.color = UIColor.whiteColor().colorWithAlphaComponent(0.25)
@@ -342,15 +486,6 @@ class KeyboardKey: UIControl {
 //        }
         
 //        self.underlay.color = UIColor(red: CGFloat(38.6)/CGFloat(255), green: CGFloat(18)/CGFloat(255), blue: CGFloat(39.3)/CGFloat(255), alpha: 0.4)
-        
-        if self.blurryTemp {
-//            self.background.color = UIColor.clearColor()
-//            self.popup?.color = UIColor.clearColor()
-        }
-        else {
-//            self.background.color = UIColor.yellowColor()
-//            self.popup?.color = UIColor.yellowColor()
-        }
     }
     
     func layoutPopup(dir: Direction) {
@@ -379,7 +514,7 @@ class KeyboardKey: UIControl {
         let p = self.popup!
         
         self.connector?.removeFromSuperview()
-        self.connector = KeyboardConnector(blur: blurryTemp, cornerRadius: 3, underOffset: 2, start: kv, end: p, startConnectable: kv, endConnectable: p, startDirection: direction, endDirection: direction.opposite())
+        self.connector = KeyboardConnector(blur: withBlur, cornerRadius: 3, underOffset: 2, start: kv, end: p, startConnectable: kv, endConnectable: p, startDirection: direction, endDirection: direction.opposite())
         self.connector!.layer.zPosition = -1
         self.addSubview(self.connector!)
         
@@ -397,7 +532,7 @@ class KeyboardKey: UIControl {
         if self.popup == nil {
             self.layer.zPosition = 1000
             
-            var popup = KeyboardKeyBackground(blur: blurryTemp, cornerRadius: 9.0, underOffset: 2)
+            var popup = KeyboardKeyBackground(blur: withBlur, cornerRadius: 9.0, underOffset: 2)
 //            self.addSubview(popup)
             
             self.popup = popup
@@ -421,6 +556,7 @@ class KeyboardKey: UIControl {
     func hidePopup() {
         if self.awesomeBackground != nil {
             self.awesomeBackground?.removeFromSuperview()
+            self.awesomeShadow?.removeFromSuperview()
         }
         
         if self.popup != nil {

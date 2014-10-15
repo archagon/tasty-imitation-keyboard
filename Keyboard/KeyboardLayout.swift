@@ -557,11 +557,11 @@ class KeyboardLayout: KeyboardKeyProtocol {
             }
             
             if localFrame.origin.x < 3 {
-                localFrame.origin.x = 3
+                localFrame.origin.x = key.frame.origin.x
             }
             
             if localFrame.origin.x + localFrame.width > superview.bounds.width - 3 {
-                localFrame.origin.x = superview.bounds.width - localFrame.width - 3
+                localFrame.origin.x = key.frame.origin.x + key.frame.width - localFrame.width
             }
             
             popup.frame = actualSuperview.convertRect(localFrame, toView: popup.superview)
