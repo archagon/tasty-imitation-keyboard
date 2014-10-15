@@ -24,22 +24,27 @@ class KeyboardKeyBackground: UIView, Connectable {
     var arcCenters: [CGPoint]
     var arcStartingAngles: [CGFloat]
     
+    var dirty: Bool
+    
     var attached: Direction? {
         didSet {
-            self.generatePointsForDrawing(self.bounds)
-            self.setNeedsDisplay()
+            self.dirty = true
+            self.setNeedsLayout()
         }
     }
     var hideDirectionIsOpposite: Bool {
         didSet {
-            self.generatePointsForDrawing(self.bounds)
-            self.setNeedsDisplay()
+            self.dirty = true
+            self.setNeedsLayout()
         }
     }
+    
+    var trackMePlz: Bool = false
     
     init(blur: Bool, cornerRadius: CGFloat, underOffset: CGFloat) {
         attached = nil
         hideDirectionIsOpposite = false
+        dirty = false
         
         startingPoints = []
         segmentPoints = []
@@ -60,20 +65,28 @@ class KeyboardKeyBackground: UIView, Connectable {
     
     var oldBounds: CGRect?
     override func layoutSubviews() {
-        if self.bounds.width == 0 || self.bounds.height == 0 {
-            return
-        }
-        if oldBounds != nil && CGRectEqualToRect(self.bounds, oldBounds!) {
-            return
+        if !self.dirty {
+            if self.bounds.width == 0 || self.bounds.height == 0 {
+                return
+            }
+            if oldBounds != nil && CGRectEqualToRect(self.bounds, oldBounds!) {
+                return
+            }
         }
         oldBounds = self.bounds
         
         super.layoutSubviews()
         
         self.generatePointsForDrawing(self.bounds)
+        
+        self.dirty = false
     }
     
     func generatePointsForDrawing(bounds: CGRect) {
+        if self.trackMePlz {
+            NSLog("generating points for \(self)")
+        }
+        
         let segmentWidth = bounds.width
         let segmentHeight = bounds.height - CGFloat(underOffset)
         
@@ -143,39 +156,64 @@ class KeyboardKeyBackground: UIView, Connectable {
         
         var fillPath = UIBezierPath()
         var edgePaths: [UIBezierPath] = []
-        var firstEdge = false
+        var prevPoint: CGPoint?
         
         for i in 0..<4 {
+            var edgePath: UIBezierPath?
+            
             if self.attached != nil && (self.hideDirectionIsOpposite ? self.attached!.toRaw() != i : self.attached!.toRaw() == i) {
-                continue
-            }
-            
-            var edgePath = UIBezierPath()
-            
-            edgePath.moveToPoint(self.segmentPoints[i].0)
-            edgePath.addLineToPoint(self.segmentPoints[i].1)
-            
-            // TODO: figure out if this is ncessary
-            if !firstEdge {
-                fillPath.moveToPoint(self.segmentPoints[i].0)
-                firstEdge = true
+                // do nothing
+                // TODO: quick hack
+                if !self.hideDirectionIsOpposite {
+                    continue
+                }
             }
             else {
+                edgePath = UIBezierPath()
+                
+                // TODO: figure out if this is ncessary
+                if prevPoint == nil {
+                    prevPoint = self.segmentPoints[i].0
+                    fillPath.moveToPoint(prevPoint!)
+                }
+
                 fillPath.addLineToPoint(self.segmentPoints[i].0)
+                fillPath.addLineToPoint(self.segmentPoints[i].1)
+                
+                edgePath!.moveToPoint(self.segmentPoints[i].0)
+                edgePath!.addLineToPoint(self.segmentPoints[i].1)
+                
+                prevPoint = self.segmentPoints[i].1
             }
-            fillPath.addLineToPoint(self.segmentPoints[i].1)
             
-            if (self.attached != nil && (self.hideDirectionIsOpposite ? self.attached!.toRaw() != ((i + 1) % 4) : self.attached!.toRaw() == ((i + 1) % 4))) {
+            let shouldDrawArcInOppositeMode = (self.attached != nil ? (self.attached!.toRaw() == i) || (self.attached!.toRaw() == ((i + 1) % 4)) : false)
+            
+            if (self.attached != nil && (self.hideDirectionIsOpposite ? !shouldDrawArcInOppositeMode : self.attached!.toRaw() == ((i + 1) % 4))) {
                 // do nothing
             } else {
+                edgePath = (edgePath == nil ? UIBezierPath() : edgePath)
+                
+                if prevPoint == nil {
+                    prevPoint = self.segmentPoints[i].1
+                    fillPath.moveToPoint(prevPoint!)
+                }
+                
                 let startAngle = self.arcStartingAngles[(i + 1) % 4]
                 let endAngle = startAngle + CGFloat(M_PI/2.0)
-                edgePath.addArcWithCenter(self.arcCenters[(i + 1) % 4], radius: CGFloat(self.cornerRadius), startAngle: startAngle, endAngle: endAngle, clockwise: true)
+                
+                fillPath.addLineToPoint(prevPoint!)
                 fillPath.addArcWithCenter(self.arcCenters[(i + 1) % 4], radius: CGFloat(self.cornerRadius), startAngle: startAngle, endAngle: endAngle, clockwise: true)
+                
+                edgePath!.moveToPoint(prevPoint!)
+                edgePath!.addArcWithCenter(self.arcCenters[(i + 1) % 4], radius: CGFloat(self.cornerRadius), startAngle: startAngle, endAngle: endAngle, clockwise: true)
+                
+                prevPoint = self.segmentPoints[(i + 1) % 4].0
             }
             
-            edgePaths.append(edgePath)
+            if edgePath != nil { edgePaths.append(edgePath!) }
         }
+        
+        fillPath.closePath()
         
         self.fillPath = fillPath
         self.edgePaths = edgePaths
