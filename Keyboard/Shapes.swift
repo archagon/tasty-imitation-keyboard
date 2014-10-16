@@ -15,8 +15,8 @@ import UIKit
 ///////////////////
 
 class BackspaceShape: Shape {
-    override func drawCall() {
-        drawBackspace(self.bounds, UIColor.whiteColor())
+    override func drawCall(color: UIColor) {
+        drawBackspace(self.bounds, color)
     }
 }
 
@@ -27,14 +27,14 @@ class ShiftShape: Shape {
         }
     }
     
-    override func drawCall() {
-        drawShift(self.bounds, UIColor.blackColor(), self.withLock)
+    override func drawCall(color: UIColor) {
+        drawShift(self.bounds, color, self.withLock)
     }
 }
 
 class GlobeShape: Shape {
-    override func drawCall() {
-        drawGlobe(self.bounds, UIColor.blackColor())
+    override func drawCall(color: UIColor) {
+        drawGlobe(self.bounds, color)
     }
 }
 
@@ -91,7 +91,7 @@ class Shape: UIView {
         self.overflowCanvas.setNeedsDisplay()
     }
     
-    func drawCall() { /* override me! */ }
+    func drawCall(color: UIColor) { /* override me! */ }
     
     class OverflowCanvas: UIView {
         // TODO: retain cycle? does swift even have those?
@@ -119,7 +119,8 @@ class Shape: UIView {
             let yOffset = (self.bounds.height - self.shape.bounds.height) / CGFloat(2)
             CGContextTranslateCTM(ctx, xOffset, yOffset)
             
-            self.shape.drawCall()
+//            self.shape.drawCall(shape.color != nil ? shape.color! : UIColor.blackColor())
+            self.shape.drawCall(UIColor.whiteColor())
             
             CGContextRestoreGState(ctx)
         }

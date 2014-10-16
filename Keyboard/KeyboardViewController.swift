@@ -97,7 +97,15 @@ class KeyboardViewController: UIInputViewController {
         
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
         
-        self.layout = KeyboardLayout(model: self.keyboard, superview: self.forwardingView, darkMode: false)
+//        optional var autocapitalizationType: UITextAutocapitalizationType { get set } // default is UITextAutocapitalizationTypeSentences
+//        optional var autocorrectionType: UITextAutocorrectionType { get set } // default is UITextAutocorrectionTypeDefault
+//        @availability(iOS, introduced=5.0)
+//        optional var spellCheckingType: UITextSpellCheckingType { get set } // default is UITextSpellCheckingTypeDefault;
+//        optional var keyboardType: UIKeyboardType { get set } // default is UIKeyboardTypeDefault
+//        optional var keyboardAppearance: UIKeyboardAppearance { get set } // default is UIKeyboardAppearanceDefault
+//        optional var returnKeyType: UIReturnKeyType { get set } // default is UIReturnKeyDefault (See note under UIReturnKeyType enum)
+//        optional var enablesReturnKeyAutomatically: Bool { get set } // default is NO (when YES, will automatically disable return key when text widget has zero-length contents, and will automatically enable when text widget has non-zero-length contents)
+//        optional var secureTextEntry: Bool { get set } // default is NO
         
         self.bannerView = self.banner()
         self.bannerView?.hidden = true
@@ -154,24 +162,45 @@ class KeyboardViewController: UIInputViewController {
     */
     
     var constraintsAdded: Bool = false
-    func setupConstraints() {
+    func setupLayout() {
         if !constraintsAdded {
+            self.layout = KeyboardLayout(model: self.keyboard, superview: self.forwardingView, darkMode: self.darkMode())
+            
             self.layout.initialize()
             self.setupKeys()
-            self.constraintsAdded = true
-            
             self.setMode(0)
+            
+            self.setupKludge()
+            
+            self.constraintsAdded = true
         }
     }
     
-    override func updateViewConstraints() {
-        super.updateViewConstraints()
-        self.setupKludge()
-        self.setupConstraints()
+    // only available after frame becomes non-zero
+    func darkMode() -> Bool {
+        var darkMode = { () -> Bool in
+            if let proxy = self.textDocumentProxy as? UITextDocumentProxy {
+                if let app = proxy.keyboardAppearance {
+                    NSLog("proxy appearance is \(app.toRaw())")
+                }
+                return proxy.keyboardAppearance == UIKeyboardAppearance.Dark
+            }
+            else {
+                return false
+            }
+        }()
+        
+        return darkMode
     }
     
     var lastLayoutBounds: CGRect?
     override func viewDidLayoutSubviews() {
+        if view.bounds == CGRectZero {
+            return
+        }
+        
+        self.setupLayout()
+        
         let orientationSavvyBounds = CGRectMake(0, 0, self.view.bounds.width, self.heightForOrientation(self.interfaceOrientation, withTopBanner: false))
         
         if (lastLayoutBounds != nil && lastLayoutBounds == orientationSavvyBounds) {
@@ -188,6 +217,10 @@ class KeyboardViewController: UIInputViewController {
         self.bannerView?.frame = CGRectMake(0, 0, self.view.bounds.width, metric("topBanner"))
         self.forwardingView.frame.origin = CGPointMake(0, self.view.bounds.height - self.forwardingView.bounds.height)
     }
+    
+//    override func viewWillAppear(animated: Bool) {
+//        checkDarkMode()
+//    }
     
     override func viewDidAppear(animated: Bool) {
         self.bannerView?.hidden = false
@@ -279,7 +312,7 @@ class KeyboardViewController: UIInputViewController {
             var capturedImage = UIGraphicsGetImageFromCurrentImageContext()
             UIGraphicsEndImageContext()
             let name = (self.interfaceOrientation.isPortrait ? "Screenshot-Portrait" : "Screenshot-Landscape")
-            var imagePath = "/Users/archagon/Documents/Programming/OSX/TransliteratingKeyboard/\(name).png"
+            var imagePath = "/Users/archagon/Documents/Programming/OSX/tasty-imitation-keyboard/\(name).png"
             UIImagePNGRepresentation(capturedImage).writeToFile(imagePath, atomically: true)
             
             self.view.backgroundColor = oldViewColor

@@ -148,26 +148,24 @@ struct layoutConstants {
     }
 }
 
-let globalColors: [String:UIColor] = [
-    "lightColor": UIColor.whiteColor(),
-    "lightShadowColor": UIColor(hue: (220/360.0), saturation: 0.04, brightness: 0.56, alpha: 1),
-    "lightTextColor": UIColor.blackColor(),
-    "darkColor": UIColor(hue: (217/360.0), saturation: 0.09, brightness: 0.75, alpha: 1),
-    "darkShadowColor": UIColor(hue: (220/360.0), saturation: 0.04, brightness: 0.56, alpha: 1),
-    "darkTextColor": UIColor.whiteColor(),
-    "blueColor": UIColor(hue: (211/360.0), saturation: 1.0, brightness: 1.0, alpha: 1),
-    "blueShadowColor": UIColor(hue: (216/360.0), saturation: 0.05, brightness: 0.43, alpha: 1),
-    "borderColor": UIColor(hue: (214/360.0), saturation: 0.04, brightness: 0.65, alpha: 1.0)
-]
+struct globalColors {
+    static var lightModeRegularKey: UIColor = UIColor.whiteColor()
+    static var lightModeSpecialKey: UIColor = UIColor(hue: (217/360.0), saturation: 0.09, brightness: 0.75, alpha: 1)
+    static var darkModeRegularKey: UIColor = UIColor.grayColor().colorWithAlphaComponent(CGFloat(0.25))
+    static var darkModeSpecialKey: UIColor = UIColor.blackColor().colorWithAlphaComponent(CGFloat(0.25))
+    static var lightModeUnderColor: UIColor = UIColor(hue: (220/360.0), saturation: 0.04, brightness: 0.56, alpha: 1)
+    static var darkModeUnderColor: UIColor = UIColor(red: CGFloat(38.6)/CGFloat(255), green: CGFloat(18)/CGFloat(255), blue: CGFloat(39.3)/CGFloat(255), alpha: 0.4)
+    static var lightModeTextColor: UIColor = UIColor.blackColor()
+    static var darkModeTextColor: UIColor = UIColor.whiteColor()
+    static var borderColor: UIColor = UIColor(hue: (214/360.0), saturation: 0.04, brightness: 0.65, alpha: 1.0)
+}
+
+//"darkShadowColor": UIColor(hue: (220/360.0), saturation: 0.04, brightness: 0.56, alpha: 1),
+//"blueColor": UIColor(hue: (211/360.0), saturation: 1.0, brightness: 1.0, alpha: 1),
+//"blueShadowColor": UIColor(hue: (216/360.0), saturation: 0.05, brightness: 0.43, alpha: 1),
 
 // handles the layout for the keyboard, including key spacing and arrangement
 class KeyboardLayout: KeyboardKeyProtocol {
-    
-    dynamic var colors: [String:UIColor] {
-        get {
-            return globalColors
-        }
-    }
     
     var model: Keyboard
     var superview: UIView
@@ -208,46 +206,40 @@ class KeyboardLayout: KeyboardKeyProtocol {
         Key.KeyType.Character,
         Key.KeyType.SpecialCharacter,
         Key.KeyType.Period:
-            key.color = colors["lightColor"]!
-            key.underColor = colors["lightShadowColor"]!
-            key.borderColor = colors["borderColor"]!
-            key.textColor = colors["lightTextColor"]!
+            key.color = (self.darkMode ? globalColors.darkModeRegularKey : globalColors.lightModeRegularKey)
+            key.textColor = (self.darkMode ? globalColors.darkModeTextColor : globalColors.lightModeTextColor)
         case
         Key.KeyType.Space:
-            key.color = colors["lightColor"]!
-            key.underColor = colors["lightShadowColor"]!
-            key.borderColor = colors["borderColor"]!
-            key.textColor = colors["lightTextColor"]!
-            key.downColor = colors["darkColor"]!
+            key.color = (self.darkMode ? globalColors.darkModeRegularKey : globalColors.lightModeRegularKey)
+            key.downColor = (self.darkMode ? UIColor.purpleColor() : globalColors.lightModeSpecialKey)
+            key.textColor = (self.darkMode ? globalColors.darkModeTextColor : globalColors.lightModeTextColor)
         case
         Key.KeyType.Shift,
         Key.KeyType.Backspace:
-            key.color = colors["darkColor"]!
-            key.underColor = colors["darkShadowColor"]!
-            key.borderColor = colors["borderColor"]!
-            key.textColor = colors["darkTextColor"]!
-            key.downColor = colors["lightColor"]!
-            key.downUnderColor = colors["lightShadowColor"]!
-            key.downTextColor = colors["lightTextColor"]!
+            key.color = (self.darkMode ? globalColors.darkModeSpecialKey : globalColors.lightModeSpecialKey)
+            key.downColor = (self.darkMode ? UIColor.purpleColor() : globalColors.lightModeRegularKey)
+            key.textColor = globalColors.darkModeTextColor
+            key.downTextColor = globalColors.lightModeTextColor
         case
         Key.KeyType.ModeChange:
-            key.color = colors["darkColor"]!
-            key.underColor = colors["darkShadowColor"]!
-            key.borderColor = colors["borderColor"]!
-            key.textColor = colors["lightTextColor"]!
+            key.color = (self.darkMode ? globalColors.darkModeSpecialKey : globalColors.lightModeSpecialKey)
+            key.textColor = (self.darkMode ? globalColors.darkModeTextColor : globalColors.lightModeTextColor)
         case
         Key.KeyType.Return,
         Key.KeyType.KeyboardChange:
-            key.color = colors["darkColor"]!
-            key.underColor = colors["darkShadowColor"]!
-            key.borderColor = colors["borderColor"]!
-            key.textColor = colors["lightTextColor"]!
-            key.downColor = colors["lightColor"]!
-            key.downUnderColor = colors["lightShadowColor"]!
+            key.color = (self.darkMode ? globalColors.darkModeSpecialKey : globalColors.lightModeSpecialKey)
+            key.downColor = (self.darkMode ? UIColor.purpleColor() : globalColors.lightModeRegularKey)
+            key.textColor = (self.darkMode ? globalColors.darkModeTextColor : globalColors.lightModeTextColor)
         }
+        
+        key.underColor = (self.darkMode ? globalColors.darkModeUnderColor : globalColors.lightModeUnderColor)
+        key.borderColor = (self.darkMode ? globalColors.borderColor : globalColors.borderColor)
     }
     
     func createViews(keyboard: Keyboard) {
+        let specialKeyVibrancy: VibrancyType? = (self.darkMode ? VibrancyType.DarkSpecial : VibrancyType.LightSpecial)
+        let normalKeyVibrancy: VibrancyType? = (self.darkMode ? VibrancyType.DarkRegular : nil)
+        
         for (h, page) in enumerate(keyboard.pages) {
             let numRows = page.rows.count
             
@@ -261,7 +253,7 @@ class KeyboardLayout: KeyboardKeyProtocol {
                         if (j < numKeys) {
                             var key = page.rows[i][j]
                             
-                            var keyView = KeyboardKey(vibrancy: (self.darkMode || key.type.specialButton() ? VibrancyType.DarkRegular : nil))
+                            var keyView = KeyboardKey(vibrancy: (key.type.specialButton() ? specialKeyVibrancy : normalKeyVibrancy))
                             let keyViewName = "key\(j)x\(i)p\(h)"
                             keyView.enabled = true
                             keyView.text = key.keyCapForCase(false)

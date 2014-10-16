@@ -85,6 +85,7 @@ class KeyboardKey: UIControl {
     var shape: Shape? {
         didSet {
             self.redrawShape()
+            updateColors()
         }
     }
     
@@ -96,6 +97,7 @@ class KeyboardKey: UIControl {
     
     var displayView: UIView
     var displayViewContentView: UIView
+    var displayMaskView: UIView?
     var maskLayer: CAShapeLayer
     var borderView: UIView
     var borderLayer: CAShapeLayer
@@ -103,6 +105,7 @@ class KeyboardKey: UIControl {
     var underView: UIView
     var shadowView: UIView
     var shadowLayer: CAShapeLayer
+    var overLayer: CALayer
     
     class DumbLayer: CALayer {
         override func addAnimation(anim: CAAnimation!, forKey key: String!) {
@@ -113,31 +116,22 @@ class KeyboardKey: UIControl {
         return DumbLayer.self
     }
     
-    override func drawRect(frame: CGRect) {
-        let ctx = UIGraphicsGetCurrentContext()
-        let csp = CGColorSpaceCreateDeviceRGB()
-        
-        CGContextAddRect(ctx, CGRectMake(0, 0, 100, 100))
-        UIColor.yellowColor().setFill()
-        CGContextFillPath(ctx)
-    }
-    
     init(vibrancy optionalVibrancy: VibrancyType?) {
         self.withBlur = (optionalVibrancy != nil)
         
         self.displayView = {
             if let vibrancy = optionalVibrancy {
-                let blurEffect = { () -> UIBlurEffectStyle in
+                let blurEffect = { () -> UIVisualEffect? in
                     switch vibrancy {
                     case .LightSpecial:
-                        return UIBlurEffectStyle.Light
+                        return UIVibrancyEffect(forBlurEffect: UIBlurEffect(style: UIBlurEffectStyle.ExtraLight))
                     case .DarkSpecial:
-                        return UIBlurEffectStyle.Dark
+                        return UIBlurEffect(style: UIBlurEffectStyle.Light)
                     case .DarkRegular:
-                        return UIBlurEffectStyle.Light
+                        return UIBlurEffect(style: UIBlurEffectStyle.Light)
                     }
                 }()
-                return UIVisualEffectView(effect: UIBlurEffect(style: blurEffect))
+                return (blurEffect != nil ? UIVisualEffectView(effect: blurEffect!) : UIView())
             }
             else {
                 return UIView()
@@ -145,12 +139,13 @@ class KeyboardKey: UIControl {
         }()
         
         self.borderLayer = CAShapeLayer()
-        self.underLayer = CAShapeLayer()
-        self.shadowLayer = CAShapeLayer()
-        self.maskLayer = CAShapeLayer()
         self.borderView = UIView()
-        self.shadowView = UIView()
+        self.underLayer = CAShapeLayer()
         self.underView = UIView()
+        self.shadowLayer = CAShapeLayer()
+        self.shadowView = UIView()
+        self.maskLayer = CAShapeLayer()
+        self.overLayer = CALayer()
         
         if let effectView = self.displayView as? UIVisualEffectView {
             self.displayViewContentView = effectView.contentView
@@ -158,6 +153,7 @@ class KeyboardKey: UIControl {
         else {
             self.displayViewContentView = self.displayView
         }
+        self.displayViewContentView.layer.addSublayer(self.overLayer)
         
         self.label = UILabel()
         self.text = ""
@@ -180,15 +176,18 @@ class KeyboardKey: UIControl {
         self.addSubview(self.shadowView)
         self.shadowView.layer.addSublayer(self.shadowLayer)
         
-        self.addSubview(self.displayView)
-        
         if self.withBlur {
             // use it as a mask
-            self.displayView.layer.mask = self.maskLayer
+            self.displayMaskView = UIView()
+            self.displayMaskView?.layer.mask = self.maskLayer
+            self.displayMaskView?.addSubview(self.displayView)
+            self.addSubview(self.displayMaskView!)
+//            self.displayView.layer.mask = self.maskLayer
         }
         else {
             // use it to draw directly
             self.displayViewContentView.layer.addSublayer(self.maskLayer)
+            self.addSubview(self.displayView)
         }
         
         self.underView.layer.addSublayer(self.underLayer)
@@ -243,7 +242,14 @@ class KeyboardKey: UIControl {
         self.background.frame = self.bounds
         self.label.frame = self.bounds
         
-        self.displayView.frame = boundingBox
+        if let maskView = self.displayMaskView {
+            maskView.frame = boundingBox
+            self.displayView.frame = maskView.bounds
+        }
+        else {
+            self.displayView.frame = boundingBox
+        }
+
         self.shadowView.frame = boundingBox
         self.borderView.frame = boundingBox
         self.underView.frame = boundingBox
@@ -363,7 +369,7 @@ class KeyboardKey: UIControl {
 //        }
 //        
 //        self.underLayer.fillColor = self.underColor.CGColor
-//        self.underLayer.fillColor = UIColor(red: CGFloat(38.6)/CGFloat(255), green: CGFloat(18)/CGFloat(255), blue: CGFloat(39.3)/CGFloat(255), alpha: 0.4).CGColor
+//        self.underLayer.fillColor = 
 //        self.borderLayer.strokeColor = self.borderColor.CGColor
         
         let switchColors = self.highlighted || self.selected
@@ -389,22 +395,39 @@ class KeyboardKey: UIControl {
             if let downTextColor = self.downTextColor {
                 self.label.textColor = downTextColor
                 self.popupLabel?.textColor = downTextColor
+                self.shape?.color = downTextColor
             }
         }
         else {
             if self.withBlur {
                 self.displayViewContentView.backgroundColor = self.color
+//                self.displayViewContentView.backgroundColor = UIColor.whiteColor().colorWithAlphaComponent(CGFloat(0.25))
+//                self.displayViewContentView.backgroundColor = UIColor.blackColor().colorWithAlphaComponent(CGFloat(0))
+//                self.displayViewContentView.backgroundColor = UIColor.blackColor().colorWithAlphaComponent(CGFloat(0.25))
+//                self.displayViewContentView.backgroundColor = UIColor.whiteColor().colorWithAlphaComponent(CGFloat(0))
+//                self.displayViewContentView.backgroundColor = UIColor.blackColor().colorWithAlphaComponent(CGFloat(0.25))
+                
+                
+                // TODO: normal keys
+//                self.displayView.layer.backgroundColor = UIColor.blackColor().colorWithAlphaComponent(CGFloat(0.1)).CGColor
+                
+//                self.displayView.layer.backgroundColor = UIColor.blackColor().colorWithAlphaComponent(0.2).CGColor
+                
+                // TODO: for special key dark; light is white
+//                                self.displayViewContentView.backgroundColor = UIColor.blackColor().colorWithAlphaComponent(CGFloat(0.25))
             }
             else {
+//                                self.maskLayer.fillColor = UIColor.whiteColor().colorWithAlphaComponent(CGFloat(0.5)).CGColor
                 self.maskLayer.fillColor = self.color.CGColor
             }
             
-            self.underLayer.fillColor = self.underColor.CGColor
+            self.underLayer.fillColor = UIColor.blackColor().CGColor //self.underColor.CGColor
             
             self.borderLayer.strokeColor = self.borderColor.CGColor
             
             self.label.textColor = self.textColor
             self.popupLabel?.textColor = self.textColor
+            self.shape?.color = self.textColor
         }
     }
     
