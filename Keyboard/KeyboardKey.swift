@@ -122,13 +122,11 @@ class KeyboardKey: UIControl {
         CGContextFillPath(ctx)
     }
     
-    init(vibrancy: VibrancyType) {
-//        let withBlur = (arc4random() % 2 == 0 ? true : false)
-        let withBlur = true
-        self.withBlur = withBlur
+    init(vibrancy optionalVibrancy: VibrancyType?) {
+        self.withBlur = (optionalVibrancy != nil)
         
         self.displayView = {
-            if withBlur {
+            if let vibrancy = optionalVibrancy {
                 let blurEffect = { () -> UIBlurEffectStyle in
                     switch vibrancy {
                     case .LightSpecial:
@@ -198,7 +196,6 @@ class KeyboardKey: UIControl {
         
         self.borderView.layer.addSublayer(self.borderLayer)
         self.addSubview(self.borderView)
-//        self.displayViewContentView.layer.addSublayer(self.borderLayer)
         
         self.addSubview(self.background)
         self.background.addSubview(self.label)
@@ -210,11 +207,11 @@ class KeyboardKey: UIControl {
         self.clipsToBounds = false
         
         let setupViews: Void = {
-            self.shadowLayer.shadowOpacity = Float(0.5)
-            self.shadowLayer.shadowRadius = 3
+            self.shadowLayer.shadowOpacity = Float(0.2)
+            self.shadowLayer.shadowRadius = 4
             self.shadowLayer.shadowOffset = CGSizeMake(0, 3)
             
-            self.borderLayer.borderWidth = 5
+            self.borderLayer.lineWidth = CGFloat(0.5)
             self.borderLayer.fillColor = UIColor.clearColor().CGColor
         }()
     }
@@ -358,16 +355,16 @@ class KeyboardKey: UIControl {
     }
     
     func updateColors() {
-        if self.withBlur {
-            self.displayViewContentView.backgroundColor = UIColor.grayColor().colorWithAlphaComponent(CGFloat(0.25))
-        }
-        else {
-            self.maskLayer.fillColor = self.color.CGColor
-        }
-        
+//        if self.withBlur {
+//            self.displayViewContentView.backgroundColor = UIColor.grayColor().colorWithAlphaComponent(CGFloat(0.25))
+//        }
+//        else {
+//            self.maskLayer.fillColor = self.color.CGColor
+//        }
+//        
 //        self.underLayer.fillColor = self.underColor.CGColor
-        self.underLayer.fillColor = UIColor(red: CGFloat(38.6)/CGFloat(255), green: CGFloat(18)/CGFloat(255), blue: CGFloat(39.3)/CGFloat(255), alpha: 0.4).CGColor
-        self.borderLayer.strokeColor = self.borderColor.CGColor
+//        self.underLayer.fillColor = UIColor(red: CGFloat(38.6)/CGFloat(255), green: CGFloat(18)/CGFloat(255), blue: CGFloat(39.3)/CGFloat(255), alpha: 0.4).CGColor
+//        self.borderLayer.strokeColor = self.borderColor.CGColor
         
         let switchColors = self.highlighted || self.selected
         
@@ -388,11 +385,27 @@ class KeyboardKey: UIControl {
             if let downBorderColor = self.downBorderColor {
                 self.borderLayer.strokeColor = downBorderColor.CGColor
             }
+            
+            if let downTextColor = self.downTextColor {
+                self.label.textColor = downTextColor
+                self.popupLabel?.textColor = downTextColor
+            }
         }
-        
-        self.label.textColor = (switchColors && self.downTextColor != nil ? self.downTextColor! : self.textColor)
-        self.label.textColor = UIColor.whiteColor()
-        self.popupLabel?.textColor = UIColor.whiteColor()
+        else {
+            if self.withBlur {
+                self.displayViewContentView.backgroundColor = self.color
+            }
+            else {
+                self.maskLayer.fillColor = self.color.CGColor
+            }
+            
+            self.underLayer.fillColor = self.underColor.CGColor
+            
+            self.borderLayer.strokeColor = self.borderColor.CGColor
+            
+            self.label.textColor = self.textColor
+            self.popupLabel?.textColor = self.textColor
+        }
     }
     
     func layoutPopup(dir: Direction) {

@@ -175,12 +175,14 @@ class KeyboardLayout: KeyboardKeyProtocol {
     var viewToModel: [KeyboardKey:Key] = [:]
     var elements: [String:UIView] = [:]
     
+    var darkMode: Bool
     var initialized: Bool
     
-    init(model: Keyboard, superview: UIView) {
+    init(model: Keyboard, superview: UIView, darkMode: Bool) {
         self.initialized = false
         self.model = model
         self.superview = superview
+        self.darkMode = darkMode
     }
     
     func initialize() {
@@ -200,7 +202,7 @@ class KeyboardLayout: KeyboardKeyProtocol {
         return self.viewToModel[key]
     }
     
-    func setColorsForKey(key: KeyboardKey, model: Key) {
+    func setColorsForKey(key: KeyboardKey, model: Key, darkMode: Bool) {
         switch model.type {
         case
         Key.KeyType.Character,
@@ -259,7 +261,7 @@ class KeyboardLayout: KeyboardKeyProtocol {
                         if (j < numKeys) {
                             var key = page.rows[i][j]
                             
-                            var keyView = KeyboardKey(vibrancy: key.type.specialButton()) // TODO:
+                            var keyView = KeyboardKey(vibrancy: (self.darkMode || key.type.specialButton() ? VibrancyType.DarkRegular : nil))
                             let keyViewName = "key\(j)x\(i)p\(h)"
                             keyView.enabled = true
                             keyView.text = key.keyCapForCase(false)
@@ -271,7 +273,7 @@ class KeyboardLayout: KeyboardKeyProtocol {
                             self.modelToView[key] = keyView
                             self.viewToModel[keyView] = key
                             
-                            setColorsForKey(keyView, model: key)
+                            setColorsForKey(keyView, model: key, darkMode: self.darkMode)
                             
                             // font sizing
                             switch key.type {

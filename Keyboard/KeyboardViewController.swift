@@ -97,7 +97,7 @@ class KeyboardViewController: UIInputViewController {
         
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
         
-        self.layout = KeyboardLayout(model: self.keyboard, superview: self.forwardingView)
+        self.layout = KeyboardLayout(model: self.keyboard, superview: self.forwardingView, darkMode: false)
         
         self.bannerView = self.banner()
         self.bannerView?.hidden = true
