@@ -154,6 +154,7 @@ class KeyboardConnector: KeyboardKeyBackground {
             controlPoint2: (isVertical ?
                 CGPointMake(myConvertedEndPoints.1.x, midpoint) :
                 CGPointMake(midpoint, myConvertedEndPoints.1.y)))
+        currentEdgePath.applyTransform(CGAffineTransformMakeTranslation(0, -self.underOffset))
         edgePaths.append(currentEdgePath)
         
         bezierPath.addLineToPoint(myConvertedEndPoints.0)
@@ -178,11 +179,13 @@ class KeyboardConnector: KeyboardKeyBackground {
             controlPoint2: (isVertical ?
                 CGPointMake(myConvertedStartPoints.1.x, midpoint) :
                 CGPointMake(midpoint, myConvertedStartPoints.1.y)))
+        currentEdgePath.applyTransform(CGAffineTransformMakeTranslation(0, -self.underOffset))
         edgePaths.append(currentEdgePath)
         
         bezierPath.addLineToPoint(myConvertedStartPoints.0)
         
         bezierPath.closePath()
+        bezierPath.applyTransform(CGAffineTransformMakeTranslation(0, -self.underOffset))
         
         self.fillPath = bezierPath
         self.edgePaths = edgePaths

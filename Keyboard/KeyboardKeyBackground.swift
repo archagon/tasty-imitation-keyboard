@@ -211,10 +211,13 @@ class KeyboardKeyBackground: UIView, Connectable {
                 prevPoint = self.segmentPoints[(i + 1) % 4].0
             }
             
+            edgePath?.applyTransform(CGAffineTransformMakeTranslation(0, -self.underOffset))
+            
             if edgePath != nil { edgePaths.append(edgePath!) }
         }
         
         fillPath.closePath()
+        fillPath.applyTransform(CGAffineTransformMakeTranslation(0, -self.underOffset))
         
         var underPath = { () -> UIBezierPath in
             var underPath = UIBezierPath()
