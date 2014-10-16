@@ -3,6 +3,7 @@
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6238"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
     </dependencies>
     <scenes>
         <!--Hosting App View Controller-->
@@ -21,15 +22,15 @@
                                 <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                             </imageView>
                             <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="b1c-i6-VPq">
-                                <rect key="frame" x="16" y="24" width="568" height="560"/>
+                                <rect key="frame" x="16" y="79" width="568" height="300"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="uz0-l4-LxW">
-                                    <rect key="frame" x="0.0" y="0.0" width="568" height="560"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="568" height="300"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="U3b-No-Yrb">
-                                            <rect key="frame" x="0.0" y="0.0" width="568" height="560"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="568" height="300"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                            <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                            <textInputTraits key="textInputTraits" autocapitalizationType="sentences" keyboardAppearance="light"/>
                                         </textView>
                                     </subviews>
                                     <constraints>
@@ -41,6 +42,32 @@
                                 </view>
                                 <blurEffect style="light"/>
                             </visualEffectView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="A3B-EW-xsA">
+                                <rect key="frame" x="135" y="28" width="330" height="43"/>
+                                <subviews>
+                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="H7u-fh-nGo">
+                                        <rect key="frame" x="8" y="6" width="51" height="31"/>
+                                        <connections>
+                                            <action selector="darkMode:" destination="nAo-DR-8Pl" eventType="valueChanged" id="Eua-Wm-gsG"/>
+                                        </connections>
+                                    </switch>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Dark Mode (toggle before editing)" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tSS-y7-O2M">
+                                        <rect key="frame" x="65" y="11" width="257" height="20.5"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstItem="tSS-y7-O2M" firstAttribute="left" secondItem="H7u-fh-nGo" secondAttribute="right" constant="8" id="As5-hD-fZM"/>
+                                    <constraint firstItem="H7u-fh-nGo" firstAttribute="left" secondItem="A3B-EW-xsA" secondAttribute="leftMargin" id="BTe-aq-naj"/>
+                                    <constraint firstAttribute="height" constant="43" id="Eg9-7O-HgI"/>
+                                    <constraint firstAttribute="centerY" secondItem="H7u-fh-nGo" secondAttribute="centerY" id="ffI-zV-3Lj"/>
+                                    <constraint firstAttribute="rightMargin" secondItem="tSS-y7-O2M" secondAttribute="right" id="lAS-Jg-XVM"/>
+                                    <constraint firstAttribute="centerY" secondItem="tSS-y7-O2M" secondAttribute="centerY" id="z5D-EA-XNX"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
@@ -49,9 +76,11 @@
                             <constraint firstItem="P06-La-EKF" firstAttribute="top" secondItem="IC3-rM-66w" secondAttribute="bottom" id="CAM-uD-RD7"/>
                             <constraint firstItem="IC3-rM-66w" firstAttribute="top" secondItem="aBi-zl-Xx9" secondAttribute="top" id="F9u-ma-0Be"/>
                             <constraint firstItem="b1c-i6-VPq" firstAttribute="trailing" secondItem="aBi-zl-Xx9" secondAttribute="trailingMargin" id="HYN-JI-tfy"/>
-                            <constraint firstItem="b1c-i6-VPq" firstAttribute="top" secondItem="Bpu-v8-xYb" secondAttribute="bottom" constant="4" id="Zvk-e3-X92"/>
+                            <constraint firstItem="A3B-EW-xsA" firstAttribute="top" secondItem="Bpu-v8-xYb" secondAttribute="bottom" constant="8" id="K7i-cd-ETo"/>
+                            <constraint firstAttribute="centerX" secondItem="A3B-EW-xsA" secondAttribute="centerX" id="PFi-A6-99v"/>
                             <constraint firstItem="b1c-i6-VPq" firstAttribute="leading" secondItem="aBi-zl-Xx9" secondAttribute="leadingMargin" id="lZp-Uu-nbI"/>
-                            <constraint firstItem="P06-La-EKF" firstAttribute="top" secondItem="b1c-i6-VPq" secondAttribute="bottom" constant="16" id="niV-ai-HGQ"/>
+                            <constraint firstAttribute="height" secondItem="b1c-i6-VPq" secondAttribute="height" multiplier="2" id="md0-4O-TSe"/>
+                            <constraint firstItem="b1c-i6-VPq" firstAttribute="top" secondItem="A3B-EW-xsA" secondAttribute="bottom" constant="8" id="pEz-VC-uEw"/>
                         </constraints>
                     </view>
                     <connections>
@@ -61,7 +90,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="kvK-BB-OCk" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-124" y="550"/>
+            <point key="canvasLocation" x="-126" y="565"/>
         </scene>
     </scenes>
     <resources>

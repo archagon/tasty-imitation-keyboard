@@ -20,5 +20,9 @@ class HostingAppViewController: UIViewController {
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
+    
+    @IBAction func darkMode(sender: UISwitch) {
+        self.textField?.keyboardAppearance = (sender.on ? UIKeyboardAppearance.Dark : UIKeyboardAppearance.Light)
+    }
 }
 
