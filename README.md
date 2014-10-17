@@ -15,9 +15,7 @@ I'm working on a 3rd party keyboard for iOS8 and I want it to look and feel as c
 
 ## Current State
 
-![](UnderConstruction.gif)
-
-The development of this keyboard is out in the open, so the project may not work at all times. At the present moment, the baseline functionality is there. Left to implement are special characters, Shift, multitouch, and improved graphics (including translucenty and dark mode).
+We are in alpha! The basic features and appearance should all be there by now. I'll try to not commit broken builds anymore.
 
 Hold-to-select-alternate-characters will be implemented at a later time.
 
@@ -25,7 +23,7 @@ Hold-to-select-alternate-characters will be implemented at a later time.
 
 1. Edit Scheme for the Keyboard target and set the Executable to be HostingApp.app.
 2. Run the Keyboard target.
-3. Go to `Settings→General→Keyboard→Keyboards→Add New Keyboard` on your device and add the third-party keyboard.
+3. Go to `Settings → General → Keyboard → Keyboards → Add New Keyboard` on your device and add the third-party keyboard.
 4. Go back to the app. You should be able to select the keyboard via the globe icon.
 
 ## Learning Goals
@@ -33,7 +31,7 @@ Hold-to-select-alternate-characters will be implemented at a later time.
 * Swift
 * 3rd party extensions
 * 3rd party frameworks (for IB use)
-* autolayout
+* Autolayout
 * CoreGraphics
 * finally release an app on the App Store, darn it
 
@@ -42,6 +40,10 @@ Hold-to-select-alternate-characters will be implemented at a later time.
 Please consult [the project wiki](https://github.com/archagon/tasty-imitation-keyboard/wiki) for technical details. You may find it handy if you're implementing your own keyboard!
 
 I made a 3rd party functionless keyboard with a similar layout but a much simpler program structure for debugging purposes. You can find it here: [faux-testing-keyboard](https://github.com/archagon/faux-testing-keyboard)
+
+🙀 **Please forgive the *incredibly confusing* code in some of the classes. I started out trying to be all neat and perfect, but a self-imposed deadline for a personal project forced me to barge forward closer to release. And you know how that goes...** 🙀
+
+Finally, keep in mind that I am not a framework maintainer nor intend to become one. This release is public and open source because I have no reason to keep it private, not because I wish to improve it for years on end (though I still may). Expect work on this project to be sporadic at best. If you wish to use this in production, rather than waiting on me, I stronly encourage you to fork.
 
 ## License
 
