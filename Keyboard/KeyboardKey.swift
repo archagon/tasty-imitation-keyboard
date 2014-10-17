@@ -257,6 +257,7 @@ class KeyboardKey: UIControl {
         self.refreshShapes()
         self.redrawText()
         self.redrawShape()
+        self.updateColors()
         
         if self.text == "a" {
             NSLog("relayingout a: \(self.bounds)")
@@ -372,19 +373,38 @@ class KeyboardKey: UIControl {
                     self.maskLayer.fillColor = downColor.CGColor
                 }
             }
+            else {
+                if self.withBlur {
+                    self.displayViewContentView.backgroundColor = self.color
+                }
+                else {
+                    self.maskLayer.fillColor = self.color.CGColor
+                }
+            }
             
             if let downUnderColor = self.downUnderColor {
                 self.underLayer.fillColor = downUnderColor.CGColor
             }
+            else {
+                self.underLayer.fillColor = self.underColor.CGColor
+            }
             
             if let downBorderColor = self.downBorderColor {
                 self.borderLayer.strokeColor = downBorderColor.CGColor
+            }
+            else {
+                self.borderLayer.strokeColor = self.borderColor.CGColor
             }
             
             if let downTextColor = self.downTextColor {
                 self.label.textColor = downTextColor
                 self.popupLabel?.textColor = downTextColor
                 self.shape?.color = downTextColor
+            }
+            else {
+                self.label.textColor = self.textColor
+                self.popupLabel?.textColor = self.textColor
+                self.shape?.color = self.textColor
             }
         }
         else {
@@ -452,7 +472,6 @@ class KeyboardKey: UIControl {
             self.addSubview(popup)
             
             var popupLabel = UILabel()
-            popupLabel.textColor = UIColor.blackColor()
             popupLabel.textAlignment = self.label.textAlignment
             popupLabel.font = self.label.font.fontWithSize(22 * 2)
             popupLabel.frame = popup.bounds
