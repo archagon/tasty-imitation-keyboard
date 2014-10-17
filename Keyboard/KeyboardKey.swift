@@ -124,7 +124,8 @@ class KeyboardKey: UIControl {
                 let blurEffect = { () -> UIVisualEffect? in
                     switch vibrancy {
                     case .LightSpecial:
-                        return UIVibrancyEffect(forBlurEffect: UIBlurEffect(style: UIBlurEffectStyle.ExtraLight))
+                        //return UIVibrancyEffect(forBlurEffect: UIBlurEffect(style: UIBlurEffectStyle.ExtraLight)) -- goes with grey 0.25
+                        return UIBlurEffect(style: UIBlurEffectStyle.Light)
                     case .DarkSpecial:
                         return UIBlurEffect(style: UIBlurEffectStyle.Light)
                     case .DarkRegular:
@@ -182,7 +183,6 @@ class KeyboardKey: UIControl {
             self.displayMaskView?.layer.mask = self.maskLayer
             self.displayMaskView?.addSubview(self.displayView)
             self.addSubview(self.displayMaskView!)
-//            self.displayView.layer.mask = self.maskLayer
         }
         else {
             // use it to draw directly
@@ -361,17 +361,6 @@ class KeyboardKey: UIControl {
     }
     
     func updateColors() {
-//        if self.withBlur {
-//            self.displayViewContentView.backgroundColor = UIColor.grayColor().colorWithAlphaComponent(CGFloat(0.25))
-//        }
-//        else {
-//            self.maskLayer.fillColor = self.color.CGColor
-//        }
-//        
-//        self.underLayer.fillColor = self.underColor.CGColor
-//        self.underLayer.fillColor = 
-//        self.borderLayer.strokeColor = self.borderColor.CGColor
-        
         let switchColors = self.highlighted || self.selected
         
         if switchColors {
@@ -401,23 +390,8 @@ class KeyboardKey: UIControl {
         else {
             if self.withBlur {
                 self.displayViewContentView.backgroundColor = self.color
-//                self.displayViewContentView.backgroundColor = UIColor.whiteColor().colorWithAlphaComponent(CGFloat(0.25))
-//                self.displayViewContentView.backgroundColor = UIColor.blackColor().colorWithAlphaComponent(CGFloat(0))
-//                self.displayViewContentView.backgroundColor = UIColor.blackColor().colorWithAlphaComponent(CGFloat(0.25))
-//                self.displayViewContentView.backgroundColor = UIColor.whiteColor().colorWithAlphaComponent(CGFloat(0))
-//                self.displayViewContentView.backgroundColor = UIColor.blackColor().colorWithAlphaComponent(CGFloat(0.25))
-                
-                
-                // TODO: normal keys
-//                self.displayView.layer.backgroundColor = UIColor.blackColor().colorWithAlphaComponent(CGFloat(0.1)).CGColor
-                
-//                self.displayView.layer.backgroundColor = UIColor.blackColor().colorWithAlphaComponent(0.2).CGColor
-                
-                // TODO: for special key dark; light is white
-//                                self.displayViewContentView.backgroundColor = UIColor.blackColor().colorWithAlphaComponent(CGFloat(0.25))
             }
             else {
-//                                self.maskLayer.fillColor = UIColor.whiteColor().colorWithAlphaComponent(CGFloat(0.5)).CGColor
                 self.maskLayer.fillColor = self.color.CGColor
             }
             

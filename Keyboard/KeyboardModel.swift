@@ -70,6 +70,8 @@ class Key: Hashable {
                 return true
             case Return:
                 return true
+            case Space:
+                return true
             default:
                 return false
             }

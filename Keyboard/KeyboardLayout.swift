@@ -150,7 +150,7 @@ struct layoutConstants {
 
 struct globalColors {
     static var lightModeRegularKey: UIColor = UIColor.whiteColor()
-    static var lightModeSpecialKey: UIColor = UIColor(hue: (217/360.0), saturation: 0.09, brightness: 0.75, alpha: 1)
+    static var lightModeSpecialKey: UIColor = UIColor.blackColor().colorWithAlphaComponent(CGFloat(0.25))
     static var darkModeRegularKey: UIColor = UIColor.grayColor().colorWithAlphaComponent(CGFloat(0.25))
     static var darkModeSpecialKey: UIColor = UIColor.blackColor().colorWithAlphaComponent(CGFloat(0.25))
     static var lightModeUnderColor: UIColor = UIColor(hue: (220/360.0), saturation: 0.04, brightness: 0.56, alpha: 1)
@@ -201,6 +201,7 @@ class KeyboardLayout: KeyboardKeyProtocol {
     }
     
     func setColorsForKey(key: KeyboardKey, model: Key, darkMode: Bool) {
+        // TODO: spacebar down is not gray
         switch model.type {
         case
         Key.KeyType.Character,

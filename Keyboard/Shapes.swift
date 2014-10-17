@@ -160,7 +160,7 @@ func drawBackspace(bounds: CGRect, color: UIColor) {
     
     //// Color Declarations
     let color = color
-    let color2 = UIColor.blackColor()
+    let color2 = UIColor.grayColor() // TODO:
     
     //// Bezier Drawing
     var bezierPath = UIBezierPath()
