@@ -158,7 +158,7 @@ class KeyboardViewController: UIInputViewController {
     var constraintsAdded: Bool = false
     func setupLayout() {
         if !constraintsAdded {
-            self.layout = self.dynamicType.layoutClass(model: self.keyboard, superview: self.forwardingView, layoutConstants: self.dynamicType.layoutConstants, globalColors: self.dynamicType.globalColors, darkMode: self.darkMode(), solidColorMode: UIAccessibilityIsReduceTransparencyEnabled())
+            self.layout = self.dynamicType.layoutClass(model: self.keyboard, superview: self.forwardingView, layoutConstants: self.dynamicType.layoutConstants, globalColors: self.dynamicType.globalColors, darkMode: self.darkMode(), solidColorMode: self.solidColorMode())
             
             self.layout.initialize()
             self.setupKeys()
@@ -168,7 +168,7 @@ class KeyboardViewController: UIInputViewController {
             
             self.constraintsAdded = true
             
-            var banner = self.dynamicType.bannerClass(globalColors: self.dynamicType.globalColors, darkMode: self.darkMode(), solidColorMode: UIAccessibilityIsReduceTransparencyEnabled())
+            var banner = self.dynamicType.bannerClass(globalColors: self.dynamicType.globalColors, darkMode: self.darkMode(), solidColorMode: self.solidColorMode())
             banner.hidden = true
             self.view.insertSubview(banner, belowSubview: self.forwardingView)
             self.bannerView = banner
@@ -190,6 +190,10 @@ class KeyboardViewController: UIInputViewController {
         }()
         
         return darkMode
+    }
+    
+    func solidColorMode() -> Bool {
+        return UIAccessibilityIsReduceTransparencyEnabled()
     }
     
     var lastLayoutBounds: CGRect?
