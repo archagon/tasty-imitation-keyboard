@@ -38,9 +38,7 @@ class Catboard: KeyboardViewController {
         }
     }
     
-//    override func banner() -> BannerView {
-//        return CatboardBanner()
-//    }
+//    override class var bannerClass: BannerView.Type { get { return CatboardBanner.self }}
 }
 
 func randomCat() -> String {

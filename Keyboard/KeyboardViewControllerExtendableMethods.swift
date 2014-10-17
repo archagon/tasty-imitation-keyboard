@@ -14,9 +14,11 @@ extension KeyboardViewController {
     // OVERRIDE THESE METHODS IN YOUR SUPERCLASS //
     ///////////////////////////////////////////////
     
+    class var layoutClass: KeyboardLayout.Type { get { return KeyboardLayout.self }}
+    class var bannerClass: BannerView.Type { get { return BannerView.self }}
+    class var layoutConstants: LayoutConstants.Type { get { return LayoutConstants.self }}
+    class var globalColors: GlobalColors.Type { get { return GlobalColors.self }}
+    
     // TODO: I dunno what happened, this used to work
     //func keyPressed(key: Key) {}
-    
-    // TODO: but this one CAN be overriden? what's going on?!
-    func banner() -> BannerView { return BannerView() }
 }

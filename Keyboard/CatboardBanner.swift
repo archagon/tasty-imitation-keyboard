@@ -21,8 +21,8 @@ class CatboardBanner: BannerView {
     var marqueeTimer: NSTimer?
     var marqueeOffset: CGFloat = 0
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    required init(globalColors: GlobalColors.Type, darkMode: Bool, solidColorMode: Bool) {
+        super.init(globalColors: globalColors, darkMode: darkMode, solidColorMode: solidColorMode)
         
         self.addSubview(self.label)
         

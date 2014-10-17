@@ -11,12 +11,16 @@ import UIKit
 // this banner sits in the empty space on top of the keyboard
 class BannerView: UIView {
     
-    override convenience init() {
-        self.init(frame: CGRectZero)
-    }
+    var globalColors: GlobalColors.Type
+    var darkMode: Bool
+    var solidColorMode: Bool
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    required init(globalColors: GlobalColors.Type, darkMode: Bool, solidColorMode: Bool) {
+        self.globalColors = globalColors
+        self.darkMode = darkMode
+        self.solidColorMode = solidColorMode
+        
+        super.init(frame: CGRectZero)
     }
     
     required init(coder aDecoder: NSCoder) {

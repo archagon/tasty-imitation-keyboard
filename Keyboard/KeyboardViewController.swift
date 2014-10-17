@@ -18,7 +18,7 @@ class KeyboardViewController: UIInputViewController {
     let backspaceDelay: NSTimeInterval = 0.5
     let backspaceRepeat: NSTimeInterval = 0.05
     
-    var keyboard: Keyboard
+    var keyboard: Keyboard!
     var forwardingView: ForwardingView
     var layout: KeyboardLayout!
     var heightConstraint: NSLayoutConstraint?
@@ -91,6 +91,7 @@ class KeyboardViewController: UIInputViewController {
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
         self.keyboard = defaultKeyboard()
+        
         self.forwardingView = ForwardingView(frame: CGRectZero)
         self.shiftState = .Disabled
         self.currentMode = 0
@@ -106,13 +107,6 @@ class KeyboardViewController: UIInputViewController {
 //        optional var returnKeyType: UIReturnKeyType { get set } // default is UIReturnKeyDefault (See note under UIReturnKeyType enum)
 //        optional var enablesReturnKeyAutomatically: Bool { get set } // default is NO (when YES, will automatically disable return key when text widget has zero-length contents, and will automatically enable when text widget has non-zero-length contents)
 //        optional var secureTextEntry: Bool { get set } // default is NO
-        
-        self.bannerView = self.banner()
-        self.bannerView?.hidden = true
-        
-        if let banner = self.bannerView {
-            self.view.addSubview(banner)
-        }
         
         self.view.addSubview(self.forwardingView)
         
@@ -164,7 +158,7 @@ class KeyboardViewController: UIInputViewController {
     var constraintsAdded: Bool = false
     func setupLayout() {
         if !constraintsAdded {
-            self.layout = KeyboardLayout(model: self.keyboard, superview: self.forwardingView, darkMode: self.darkMode(), solidColorMode: UIAccessibilityIsReduceTransparencyEnabled())
+            self.layout = self.dynamicType.layoutClass(model: self.keyboard, superview: self.forwardingView, layoutConstants: self.dynamicType.layoutConstants, globalColors: self.dynamicType.globalColors, darkMode: self.darkMode(), solidColorMode: UIAccessibilityIsReduceTransparencyEnabled())
             
             self.layout.initialize()
             self.setupKeys()
@@ -173,6 +167,11 @@ class KeyboardViewController: UIInputViewController {
             self.setupKludge()
             
             self.constraintsAdded = true
+            
+            var banner = self.dynamicType.bannerClass(globalColors: self.dynamicType.globalColors, darkMode: self.darkMode(), solidColorMode: UIAccessibilityIsReduceTransparencyEnabled())
+            banner.hidden = true
+            self.view.insertSubview(banner, belowSubview: self.forwardingView)
+            self.bannerView = banner
         }
     }
     
