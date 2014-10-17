@@ -395,7 +395,7 @@ class KeyboardKey: UIControl {
                 self.maskLayer.fillColor = self.color.CGColor
             }
             
-            self.underLayer.fillColor = UIColor.blackColor().CGColor //self.underColor.CGColor
+            self.underLayer.fillColor = self.underColor.CGColor
             
             self.borderLayer.strokeColor = self.borderColor.CGColor
             

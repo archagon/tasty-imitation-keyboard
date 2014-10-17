@@ -119,8 +119,7 @@ class Shape: UIView {
             let yOffset = (self.bounds.height - self.shape.bounds.height) / CGFloat(2)
             CGContextTranslateCTM(ctx, xOffset, yOffset)
             
-//            self.shape.drawCall(shape.color != nil ? shape.color! : UIColor.blackColor())
-            self.shape.drawCall(UIColor.whiteColor())
+            self.shape.drawCall(shape.color != nil ? shape.color! : UIColor.blackColor())
             
             CGContextRestoreGState(ctx)
         }
