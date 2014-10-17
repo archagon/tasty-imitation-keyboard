@@ -38,7 +38,7 @@ class ForwardingView: UIView {
     override func drawRect(rect: CGRect) {}
     
     override func hitTest(point: CGPoint, withEvent event: UIEvent!) -> UIView? {
-        return self
+        return (CGRectContainsPoint(self.bounds, point) ? self : nil)
     }
     
     // TODO: drag up control centre from bottom == stuck
