@@ -83,6 +83,7 @@ class Key: Hashable {
     var lowercaseKeyCap: String?
     var uppercaseOutput: String?
     var lowercaseOutput: String?
+    var toMode: Int? //if the key is a mode button, this indicates which page it links to
     
     var hasOutput: Bool {
         get {
@@ -106,6 +107,7 @@ class Key: Hashable {
         self.lowercaseKeyCap = key.lowercaseKeyCap
         self.uppercaseOutput = key.uppercaseOutput
         self.lowercaseOutput = key.lowercaseOutput
+        self.toMode = key.toMode
     }
     
     func setLetter(letter: String) {
@@ -197,9 +199,10 @@ func defaultKeyboard() -> Keyboard {
     var keyModel2 = Key(.Backspace)
     defaultKeyboard.addKey(keyModel2, row: 2, page: 0)
     
-    var keyModel3 = Key(.ModeChange)
-    keyModel3.uppercaseKeyCap = "123"
-    defaultKeyboard.addKey(keyModel3, row: 3, page: 0)
+    var keyModeChangeNumbers = Key(.ModeChange)
+    keyModeChangeNumbers.uppercaseKeyCap = " 123 "
+    keyModeChangeNumbers.toMode = 1
+    defaultKeyboard.addKey(keyModeChangeNumbers, row: 3, page: 0)
     
     var keyModel4 = Key(.KeyboardChange)
     defaultKeyboard.addKey(keyModel4, row: 3, page: 0)
@@ -228,7 +231,10 @@ func defaultKeyboard() -> Keyboard {
         defaultKeyboard.addKey(keyModel, row: 1, page: 1)
     }
     
-    defaultKeyboard.addKey(Key(keyModel3), row: 2, page: 1)
+    var keyModeChangeSpecialCharacters = Key(.ModeChange)
+    keyModeChangeSpecialCharacters.uppercaseKeyCap = " #+= "
+    keyModeChangeSpecialCharacters.toMode = 2
+    defaultKeyboard.addKey(keyModeChangeSpecialCharacters, row: 2, page: 1)
     
     for key in [".", ",", "?", "!", "'"] {
         var keyModel = Key(.Character)
@@ -238,7 +244,10 @@ func defaultKeyboard() -> Keyboard {
     
     defaultKeyboard.addKey(Key(keyModel2), row: 2, page: 1)
     
-    defaultKeyboard.addKey(Key(keyModel3), row: 3, page: 1)
+    var keyModeChangeLetters = Key(.ModeChange)
+    keyModeChangeLetters.uppercaseKeyCap = " ABC "
+    keyModeChangeLetters.toMode = 0
+    defaultKeyboard.addKey(keyModeChangeLetters, row: 3, page: 1)
     
     defaultKeyboard.addKey(Key(keyModel4), row: 3, page: 1)
     
@@ -258,7 +267,7 @@ func defaultKeyboard() -> Keyboard {
         defaultKeyboard.addKey(keyModel, row: 1, page: 2)
     }
     
-    defaultKeyboard.addKey(Key(keyModel3), row: 2, page: 2)
+    defaultKeyboard.addKey(Key(keyModeChangeNumbers), row: 2, page: 2)
     
     for key in [".", ",", "?", "!", "'"] {
         var keyModel = Key(.Character)
@@ -268,7 +277,7 @@ func defaultKeyboard() -> Keyboard {
     
     defaultKeyboard.addKey(Key(keyModel2), row: 2, page: 2)
     
-    defaultKeyboard.addKey(Key(keyModel3), row: 3, page: 2)
+    defaultKeyboard.addKey(Key(keyModeChangeLetters), row: 3, page: 2)
     
     defaultKeyboard.addKey(Key(keyModel4), row: 3, page: 2)
     

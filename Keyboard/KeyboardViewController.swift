@@ -110,11 +110,11 @@ class KeyboardViewController: UIInputViewController {
         self.bannerView = self.banner()
         self.bannerView?.hidden = true
         
-        self.view.addSubview(self.forwardingView)
-        
         if let banner = self.bannerView {
             self.view.addSubview(banner)
         }
+        
+        self.view.addSubview(self.forwardingView)
         
         self.view.setNeedsUpdateConstraints()
     }
@@ -270,7 +270,7 @@ class KeyboardViewController: UIInputViewController {
                         keyView.addTarget(self, action: Selector("shiftDown:"), forControlEvents: .TouchUpInside)
                         keyView.addTarget(self, action: Selector("shiftDoubleTapped:"), forControlEvents: .TouchDownRepeat)
                     case Key.KeyType.ModeChange:
-                        keyView.addTarget(self, action: Selector("modeChangeTapped"), forControlEvents: .TouchUpInside)
+                        keyView.addTarget(self, action: Selector("modeChangeTapped:"), forControlEvents: .TouchUpInside)
                     default:
                         break
                     }
@@ -456,8 +456,10 @@ class KeyboardViewController: UIInputViewController {
         }
     }
     
-    func modeChangeTapped() {
-        self.currentMode = ((self.currentMode + 1) % 3)
+    func modeChangeTapped(sender: KeyboardKey) {
+        if let toMode = self.layout.viewToModel[sender]?.toMode {
+            self.currentMode = toMode
+        }
     }
     
     func setMode(mode: Int) {

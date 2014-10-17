@@ -480,8 +480,6 @@ class KeyboardKey: UIControl {
             self.popupLabel = popupLabel
             
             self.label.hidden = true
-            
-//            self.popupDirection = .Up
         }
     }
     
@@ -500,8 +498,6 @@ class KeyboardKey: UIControl {
             
             self.label.hidden = false
             self.background.attach(nil)
-            
-//            self.background.drawBorder = false
             
             self.layer.zPosition = 0
             
