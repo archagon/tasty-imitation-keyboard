@@ -164,7 +164,7 @@ class KeyboardViewController: UIInputViewController {
     var constraintsAdded: Bool = false
     func setupLayout() {
         if !constraintsAdded {
-            self.layout = KeyboardLayout(model: self.keyboard, superview: self.forwardingView, darkMode: self.darkMode())
+            self.layout = KeyboardLayout(model: self.keyboard, superview: self.forwardingView, darkMode: self.darkMode(), solidColorMode: UIAccessibilityIsReduceTransparencyEnabled())
             
             self.layout.initialize()
             self.setupKeys()
