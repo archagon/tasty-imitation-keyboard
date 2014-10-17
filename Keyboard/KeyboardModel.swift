@@ -57,6 +57,7 @@ class Key: Hashable {
         case Period
         case Space
         case Return
+        case Other
         
         func specialButton() -> Bool {
             switch self {

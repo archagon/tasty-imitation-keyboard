@@ -284,11 +284,17 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
             // TODO: actually a bit different
             key.downColor = self.globalColors.regularKey(darkMode, solidColorMode: solidColorMode)
             key.textColor = (darkMode ? self.globalColors.darkModeTextColor : self.globalColors.lightModeTextColor)
+        case
+        Key.KeyType.Other:
+            self.setupOtherKey(key, model: model, darkMode: darkMode, solidColorMode: solidColorMode)
         }
         
         key.underColor = (self.darkMode ? self.globalColors.darkModeUnderColor : self.globalColors.lightModeUnderColor)
         key.borderColor = (self.darkMode ? self.globalColors.borderColor : self.globalColors.borderColor)
     }
+    
+    
+    func setupOtherKey(key: KeyboardKey, model: Key, darkMode: Bool, solidColorMode: Bool) { /* override this to handle special keys */ }
     
     func createViews(keyboard: Keyboard) {
         let specialKeyVibrancy: VibrancyType? = (self.darkMode ? VibrancyType.DarkSpecial : VibrancyType.LightSpecial)
