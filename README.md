@@ -43,7 +43,7 @@ I made a 3rd party functionless keyboard with a similar layout but a much simple
 
 🙀 **Please forgive the *incredibly confusing* code in some of the classes. I started out trying to be all neat and perfect, but a self-imposed deadline for a personal project forced me to barge forward closer to release. And you know how that goes...** 🙀
 
-Finally, keep in mind that I am not a framework maintainer nor intend to become one. This release is public and open source because I have no reason to keep it private, not because I wish to improve it for years on end (though I still may). Expect work on this project to be sporadic at best. If you wish to use this in production, rather than waiting on me, I stronly encourage you to fork.
+Finally, keep in mind that I am not a framework maintainer nor intend to become one. This release is public and open source because I have no reason to keep it private, not because I wish to improve it for years on end (though I still may). Expect work on this project to be sporadic at best. If you wish to use this in production, rather than waiting on me, I strongly encourage you to fork.
 
 ## License
 
