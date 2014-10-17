@@ -320,8 +320,7 @@ class KeyboardLayout: KeyboardKeyProtocol {
                             Key.KeyType.ModeChange,
                             Key.KeyType.Space,
                             Key.KeyType.Return:
-                                keyView.label.adjustsFontSizeToFitWidth = false
-                                keyView.label.minimumScaleFactor = 0.1
+                                keyView.label.adjustsFontSizeToFitWidth = true
                                 keyView.label.font = keyView.label.font.fontWithSize(16)
                             default:
                                 break

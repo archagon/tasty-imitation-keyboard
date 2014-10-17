@@ -200,7 +200,7 @@ func defaultKeyboard() -> Keyboard {
     defaultKeyboard.addKey(keyModel2, row: 2, page: 0)
     
     var keyModeChangeNumbers = Key(.ModeChange)
-    keyModeChangeNumbers.uppercaseKeyCap = " 123 "
+    keyModeChangeNumbers.uppercaseKeyCap = "123"
     keyModeChangeNumbers.toMode = 1
     defaultKeyboard.addKey(keyModeChangeNumbers, row: 3, page: 0)
     
@@ -232,7 +232,7 @@ func defaultKeyboard() -> Keyboard {
     }
     
     var keyModeChangeSpecialCharacters = Key(.ModeChange)
-    keyModeChangeSpecialCharacters.uppercaseKeyCap = " #+= "
+    keyModeChangeSpecialCharacters.uppercaseKeyCap = "#+="
     keyModeChangeSpecialCharacters.toMode = 2
     defaultKeyboard.addKey(keyModeChangeSpecialCharacters, row: 2, page: 1)
     
@@ -245,7 +245,7 @@ func defaultKeyboard() -> Keyboard {
     defaultKeyboard.addKey(Key(keyModel2), row: 2, page: 1)
     
     var keyModeChangeLetters = Key(.ModeChange)
-    keyModeChangeLetters.uppercaseKeyCap = " ABC "
+    keyModeChangeLetters.uppercaseKeyCap = "ABC"
     keyModeChangeLetters.toMode = 0
     defaultKeyboard.addKey(keyModeChangeLetters, row: 3, page: 1)
     

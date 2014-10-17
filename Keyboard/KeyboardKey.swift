@@ -37,7 +37,7 @@ class KeyboardKey: UIControl {
     var text: String {
         didSet {
             self.label.text = text
-            self.label.frame = self.bounds
+            self.label.frame = CGRectMake((self.bounds.width - self.bounds.width * CGFloat(0.8)) / CGFloat(2), 0, self.bounds.width * CGFloat(0.8), self.bounds.height)
             self.redrawText()
             
             if text == "a" {
@@ -199,13 +199,15 @@ class KeyboardKey: UIControl {
         self.addSubview(self.background)
         self.background.addSubview(self.label)
         
-        self.label.textAlignment = NSTextAlignment.Center
-        self.label.font = self.label.font.fontWithSize(22)
-        self.label.adjustsFontSizeToFitWidth = true
-        self.label.userInteractionEnabled = false
-        self.clipsToBounds = false
-        
         let setupViews: Void = {
+            self.label.textAlignment = NSTextAlignment.Center
+            self.label.baselineAdjustment = UIBaselineAdjustment.AlignCenters
+            self.label.font = self.label.font.fontWithSize(22)
+            self.label.adjustsFontSizeToFitWidth = false
+            self.label.minimumScaleFactor = CGFloat(0.1)
+            self.label.userInteractionEnabled = false
+            self.label.numberOfLines = 1
+            
             self.shadowLayer.shadowOpacity = Float(0.2)
             self.shadowLayer.shadowRadius = 4
             self.shadowLayer.shadowOffset = CGSizeMake(0, 3)
@@ -240,7 +242,7 @@ class KeyboardKey: UIControl {
         super.layoutSubviews()
         
         self.background.frame = self.bounds
-        self.label.frame = self.bounds
+        self.label.frame = CGRectMake((self.bounds.width - self.bounds.width * CGFloat(0.8)) / CGFloat(2), 0, self.bounds.width * CGFloat(0.8), self.bounds.height)
         
         if let maskView = self.displayMaskView {
             maskView.frame = boundingBox
