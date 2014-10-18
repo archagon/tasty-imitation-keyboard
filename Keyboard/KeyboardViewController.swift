@@ -289,8 +289,10 @@ class KeyboardViewController: UIInputViewController {
                     }
                     
                     if key.type == Key.KeyType.Character || key.type == Key.KeyType.Period {
-                        keyView.addTarget(keyView, action: Selector("showPopup"), forControlEvents: showOptions)
-                        keyView.addTarget(keyView, action: Selector("hidePopup"), forControlEvents: hideOptions)
+                        if UIDevice.currentDevice().userInterfaceIdiom != UIUserInterfaceIdiom.Pad {
+                            keyView.addTarget(keyView, action: Selector("showPopup"), forControlEvents: showOptions)
+                            keyView.addTarget(keyView, action: Selector("hidePopup"), forControlEvents: hideOptions)
+                        }
                     }
                     
                     if key.type != Key.KeyType.Shift {

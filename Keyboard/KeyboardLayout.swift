@@ -265,6 +265,9 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         Key.KeyType.Period:
             key.color = self.self.globalColors.regularKey(darkMode, solidColorMode: solidColorMode)
             key.textColor = (darkMode ? self.globalColors.darkModeTextColor : self.globalColors.lightModeTextColor)
+            if UIDevice.currentDevice().userInterfaceIdiom == UIUserInterfaceIdiom.Pad {
+                key.downColor = self.globalColors.specialKey(darkMode, solidColorMode: solidColorMode)
+            }
         case
         Key.KeyType.Space:
             key.color = self.globalColors.regularKey(darkMode, solidColorMode: solidColorMode)
