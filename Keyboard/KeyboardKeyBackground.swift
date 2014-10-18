@@ -55,7 +55,7 @@ class KeyboardKeyBackground: UIView, Connectable {
         self.cornerRadius = cornerRadius
         self.underOffset = underOffset
         
-        super.init(frame: frame)
+        super.init(frame: CGRectZero)
         
         self.userInteractionEnabled = false
     }

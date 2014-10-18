@@ -172,7 +172,7 @@ class KeyboardKey: UIControl {
         self.textColor = UIColor.blackColor()
         self.popupDirection = nil
         
-        super.init(frame: frame)
+        super.init(frame: CGRectZero)
         
         self.addSubview(self.shadowView)
         self.shadowView.layer.addSublayer(self.shadowLayer)
