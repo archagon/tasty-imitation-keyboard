@@ -293,7 +293,6 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         key.borderColor = (self.darkMode ? self.globalColors.borderColor : self.globalColors.borderColor)
     }
     
-    
     func setupOtherKey(key: KeyboardKey, model: Key, darkMode: Bool, solidColorMode: Bool) { /* override this to handle special keys */ }
     
     func createViews(keyboard: Keyboard) {

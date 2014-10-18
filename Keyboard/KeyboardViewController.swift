@@ -13,6 +13,7 @@ let metrics: [String:Double] = [
 ]
 func metric(name: String) -> CGFloat { return CGFloat(metrics[name]!) }
 
+// TODO: live color changes! colors persist if keyboard is not unloaded between appearances, oh noes
 class KeyboardViewController: UIInputViewController {
     
     let backspaceDelay: NSTimeInterval = 0.5
