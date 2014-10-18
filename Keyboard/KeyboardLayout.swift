@@ -119,9 +119,15 @@ class LayoutConstants: NSObject {
     }
     
     class func keyboardIsShrunk(width: CGFloat) -> Bool {
-        return width >= self.keyboardShrunkSizeBaseWidthThreshhold
+        let isPad = UIDevice.currentDevice().userInterfaceIdiom == UIUserInterfaceIdiom.Pad
+        return (isPad ? false : width >= self.keyboardShrunkSizeBaseWidthThreshhold)
     }
     class func keyboardShrunkSize(width: CGFloat) -> CGFloat {
+        let isPad = UIDevice.currentDevice().userInterfaceIdiom == UIUserInterfaceIdiom.Pad
+        if isPad {
+            return width
+        }
+        
         if width >= self.keyboardShrunkSizeBaseWidthThreshhold {
             return self.findThreshhold(self.keyboardShrunkSizeArray, threshholds: self.keyboardShrunkSizeWidthThreshholds, measurement: width)
         }

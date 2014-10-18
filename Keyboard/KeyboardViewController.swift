@@ -237,9 +237,13 @@ class KeyboardViewController: UIInputViewController {
     }
     
     func heightForOrientation(orientation: UIInterfaceOrientation, withTopBanner: Bool) -> CGFloat {
-        let canonicalPortraitHeight = CGFloat(orientation.isPortrait && self.view.bounds.width >= 400 ? 226 : 216) //TODO: hack for 6+
-        let canonicalLandscapeHeight = CGFloat(162)
+        let isPad = UIDevice.currentDevice().userInterfaceIdiom == UIUserInterfaceIdiom.Pad
+        
+        //TODO: hardcoded stuff
+        let canonicalPortraitHeight = (isPad ? CGFloat(264) : CGFloat(orientation.isPortrait && self.view.bounds.width >= 400 ? 226 : 216))
+        let canonicalLandscapeHeight = (isPad ? CGFloat(352) : CGFloat(162))
         let topBannerHeight = (withTopBanner ? metric("topBanner") : 0)
+        
         return CGFloat(orientation.isPortrait ? canonicalPortraitHeight + topBannerHeight : canonicalLandscapeHeight + topBannerHeight)
     }
     
