@@ -288,7 +288,7 @@ class KeyboardViewController: UIInputViewController {
 //                    keyView.addTarget(self, action: "takeScreenshotDelay", forControlEvents: .TouchDown)
                     }
                     
-                    if key.type == Key.KeyType.Character || key.type == Key.KeyType.Period {
+                    if key.isCharacter {
                         if UIDevice.currentDevice().userInterfaceIdiom != UIUserInterfaceIdiom.Pad {
                             keyView.addTarget(keyView, action: Selector("showPopup"), forControlEvents: showOptions)
                             keyView.addTarget(keyView, action: Selector("hidePopup"), forControlEvents: hideOptions)
@@ -378,6 +378,16 @@ class KeyboardViewController: UIInputViewController {
         
         if let model = self.layout.keyForView(sender) {
             self.keyPressed(model)
+            
+            if model.type == Key.KeyType.Space || model.type == Key.KeyType.Return {
+                self.setMode(0)
+            }
+            else if model.lowercaseOutput == "'" {
+                self.setMode(0)
+            }
+            else if model.type == Key.KeyType.Character {
+                self.setMode(0)
+            }
         }
         
         if self.shiftState == ShiftState.Enabled {

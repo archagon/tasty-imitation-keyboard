@@ -67,6 +67,20 @@ class Key: Hashable {
     var lowercaseOutput: String?
     var toMode: Int? //if the key is a mode button, this indicates which page it links to
     
+    var isCharacter: Bool {
+        get {
+            switch self.type {
+            case
+            .Character,
+            .SpecialCharacter,
+            .Period:
+                return true
+            default:
+                return false
+            }
+        }
+    }
+    
     var isSpecial: Bool {
         get {
             switch self.type {

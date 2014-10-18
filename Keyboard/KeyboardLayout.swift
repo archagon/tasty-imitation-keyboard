@@ -482,11 +482,11 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
     }
     
     func characterRowHeuristic(row: [Key]) -> Bool {
-        return (row.count >= 1 && row[0].type == Key.KeyType.Character)
+        return (row.count >= 1 && row[0].isCharacter)
     }
     
     func doubleSidedRowHeuristic(row: [Key]) -> Bool {
-        return (row.count >= 3 && row[0].type != Key.KeyType.Character && row[1].type == Key.KeyType.Character)
+        return (row.count >= 3 && !row[0].isCharacter && row[1].isCharacter)
     }
     
     func layoutCharacterRow(row: [Key], modelToView: [Key:KeyboardKey], keyWidth: CGFloat, gapWidth: CGFloat, frame: CGRect) {
