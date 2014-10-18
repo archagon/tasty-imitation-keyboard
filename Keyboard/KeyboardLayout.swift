@@ -247,7 +247,11 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         return self.viewToModel[key]
     }
     
-    func setColorsForKey(key: KeyboardKey, model: Key, darkMode: Bool, solidColorMode: Bool) {
+    func setAppearanceForKey(key: KeyboardKey, model: Key, darkMode: Bool, solidColorMode: Bool) {
+        if model.type == Key.KeyType.Other {
+            self.setAppearanceForOtherKey(key, model: model, darkMode: darkMode, solidColorMode: solidColorMode)
+        }
+        
         switch model.type {
         case
         Key.KeyType.Character,
@@ -284,16 +288,42 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
             // TODO: actually a bit different
             key.downColor = self.globalColors.regularKey(darkMode, solidColorMode: solidColorMode)
             key.textColor = (darkMode ? self.globalColors.darkModeTextColor : self.globalColors.lightModeTextColor)
-        case
-        Key.KeyType.Other:
-            self.setupOtherKey(key, model: model, darkMode: darkMode, solidColorMode: solidColorMode)
+        default:
+            break
         }
         
         key.underColor = (self.darkMode ? self.globalColors.darkModeUnderColor : self.globalColors.lightModeUnderColor)
         key.borderColor = (self.darkMode ? self.globalColors.borderColor : self.globalColors.borderColor)
+        
+        // font sizing
+        switch model.type {
+        case
+        Key.KeyType.ModeChange,
+        Key.KeyType.Space,
+        Key.KeyType.Return:
+            key.label.adjustsFontSizeToFitWidth = true
+            key.label.font = key.label.font.fontWithSize(16)
+        default:
+            break
+        }
+        
+        // shapes
+        switch model.type {
+        case Key.KeyType.Shift:
+            let shiftShape = ShiftShape()
+            key.shape = shiftShape
+        case Key.KeyType.Backspace:
+            let backspaceShape = BackspaceShape()
+            key.shape = backspaceShape
+        case Key.KeyType.KeyboardChange:
+            let globeShape = GlobeShape()
+            key.shape = globeShape
+        default:
+            break
+        }
     }
     
-    func setupOtherKey(key: KeyboardKey, model: Key, darkMode: Bool, solidColorMode: Bool) { /* override this to handle special keys */ }
+    func setAppearanceForOtherKey(key: KeyboardKey, model: Key, darkMode: Bool, solidColorMode: Bool) { /* override this to handle special keys */ }
     
     func createViews(keyboard: Keyboard) {
         let specialKeyVibrancy: VibrancyType? = (self.darkMode ? VibrancyType.DarkSpecial : VibrancyType.LightSpecial)
@@ -312,7 +342,8 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
                         if (j < numKeys) {
                             var key = page.rows[i][j]
                             
-                            var keyView = KeyboardKey(vibrancy: (key.type.specialButton() ? specialKeyVibrancy : normalKeyVibrancy))
+                            var keyView = self.createKey(key, vibrancy: key.isSpecial ? specialKeyVibrancy : normalKeyVibrancy)
+                            
                             let keyViewName = "key\(j)x\(i)p\(h)"
                             keyView.enabled = true
                             keyView.text = key.keyCapForCase(false)
@@ -324,39 +355,17 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
                             self.modelToView[key] = keyView
                             self.viewToModel[keyView] = key
                             
-                            setColorsForKey(keyView, model: key, darkMode: self.darkMode, solidColorMode: self.solidColorMode)
-                            
-                            // font sizing
-                            switch key.type {
-                            case
-                            Key.KeyType.ModeChange,
-                            Key.KeyType.Space,
-                            Key.KeyType.Return:
-                                keyView.label.adjustsFontSizeToFitWidth = true
-                                keyView.label.font = keyView.label.font.fontWithSize(16)
-                            default:
-                                break
-                            }
-                            
-                            // shapes
-                            switch key.type {
-                            case Key.KeyType.Shift:
-                                let shiftShape = ShiftShape()
-                                keyView.shape = shiftShape
-                            case Key.KeyType.Backspace:
-                                let backspaceShape = BackspaceShape()
-                                keyView.shape = backspaceShape
-                            case Key.KeyType.KeyboardChange:
-                                let globeShape = GlobeShape()
-                                keyView.shape = globeShape
-                            default:
-                                break
-                            }
+                            self.setAppearanceForKey(keyView, model: key, darkMode: self.darkMode, solidColorMode: self.solidColorMode)
                         }
                     }
                 }
             }
         }
+    }
+    
+    // override to create custom keys
+    func createKey(model: Key, vibrancy: VibrancyType?) -> KeyboardKey {
+        return KeyboardKey(vibrancy: vibrancy)
     }
     
     //////////////////////

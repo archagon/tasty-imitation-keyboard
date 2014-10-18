@@ -256,14 +256,18 @@ class KeyboardKey: UIControl {
         self.borderView.frame = boundingBox
         self.underView.frame = boundingBox
         
-        self.refreshShapes()
-        self.redrawText()
-        self.redrawShape()
-        self.updateColors()
+        self.refreshViews()
         
         if self.text == "a" {
             NSLog("relayingout a: \(self.bounds)")
         }
+    }
+    
+    func refreshViews() {
+        self.refreshShapes()
+        self.redrawText()
+        self.redrawShape()
+        self.updateColors()
     }
     
 //   TODO:  UIView mask

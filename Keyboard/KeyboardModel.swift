@@ -58,25 +58,6 @@ class Key: Hashable {
         case Space
         case Return
         case Other
-        
-        func specialButton() -> Bool {
-            switch self {
-            case Shift:
-                return true
-            case Backspace:
-                return true
-            case ModeChange:
-                return true
-            case KeyboardChange:
-                return true
-            case Return:
-                return true
-            case Space:
-                return true
-            default:
-                return false
-            }
-        }
     }
     
     var type: KeyType
@@ -85,6 +66,27 @@ class Key: Hashable {
     var uppercaseOutput: String?
     var lowercaseOutput: String?
     var toMode: Int? //if the key is a mode button, this indicates which page it links to
+    
+    var isSpecial: Bool {
+        get {
+            switch self.type {
+            case .Shift:
+                return true
+            case .Backspace:
+                return true
+            case .ModeChange:
+                return true
+            case .KeyboardChange:
+                return true
+            case .Return:
+                return true
+            case .Space:
+                return true
+            default:
+                return false
+            }
+        }
+    }
     
     var hasOutput: Bool {
         get {
