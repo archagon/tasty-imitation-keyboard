@@ -13,6 +13,12 @@ let metrics: [String:Double] = [
 ]
 func metric(name: String) -> CGFloat { return CGFloat(metrics[name]!) }
 
+// TODO: settings screen with
+//  * autocaps
+//  * caps lock
+//  * . shortcut
+//  * keyboard click
+
 // TODO: live color changes! colors persist if keyboard is not unloaded between appearances, oh noes
 class KeyboardViewController: UIInputViewController {
     
@@ -39,6 +45,15 @@ class KeyboardViewController: UIInputViewController {
     }
     var backspaceDelayTimer: NSTimer?
     var backspaceRepeatTimer: NSTimer?
+    
+    enum AutoPeriodState {
+        case NoSpace
+        case FirstSpace
+        case WaitingForCharacter
+    }
+    
+    var autoPeriodState: AutoPeriodState = .WaitingForCharacter
+    var lastCharCountInBeforeContext: Int = 0
     
     enum ShiftState {
         case Disabled
@@ -118,6 +133,11 @@ class KeyboardViewController: UIInputViewController {
         fatalError("NSCoding not supported")
     }
     
+    deinit {
+        backspaceDelayTimer?.invalidate()
+        backspaceRepeatTimer?.invalidate()
+    }
+    
     // without this here kludge, the height constraint for the keyboard does not work for some reason
     var kludge: UIView?
     func setupKludge() {
@@ -173,6 +193,8 @@ class KeyboardViewController: UIInputViewController {
             banner.hidden = true
             self.view.insertSubview(banner, belowSubview: self.forwardingView)
             self.bannerView = banner
+            
+            self.setCapsIfNeeded()
         }
     }
     
@@ -379,6 +401,7 @@ class KeyboardViewController: UIInputViewController {
         if let model = self.layout.keyForView(sender) {
             self.keyPressed(model)
             
+            // auto exit from special char subkeyboard
             if model.type == Key.KeyType.Space || model.type == Key.KeyType.Return {
                 self.setMode(0)
             }
@@ -388,10 +411,47 @@ class KeyboardViewController: UIInputViewController {
             else if model.type == Key.KeyType.Character {
                 self.setMode(0)
             }
+            
+            // auto period on double space
+            // TODO: timeout
+            
+            var lastCharCountInBeforeContext: Int = 0
+            var readyForDoubleSpacePeriod: Bool = true
+            
+            self.handleAutoPeriod(model)
+            // TODO: reset context
         }
         
         if self.shiftState == ShiftState.Enabled {
             self.shiftState = ShiftState.Disabled
+        }
+        
+        self.setCapsIfNeeded()
+    }
+    
+    func handleAutoPeriod(key: Key) {
+        if self.autoPeriodState == .WaitingForCharacter {
+            if key.isCharacter {
+                self.autoPeriodState = .NoSpace
+            }
+        }
+        else {
+            if key.type == Key.KeyType.Space {
+                if self.autoPeriodState == .FirstSpace {
+                    (self.textDocumentProxy as? UITextDocumentProxy)?.deleteBackward()
+                    (self.textDocumentProxy as? UITextDocumentProxy)?.deleteBackward()
+                    (self.textDocumentProxy as? UITextDocumentProxy)?.insertText(".")
+                    (self.textDocumentProxy as? UITextDocumentProxy)?.insertText(key.outputForCase(self.shiftState.uppercase()))
+                    
+                    self.autoPeriodState = .WaitingForCharacter
+                }
+                else {
+                    self.autoPeriodState = .FirstSpace
+                }
+            }
+            else {
+                self.autoPeriodState = .NoSpace
+            }
         }
     }
     
@@ -492,6 +552,106 @@ class KeyboardViewController: UIInputViewController {
                     }
                 }
             }
+        }
+    }
+    
+    // TODO: make this work if cursor position is shifted
+    func setCapsIfNeeded() {
+        if self.shiftState == ShiftState.Disabled {
+            if self.shouldAutoCapitalize() {
+                self.shiftState = ShiftState.Enabled
+            }
+        }
+    }
+    
+    func characterIsPunctuation(character: Character) -> Bool {
+        return (character == ".") || (character == "!") || (character == "?")
+    }
+    
+    func characterIsWhitespace(character: Character) -> Bool {
+        // there are others, but who cares
+        return (character == " ") || (character == "\n") || (character == "\r") || (character == "\t")
+    }
+    
+    func stringIsWhitespace(string: String?) -> Bool {
+        if string != nil {
+            for char in string! {
+                if !characterIsWhitespace(char) {
+                    return false
+                }
+            }
+        }
+        return true
+    }
+    
+    func shouldAutoCapitalize() -> Bool {
+        if let traits = self.textDocumentProxy as? UITextInputTraits {
+            if let autocapitalization = traits.autocapitalizationType {
+                var documentProxy = self.textDocumentProxy as? UITextDocumentProxy
+                var beforeContext = documentProxy?.documentContextBeforeInput
+                
+                switch autocapitalization {
+                case .None:
+                    return false
+                case .Words:
+                    if let beforeContext = documentProxy?.documentContextBeforeInput {
+                        let stringContext = beforeContext as NSString
+                        let previousCharacter = stringContext.characterAtIndex(stringContext.length - 1)
+                        return self.characterIsWhitespace(Character(UnicodeScalar(previousCharacter)))
+                    }
+                    else {
+                        return true
+                    }
+                
+                case .Sentences:
+                    if let beforeContext = documentProxy?.documentContextBeforeInput {
+                        let stringContext = beforeContext as NSString
+                        let offset = min(3, stringContext.length)
+                        
+                        for (var i = 0; i < offset; i += 1) {
+                            let char = stringContext.characterAtIndex(stringContext.length - (i + 1))
+                            let uniChar = Character(UnicodeScalar(char))
+                            
+                            if characterIsPunctuation(uniChar) {
+                                if i == 0 {
+                                    return false //not enough spaces after punctuation
+                                }
+                                else {
+                                    return true
+                                }
+                            }
+                            else {
+                                if !characterIsWhitespace(uniChar) {
+                                    return false
+                                }
+                                else {
+                                    if i == offset - 1 {
+                                        if offset != 3 {
+                                            return false //not enough spaces by themselves
+                                        }
+                                        else {
+                                            return true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        
+                        return false
+                    }
+                    else {
+                        return true
+                    }
+                case .AllCharacters:
+                    return true
+                }
+            }
+            else {
+                return false
+            }
+        }
+        else {
+            return false
         }
     }
     
