@@ -202,9 +202,9 @@ class KeyboardViewController: UIInputViewController {
     func darkMode() -> Bool {
         var darkMode = { () -> Bool in
             if let proxy = self.textDocumentProxy as? UITextDocumentProxy {
-                if let app = proxy.keyboardAppearance {
-                    NSLog("proxy appearance is \(app.toRaw())")
-                }
+                //if let app = proxy.keyboardAppearance {
+                //    NSLog("proxy appearance is \(app.toRaw())")
+                //}
                 return proxy.keyboardAppearance == UIKeyboardAppearance.Dark
             }
             else {
@@ -236,8 +236,6 @@ class KeyboardViewController: UIInputViewController {
             self.forwardingView.frame = orientationSavvyBounds
             self.layout.layoutTemp()
             self.lastLayoutBounds = orientationSavvyBounds
-            
-            NSLog("did actual layout with \(orientationSavvyBounds)!")
         }
         
         self.bannerView?.frame = CGRectMake(0, 0, self.view.bounds.width, metric("topBanner"))
@@ -380,7 +378,6 @@ class KeyboardViewController: UIInputViewController {
             self.heightConstraint!.priority = 1000
             
             self.view.addConstraint(self.heightConstraint!) // TODO: what if view already has constraint added?
-            NSLog("constraint added")
         }
         else {
             self.heightConstraint?.constant = height

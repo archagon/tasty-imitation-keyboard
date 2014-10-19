@@ -98,10 +98,6 @@ class KeyboardKeyBackground: UIView, Connectable {
     let floatPiDivNeg2 = -CGFloat(M_PI/2.0)
     
     func generatePointsForDrawing(bounds: CGRect) {
-        if self.trackMePlz {
-            NSLog("generating points for \(self)")
-        }
-        
         let segmentWidth = bounds.width
         let segmentHeight = bounds.height - CGFloat(underOffset)
         
@@ -275,10 +271,6 @@ class KeyboardKeyBackground: UIView, Connectable {
         var returnValue = (
             self.segmentPoints[direction.clockwise().toRaw()].0,
             self.segmentPoints[direction.counterclockwise().toRaw()].1)
-        
-        // TODO: quick hack
-        //returnValue.0.y -= CGFloat(self.underOffset)
-        //returnValue.1.y -= CGFloat(self.underOffset)
         
         return returnValue
     }

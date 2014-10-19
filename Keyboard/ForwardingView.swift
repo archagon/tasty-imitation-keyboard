@@ -41,7 +41,6 @@ class ForwardingView: UIView {
         return (CGRectContainsPoint(self.bounds, point) ? self : nil)
     }
     
-    // TODO: drag up control centre from bottom == stuck
     func handleControl(view: UIView?, controlEvent: UIControlEvents) {
         if let control = view as? UIControl {
             let targets = control.allTargets()

@@ -9,8 +9,6 @@
 import UIKit
 
 // TODO: animation on color set
-// TODO: shadow placement
-// TODO: special key blur
 // TODO: correct corner radius
 // TODO: correct colors
 // TODO: refactor
@@ -39,10 +37,6 @@ class KeyboardKey: UIControl {
             self.label.text = text
             self.label.frame = CGRectMake((self.bounds.width - self.bounds.width * CGFloat(0.8)) / CGFloat(2), 0, self.bounds.width * CGFloat(0.8), self.bounds.height)
             self.redrawText()
-            
-            if text == "a" {
-                self.background.trackMePlz = true
-            }
         }
     }
     
@@ -257,10 +251,11 @@ class KeyboardKey: UIControl {
         self.underView.frame = boundingBox
         
         self.refreshViews()
-        
-        if self.text == "a" {
-            NSLog("relayingout a: \(self.bounds)")
-        }
+
+//        if self.text == "a" || self.text == "A" {
+//            self.background.trackMe = true
+//            NSLog("relayingout a: \(self.bounds)")
+//        }
     }
     
     func refreshViews() {
