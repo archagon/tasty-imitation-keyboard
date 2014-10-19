@@ -246,6 +246,9 @@ class KeyboardKey: UIControl {
 
         super.layoutSubviews()
         
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        
         self.background.frame = self.bounds
         self.label.frame = CGRectMake((self.bounds.width - self.bounds.width * CGFloat(0.8)) / CGFloat(2), 0, self.bounds.width * CGFloat(0.8), self.bounds.height)
         
@@ -260,6 +263,8 @@ class KeyboardKey: UIControl {
         self.shadowView.frame = boundingBox
         self.borderView.frame = boundingBox
         self.underView.frame = boundingBox
+        
+        CATransaction.commit()
         
         self.refreshViews()
 
@@ -321,6 +326,9 @@ class KeyboardKey: UIControl {
         let transformFromShapeToView = CGAffineTransformMakeTranslation(translatedUnitSquare.origin.x, translatedUnitSquare.origin.y)
         underPath?.applyTransform(transformFromShapeToView)
         
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        
         if let popup = self.popup {
             self.shadowLayer.shadowPath = shadowPath.CGPath
         }
@@ -328,6 +336,8 @@ class KeyboardKey: UIControl {
         self.underLayer.path = underPath?.CGPath
         self.maskLayer.path = testPath.CGPath
         self.borderLayer.path = edgePath.CGPath
+        
+        CATransaction.commit()
     }
     
     func layoutPopupIfNeeded() {
@@ -374,6 +384,9 @@ class KeyboardKey: UIControl {
     }
     
     func updateColors() {
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        
         let switchColors = self.highlighted || self.selected
         
         if switchColors {
@@ -435,6 +448,8 @@ class KeyboardKey: UIControl {
             self.popupLabel?.textColor = self.textColor
             self.shape?.color = self.textColor
         }
+        
+        CATransaction.commit()
     }
     
     func layoutPopup(dir: Direction) {
