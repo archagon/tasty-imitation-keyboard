@@ -593,9 +593,8 @@ class KeyboardViewController: UIInputViewController {
                     return false
                 case .Words:
                     if let beforeContext = documentProxy?.documentContextBeforeInput {
-                        let stringContext = beforeContext as NSString
-                        let previousCharacter = stringContext.characterAtIndex(stringContext.length - 1)
-                        return self.characterIsWhitespace(Character(UnicodeScalar(previousCharacter)))
+                        let previousCharacter = beforeContext[beforeContext.endIndex.predecessor()]
+                        return self.characterIsWhitespace(previousCharacter)
                     }
                     else {
                         return true
@@ -603,14 +602,12 @@ class KeyboardViewController: UIInputViewController {
                 
                 case .Sentences:
                     if let beforeContext = documentProxy?.documentContextBeforeInput {
-                        let stringContext = beforeContext as NSString
-                        let offset = min(3, stringContext.length)
+                        let offset = min(3, countElements(beforeContext))
                         
                         for (var i = 0; i < offset; i += 1) {
-                            let char = stringContext.characterAtIndex(stringContext.length - (i + 1))
-                            let uniChar = Character(UnicodeScalar(char))
+                            let char = beforeContext[beforeContext.endIndex.predecessor()]
                             
-                            if characterIsPunctuation(uniChar) {
+                            if characterIsPunctuation(char) {
                                 if i == 0 {
                                     return false //not enough spaces after punctuation
                                 }
@@ -619,7 +616,7 @@ class KeyboardViewController: UIInputViewController {
                                 }
                             }
                             else {
-                                if !characterIsWhitespace(uniChar) {
+                                if !characterIsWhitespace(char) {
                                     return false
                                 }
                                 else {
