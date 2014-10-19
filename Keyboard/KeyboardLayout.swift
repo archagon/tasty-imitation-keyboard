@@ -398,7 +398,7 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         let isLandscape: Bool = {
             let boundsRatio = bounds.width / bounds.height
             return (boundsRatio >= self.layoutConstants.landscapeRatio)
-            }()
+        }()
         
         var sideEdges = (isLandscape ? self.layoutConstants.sideEdgesLandscape : self.layoutConstants.sideEdgesPortrait(bounds.width))
         let bottomEdge = sideEdges

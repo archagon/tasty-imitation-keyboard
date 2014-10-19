@@ -40,8 +40,6 @@ class KeyboardKeyBackground: UIView, Connectable {
         }
     }
     
-    var trackMePlz: Bool = false
-    
     init(blur: Bool, cornerRadius: CGFloat, underOffset: CGFloat) {
         attached = nil
         hideDirectionIsOpposite = false
@@ -51,6 +49,18 @@ class KeyboardKeyBackground: UIView, Connectable {
         segmentPoints = []
         arcCenters = []
         arcStartingAngles = []
+        
+        startingPoints.reserveCapacity(4)
+        segmentPoints.reserveCapacity(4)
+        arcCenters.reserveCapacity(4)
+        arcStartingAngles.reserveCapacity(4)
+        
+        for i in 0..<4 {
+            startingPoints.append(CGPointZero)
+            segmentPoints.append((CGPointZero, CGPointZero))
+            arcCenters.append(CGPointZero)
+            arcStartingAngles.append(0)
+        }
         
         self.cornerRadius = cornerRadius
         self.underOffset = underOffset
@@ -83,6 +93,10 @@ class KeyboardKeyBackground: UIView, Connectable {
         self.dirty = false
     }
     
+    let floatPi = CGFloat(M_PI)
+    let floatPiDiv2 = CGFloat(M_PI/2.0)
+    let floatPiDivNeg2 = -CGFloat(M_PI/2.0)
+    
     func generatePointsForDrawing(bounds: CGRect) {
         if self.trackMePlz {
             NSLog("generating points for \(self)")
@@ -92,60 +106,59 @@ class KeyboardKeyBackground: UIView, Connectable {
         let segmentHeight = bounds.height - CGFloat(underOffset)
         
         // base, untranslated corner points
-        self.startingPoints = [
-            CGPointMake(0, segmentHeight),
-            CGPointMake(0, 0),
-            CGPointMake(segmentWidth, 0),
-            CGPointMake(segmentWidth, segmentHeight),
-        ]
+        self.startingPoints[0] = CGPointMake(0, segmentHeight)
+        self.startingPoints[1] = CGPointMake(0, 0)
+        self.startingPoints[2] = CGPointMake(segmentWidth, 0)
+        self.startingPoints[3] = CGPointMake(segmentWidth, segmentHeight)
         
-        // actual coordinates for each edge, including translation
-        self.segmentPoints = [] // TODO: is this declaration correct?
+        self.arcStartingAngles[0] = floatPiDiv2
+        self.arcStartingAngles[2] = floatPiDivNeg2
+        self.arcStartingAngles[1] = floatPi
+        self.arcStartingAngles[3] = 0
         
-        // actual coordinates for arc centers for each corner
-        self.arcCenters = []
-        
-        self.arcStartingAngles = []
+        //// actual coordinates for each edge, including translation
+        //self.segmentPoints.removeAll(keepCapacity: true)
+        //
+        //// actual coordinates for arc centers for each corner
+        //self.arcCenters.removeAll(keepCapacity: true)
+        //
+        //self.arcStartingAngles.removeAll(keepCapacity: true)
         
         for i in 0 ..< self.startingPoints.count {
             let currentPoint = self.startingPoints[i]
             let nextPoint = self.startingPoints[(i + 1) % self.startingPoints.count]
             
-            var xDir = 0.0
-            var yDir = 0.0
+            var floatXCorner: CGFloat = 0
+            var floatYCorner: CGFloat = 0
             
             if (i == 1) {
-                xDir = 1.0
-                self.arcStartingAngles.append(CGFloat(M_PI))
+                floatXCorner = cornerRadius
             }
             else if (i == 3) {
-                xDir = -1.0
-                self.arcStartingAngles.append(CGFloat(0))
+                floatXCorner = -cornerRadius
             }
             
             if (i == 0) {
-                yDir = -1.0
-                self.arcStartingAngles.append(CGFloat(M_PI/2.0))
+                floatYCorner = -cornerRadius
             }
             else if (i == 2) {
-                yDir = 1.0
-                self.arcStartingAngles.append(CGFloat(-M_PI/2.0))
+                floatYCorner = cornerRadius
             }
             
-            let p0 = CGPointMake(
-                currentPoint.x + (CGFloat(xDir) * cornerRadius),
-                currentPoint.y + CGFloat(underOffset) + (CGFloat(yDir) * cornerRadius))
-            let p1 = CGPointMake(
-                nextPoint.x - (CGFloat(xDir) * cornerRadius),
-                nextPoint.y + CGFloat(underOffset) - (CGFloat(yDir) * cornerRadius))
+            var p0 = CGPointMake(
+                currentPoint.x + (floatXCorner),
+                currentPoint.y + underOffset + (floatYCorner))
+            var p1 = CGPointMake(
+                nextPoint.x - (floatXCorner),
+                nextPoint.y + underOffset - (floatYCorner))
             
-            self.segmentPoints.append((p0, p1))
+            self.segmentPoints[i] = (p0, p1)
             
-            let c = CGPointMake(
-                p0.x - (CGFloat(yDir) * cornerRadius),
-                p0.y + (CGFloat(xDir) * cornerRadius))
-            
-            self.arcCenters.append(c)
+            var c = CGPointMake(
+                p0.x - (floatYCorner),
+                p0.y + (floatXCorner))
+
+            self.arcCenters[i] = c
         }
         
         // order of edge drawing: left edge, down edge, right edge, up edge
@@ -161,6 +174,7 @@ class KeyboardKeyBackground: UIView, Connectable {
         
         for i in 0..<4 {
             var edgePath: UIBezierPath?
+            let segmentPoint = self.segmentPoints[i]
             
             if self.attached != nil && (self.hideDirectionIsOpposite ? self.attached!.toRaw() != i : self.attached!.toRaw() == i) {
                 // do nothing
@@ -174,17 +188,17 @@ class KeyboardKeyBackground: UIView, Connectable {
                 
                 // TODO: figure out if this is ncessary
                 if prevPoint == nil {
-                    prevPoint = self.segmentPoints[i].0
+                    prevPoint = segmentPoint.0
                     fillPath.moveToPoint(prevPoint!)
                 }
 
-                fillPath.addLineToPoint(self.segmentPoints[i].0)
-                fillPath.addLineToPoint(self.segmentPoints[i].1)
+                fillPath.addLineToPoint(segmentPoint.0)
+                fillPath.addLineToPoint(segmentPoint.1)
                 
-                edgePath!.moveToPoint(self.segmentPoints[i].0)
-                edgePath!.addLineToPoint(self.segmentPoints[i].1)
+                edgePath!.moveToPoint(segmentPoint.0)
+                edgePath!.addLineToPoint(segmentPoint.1)
                 
-                prevPoint = self.segmentPoints[i].1
+                prevPoint = segmentPoint.1
             }
             
             let shouldDrawArcInOppositeMode = (self.attached != nil ? (self.attached!.toRaw() == i) || (self.attached!.toRaw() == ((i + 1) % 4)) : false)
@@ -195,18 +209,19 @@ class KeyboardKeyBackground: UIView, Connectable {
                 edgePath = (edgePath == nil ? UIBezierPath() : edgePath)
                 
                 if prevPoint == nil {
-                    prevPoint = self.segmentPoints[i].1
+                    prevPoint = segmentPoint.1
                     fillPath.moveToPoint(prevPoint!)
                 }
                 
                 let startAngle = self.arcStartingAngles[(i + 1) % 4]
-                let endAngle = startAngle + CGFloat(M_PI/2.0)
+                let endAngle = startAngle + floatPiDiv2
+                let arcCenter = self.arcCenters[(i + 1) % 4]
                 
                 fillPath.addLineToPoint(prevPoint!)
-                fillPath.addArcWithCenter(self.arcCenters[(i + 1) % 4], radius: CGFloat(self.cornerRadius), startAngle: startAngle, endAngle: endAngle, clockwise: true)
+                fillPath.addArcWithCenter(arcCenter, radius: self.cornerRadius, startAngle: startAngle, endAngle: endAngle, clockwise: true)
                 
                 edgePath!.moveToPoint(prevPoint!)
-                edgePath!.addArcWithCenter(self.arcCenters[(i + 1) % 4], radius: CGFloat(self.cornerRadius), startAngle: startAngle, endAngle: endAngle, clockwise: true)
+                edgePath!.addArcWithCenter(arcCenter, radius: self.cornerRadius, startAngle: startAngle, endAngle: endAngle, clockwise: true)
                 
                 prevPoint = self.segmentPoints[(i + 1) % 4].0
             }
