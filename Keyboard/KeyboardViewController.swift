@@ -566,6 +566,10 @@ class KeyboardViewController: UIInputViewController {
         return (character == ".") || (character == "!") || (character == "?")
     }
     
+    func characterIsNewline(character: Character) -> Bool {
+        return (character == "\n") || (character == "\r")
+    }
+    
     func characterIsWhitespace(character: Character) -> Bool {
         // there are others, but who cares
         return (character == " ") || (character == "\n") || (character == "\r") || (character == "\t")
@@ -603,36 +607,31 @@ class KeyboardViewController: UIInputViewController {
                 case .Sentences:
                     if let beforeContext = documentProxy?.documentContextBeforeInput {
                         let offset = min(3, countElements(beforeContext))
+                        var index = beforeContext.endIndex
                         
                         for (var i = 0; i < offset; i += 1) {
-                            let char = beforeContext[beforeContext.endIndex.predecessor()]
+                            index = index.predecessor()
+                            let char = beforeContext[index]
                             
                             if characterIsPunctuation(char) {
                                 if i == 0 {
                                     return false //not enough spaces after punctuation
                                 }
                                 else {
-                                    return true
+                                    return true //punctuation with at least one space after it
                                 }
                             }
                             else {
                                 if !characterIsWhitespace(char) {
-                                    return false
+                                    return false //hit a foreign character before getting to 3 spaces
                                 }
-                                else {
-                                    if i == offset - 1 {
-                                        if offset != 3 {
-                                            return false //not enough spaces by themselves
-                                        }
-                                        else {
-                                            return true
-                                        }
-                                    }
+                                else if characterIsNewline(char) {
+                                    return true //hit start of line
                                 }
                             }
                         }
                         
-                        return false
+                        return true //either got 3 spaces or hit start of line
                     }
                     else {
                         return true
