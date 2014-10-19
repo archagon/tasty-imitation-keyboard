@@ -26,6 +26,17 @@ enum VibrancyType {
     case DarkRegular
 }
 
+//extension UIView {
+//    func blurredSnapshot() -> UIImage {
+//        UIGraphicsBeginImageContextWithOptions(self.bounds.size, false, (self.window != nil ? self.window!.screen.scale : 1))
+//        self.drawViewHierarchyInRect(self.frame, afterScreenUpdates: false)
+//        let snapshotImage = UIGraphicsGetImageFromCurrentImageContext()
+//        var blurredImage = snapshotImage.applyLightEffect()
+//        UIGraphicsEndImageContext()
+//        return blurredImage
+//    }
+//}
+
 class KeyboardKey: UIControl {
     
     var delegate: KeyboardKeyProtocol?
