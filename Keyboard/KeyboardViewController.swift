@@ -49,10 +49,9 @@ class KeyboardViewController: UIInputViewController {
     enum AutoPeriodState {
         case NoSpace
         case FirstSpace
-        case WaitingForCharacter
     }
     
-    var autoPeriodState: AutoPeriodState = .WaitingForCharacter
+    var autoPeriodState: AutoPeriodState = .NoSpace
     var lastCharCountInBeforeContext: Int = 0
     
     enum ShiftState {
@@ -428,27 +427,52 @@ class KeyboardViewController: UIInputViewController {
     }
     
     func handleAutoPeriod(key: Key) {
-        if self.autoPeriodState == .WaitingForCharacter {
-            if key.isCharacter {
+        if self.autoPeriodState == .FirstSpace {
+            if key.type != Key.KeyType.Space {
                 self.autoPeriodState = .NoSpace
+                return
             }
+            
+            let charactersAreInCorrectState = { () -> Bool in
+                let previousContext = (self.textDocumentProxy as? UITextDocumentProxy)?.documentContextBeforeInput
+                
+                if previousContext == nil || countElements(previousContext!) < 2 {
+                    return false
+                }
+                
+                var index = previousContext!.endIndex
+                
+                index = index.predecessor()
+                if previousContext![index] != " " {
+                    return false
+                }
+                
+                index = index.predecessor()
+                if previousContext![index] != " " {
+                    return false
+                }
+                
+                index = index.predecessor()
+                let char = previousContext![index]
+                if self.characterIsWhitespace(char) || self.characterIsPunctuation(char) {
+                    return false
+                }
+                
+                return true
+            }()
+            
+            if charactersAreInCorrectState {
+                (self.textDocumentProxy as? UITextDocumentProxy)?.deleteBackward()
+                (self.textDocumentProxy as? UITextDocumentProxy)?.deleteBackward()
+                (self.textDocumentProxy as? UITextDocumentProxy)?.insertText(".")
+                (self.textDocumentProxy as? UITextDocumentProxy)?.insertText(" ")
+            }
+            
+            self.autoPeriodState = .NoSpace
         }
         else {
             if key.type == Key.KeyType.Space {
-                if self.autoPeriodState == .FirstSpace {
-                    (self.textDocumentProxy as? UITextDocumentProxy)?.deleteBackward()
-                    (self.textDocumentProxy as? UITextDocumentProxy)?.deleteBackward()
-                    (self.textDocumentProxy as? UITextDocumentProxy)?.insertText(".")
-                    (self.textDocumentProxy as? UITextDocumentProxy)?.insertText(key.outputForCase(self.shiftState.uppercase()))
-                    
-                    self.autoPeriodState = .WaitingForCharacter
-                }
-                else {
-                    self.autoPeriodState = .FirstSpace
-                }
-            }
-            else {
-                self.autoPeriodState = .NoSpace
+                self.autoPeriodState = .FirstSpace
             }
         }
     }
