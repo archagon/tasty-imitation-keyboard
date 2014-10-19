@@ -168,7 +168,8 @@ class GlobalColors: NSObject {
     class var darkModeUnderColor: UIColor { get { return UIColor(red: CGFloat(38.6)/CGFloat(255), green: CGFloat(18)/CGFloat(255), blue: CGFloat(39.3)/CGFloat(255), alpha: 0.4) }}
     class var lightModeTextColor: UIColor { get { return UIColor.blackColor() }}
     class var darkModeTextColor: UIColor { get { return UIColor.whiteColor() }}
-    class var borderColor: UIColor { get { return UIColor(hue: (214/360.0), saturation: 0.04, brightness: 0.65, alpha: 1.0) }}
+    class var lightModeBorderColor: UIColor { get { return UIColor(hue: (214/360.0), saturation: 0.04, brightness: 0.65, alpha: 1.0) }}
+    class var darkModeBorderColor: UIColor { get { return UIColor.clearColor() }}
     
     class func regularKey(darkMode: Bool, solidColorMode: Bool) -> UIColor {
         if darkMode {
@@ -302,7 +303,7 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         }
         
         key.underColor = (self.darkMode ? self.globalColors.darkModeUnderColor : self.globalColors.lightModeUnderColor)
-        key.borderColor = (self.darkMode ? self.globalColors.borderColor : self.globalColors.borderColor)
+        key.borderColor = (self.darkMode ? self.globalColors.darkModeBorderColor : self.globalColors.lightModeBorderColor)
         
         // font sizing
         switch model.type {
