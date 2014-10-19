@@ -630,6 +630,10 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
                 key.connector?.startDir = Direction.Down
                 key.background.hideDirectionIsOpposite = true
             }
+            else {
+                // TODO: this needs to be reset somewhere
+                key.background.hideDirectionIsOpposite = false
+            }
             
             if localFrame.origin.x < 3 {
                 localFrame.origin.x = key.frame.origin.x
