@@ -202,7 +202,7 @@ class KeyboardViewController: UIInputViewController {
         var darkMode = { () -> Bool in
             if let proxy = self.textDocumentProxy as? UITextDocumentProxy {
                 //if let app = proxy.keyboardAppearance {
-                //    NSLog("proxy appearance is \(app.toRaw())")
+                //    NSLog("proxy appearance is \(app.rawValue)")
                 //}
                 return proxy.keyboardAppearance == UIKeyboardAppearance.Dark
             }

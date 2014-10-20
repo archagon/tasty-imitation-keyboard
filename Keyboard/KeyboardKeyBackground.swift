@@ -50,7 +50,7 @@ class KeyboardKeyBackground: UIView, Connectable {
     
 //    override var hashValue: Int {
 //        get {
-//            return Int(self.bounds.width) ^ Int(self.bounds.height) ^ Int(self.underOffset) ^ Int(self.cornerRadius) ^ (self.attached != nil ? self.attached!.toRaw() : -1) ^ Int(self.hideDirectionIsOpposite)
+//            return Int(self.bounds.width) ^ Int(self.bounds.height) ^ Int(self.underOffset) ^ Int(self.cornerRadius) ^ (self.attached != nil ? self.attached!.rawValue : -1) ^ Int(self.hideDirectionIsOpposite)
 //        }
 //    }
 
@@ -209,7 +209,7 @@ class KeyboardKeyBackground: UIView, Connectable {
             var edgePath: UIBezierPath?
             let segmentPoint = self.segmentPoints[i]
             
-            if self.attached != nil && (self.hideDirectionIsOpposite ? self.attached!.toRaw() != i : self.attached!.toRaw() == i) {
+            if self.attached != nil && (self.hideDirectionIsOpposite ? self.attached!.rawValue != i : self.attached!.rawValue == i) {
                 // do nothing
                 // TODO: quick hack
                 if !self.hideDirectionIsOpposite {
@@ -234,9 +234,9 @@ class KeyboardKeyBackground: UIView, Connectable {
                 prevPoint = segmentPoint.1
             }
             
-            let shouldDrawArcInOppositeMode = (self.attached != nil ? (self.attached!.toRaw() == i) || (self.attached!.toRaw() == ((i + 1) % 4)) : false)
+            let shouldDrawArcInOppositeMode = (self.attached != nil ? (self.attached!.rawValue == i) || (self.attached!.rawValue == ((i + 1) % 4)) : false)
             
-            if (self.attached != nil && (self.hideDirectionIsOpposite ? !shouldDrawArcInOppositeMode : self.attached!.toRaw() == ((i + 1) % 4))) {
+            if (self.attached != nil && (self.hideDirectionIsOpposite ? !shouldDrawArcInOppositeMode : self.attached!.rawValue == ((i + 1) % 4))) {
                 // do nothing
             } else {
                 edgePath = (edgePath == nil ? UIBezierPath() : edgePath)
@@ -308,8 +308,8 @@ class KeyboardKeyBackground: UIView, Connectable {
     
     func attachmentPoints(direction: Direction) -> (CGPoint, CGPoint) {
         var returnValue = (
-            self.segmentPoints[direction.clockwise().toRaw()].0,
-            self.segmentPoints[direction.counterclockwise().toRaw()].1)
+            self.segmentPoints[direction.clockwise().rawValue].0,
+            self.segmentPoints[direction.counterclockwise().rawValue].1)
         
         return returnValue
     }
