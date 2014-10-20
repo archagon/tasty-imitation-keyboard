@@ -110,7 +110,6 @@ class KeyboardKey: UIControl {
     var underView: UIView
     var shadowView: UIView
     var shadowLayer: CAShapeLayer
-    var overLayer: CALayer
     
     class DumbLayer: CALayer {
         override func addAnimation(anim: CAAnimation!, forKey key: String!) {
@@ -151,7 +150,6 @@ class KeyboardKey: UIControl {
         self.shadowLayer = CAShapeLayer()
         self.shadowView = UIView()
         self.maskLayer = CAShapeLayer()
-        self.overLayer = CALayer()
         
         if let effectView = self.displayView as? UIVisualEffectView {
             self.displayViewContentView = effectView.contentView
@@ -159,7 +157,6 @@ class KeyboardKey: UIControl {
         else {
             self.displayViewContentView = self.displayView
         }
-        self.displayViewContentView.layer.addSublayer(self.overLayer)
         
         self.label = UILabel()
         self.text = ""
