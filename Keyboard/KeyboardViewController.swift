@@ -528,13 +528,10 @@ class KeyboardViewController: UIInputViewController {
         switch self.shiftState {
         case .Disabled:
             self.shiftState = .Enabled
-            sender.highlighted = true
         case .Enabled:
             self.shiftState = .Disabled
-            sender.highlighted = false
         case .Locked:
             self.shiftState = .Disabled
-            sender.highlighted = false
         }
         
         (sender.shape as? ShiftShape)?.withLock = false
@@ -546,22 +543,30 @@ class KeyboardViewController: UIInputViewController {
         switch self.shiftState {
         case .Disabled:
             self.shiftState = .Locked
-            sender.highlighted = true
         case .Enabled:
             self.shiftState = .Locked
-            sender.highlighted = true
         case .Locked:
             self.shiftState = .Disabled
-            sender.highlighted = false
         }
-        
-        (sender.shape as? ShiftShape)?.withLock = (self.shiftState == .Locked)
     }
     
     func updateKeyCaps(lowercase: Bool) {
         if self.layout != nil {
             for (model, key) in self.layout!.modelToView {
                 key.text = model.keyCapForCase(!lowercase)
+                
+                if model.type == Key.KeyType.Shift {
+                    switch self.shiftState {
+                    case .Disabled:
+                        key.highlighted = false
+                    case .Enabled:
+                        key.highlighted = true
+                    case .Locked:
+                        key.highlighted = true
+                    }
+                    
+                    (key.shape as? ShiftShape)?.withLock = (self.shiftState == .Locked)
+                }
             }
         }
     }
@@ -588,7 +593,14 @@ class KeyboardViewController: UIInputViewController {
     // TODO: make this work if cursor position is shifted
     func setCapsIfNeeded() {
         if self.shouldAutoCapitalize() {
-            self.shiftState = ShiftState.Enabled
+            switch self.shiftState {
+            case .Disabled:
+                self.shiftState = .Enabled
+            case .Enabled:
+                self.shiftState = .Enabled
+            case .Locked:
+                self.shiftState = .Locked
+            }
         }
     }
     
