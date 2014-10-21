@@ -27,7 +27,7 @@ class KeyboardViewController: UIInputViewController {
     
     var keyboard: Keyboard!
     var forwardingView: ForwardingView
-    var layout: KeyboardLayout!
+    var layout: KeyboardLayout?
     var heightConstraint: NSLayoutConstraint?
     
     var bannerView: BannerView?
@@ -180,7 +180,7 @@ class KeyboardViewController: UIInputViewController {
         if !constraintsAdded {
             self.layout = self.dynamicType.layoutClass(model: self.keyboard, superview: self.forwardingView, layoutConstants: self.dynamicType.layoutConstants, globalColors: self.dynamicType.globalColors, darkMode: self.darkMode(), solidColorMode: self.solidColorMode())
             
-            self.layout.initialize()
+            self.layout?.initialize()
             self.setupKeys()
             self.setMode(0)
             
@@ -233,7 +233,7 @@ class KeyboardViewController: UIInputViewController {
         }
         else {
             self.forwardingView.frame = orientationSavvyBounds
-            self.layout.layoutTemp()
+            self.layout?.layoutTemp()
             self.lastLayoutBounds = orientationSavvyBounds
         }
         
@@ -278,10 +278,14 @@ class KeyboardViewController: UIInputViewController {
     //}
     
     func setupKeys() {
+        if self.layout == nil {
+            return
+        }
+        
         for page in keyboard.pages {
             for rowKeys in page.rows { // TODO: quick hack
                 for key in rowKeys {
-                    var keyView = self.layout.viewForKey(key)! // TODO: check
+                    var keyView = self.layout!.viewForKey(key)! // TODO: check
                     
                     let showOptions: UIControlEvents = .TouchDown | .TouchDragInside | .TouchDragEnter
                     let hideOptions: UIControlEvents = .TouchUpInside | .TouchUpOutside | .TouchDragOutside
@@ -353,14 +357,16 @@ class KeyboardViewController: UIInputViewController {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated
     }
+
+    // TODO: this is currently not working as intended; only called when selection changed -- iOS bug
+    override func textDidChange(textInput: UITextInput) {
+        self.contextChanged()
+    }
     
-//    override func textWillChange(textInput: UITextInput) {
-//        // The app is about to change the document's contents. Perform any preparation here.
-//    }
-//    
-//    override func textDidChange(textInput: UITextInput) {
-//        // The app has just changed the document's contents, the document context has been updated.
-//    }
+    func contextChanged() {
+        self.setCapsIfNeeded()
+        self.autoPeriodState = .NoSpace
+    }
     
     func setHeight(height: CGFloat) {
         if self.heightConstraint == nil {
@@ -395,7 +401,7 @@ class KeyboardViewController: UIInputViewController {
         // alas, this doesn't seem to work yet
         UIDevice.currentDevice().playInputClick()
         
-        if let model = self.layout.keyForView(sender) {
+        if let model = self.layout?.keyForView(sender) {
             self.keyPressed(model)
             
             // auto exit from special char subkeyboard
@@ -436,7 +442,7 @@ class KeyboardViewController: UIInputViewController {
             let charactersAreInCorrectState = { () -> Bool in
                 let previousContext = (self.textDocumentProxy as? UITextDocumentProxy)?.documentContextBeforeInput
                 
-                if previousContext == nil || countElements(previousContext!) < 2 {
+                if previousContext == nil || countElements(previousContext!) < 3 {
                     return false
                 }
                 
@@ -553,13 +559,15 @@ class KeyboardViewController: UIInputViewController {
     }
     
     func updateKeyCaps(lowercase: Bool) {
-        for (model, key) in self.layout.modelToView {
-            key.text = model.keyCapForCase(!lowercase)
+        if self.layout != nil {
+            for (model, key) in self.layout!.modelToView {
+                key.text = model.keyCapForCase(!lowercase)
+            }
         }
     }
     
     func modeChangeTapped(sender: KeyboardKey) {
-        if let toMode = self.layout.viewToModel[sender]?.toMode {
+        if let toMode = self.layout?.viewToModel[sender]?.toMode {
             self.currentMode = toMode
         }
     }
@@ -568,8 +576,8 @@ class KeyboardViewController: UIInputViewController {
         for (pageIndex, page) in enumerate(self.keyboard.pages) {
             for (rowIndex, row) in enumerate(page.rows) {
                 for (keyIndex, key) in enumerate(row) {
-                    if self.layout.modelToView[key] != nil {
-                        var keyView = self.layout.modelToView[key]
+                    if self.layout?.modelToView[key] != nil {
+                        var keyView = self.layout?.modelToView[key]
                         keyView?.hidden = (pageIndex != mode)
                     }
                 }
@@ -579,10 +587,8 @@ class KeyboardViewController: UIInputViewController {
     
     // TODO: make this work if cursor position is shifted
     func setCapsIfNeeded() {
-        if self.shiftState == ShiftState.Disabled {
-            if self.shouldAutoCapitalize() {
-                self.shiftState = ShiftState.Enabled
-            }
+        if self.shouldAutoCapitalize() {
+            self.shiftState = ShiftState.Enabled
         }
     }
     
