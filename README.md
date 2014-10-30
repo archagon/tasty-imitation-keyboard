@@ -17,6 +17,8 @@ I'm working on a 3rd party keyboard for iOS8 and I want it to look and feel as c
 
 We are in alpha! The basic features and appearance should all be there by now. I'll try to not commit broken builds anymore.
 
+Good news! [I now have an app in the App Store that's built on top of this keyboard](http://translit-keyboard.archagon.net), so we know that it can pass the App Store review process.
+
 Hold-to-select-alternate-characters will be implemented at a later time.
 
 ## Build Instructions
