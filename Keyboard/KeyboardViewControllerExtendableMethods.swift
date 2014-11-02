@@ -25,4 +25,7 @@ extension KeyboardViewController {
     
     // a banner that sits in the empty space on top of the keyboard
     //func createBanner() -> ExtraView?
+    
+    // a settings view that replaces the keyboard when the settings button is pressed
+    //func createSettings() -> ExtraView?
 }

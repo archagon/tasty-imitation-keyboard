@@ -31,6 +31,7 @@ class KeyboardViewController: UIInputViewController {
     var heightConstraint: NSLayoutConstraint?
     
     var bannerView: ExtraView?
+    var settingsView: ExtraView?
     
     var currentMode: Int {
         didSet {
@@ -713,6 +714,12 @@ class KeyboardViewController: UIInputViewController {
     func createBanner() -> ExtraView? {
         //return ExtraView(globalColors: self.dynamicType.globalColors, darkMode: false, solidColorMode: self.solidColorMode())
         return nil
+    }
+    
+    // a settings view that replaces the keyboard when the settings button is pressed
+    func createSettings() -> ExtraView? {
+        // note that dark mode is not yet valid here, so we just put false for clarity
+        return ExtraView(globalColors: self.dynamicType.globalColors, darkMode: false, solidColorMode: self.solidColorMode())
     }
 }
 

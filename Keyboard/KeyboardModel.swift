@@ -57,6 +57,7 @@ class Key: Hashable {
         case Period
         case Space
         case Return
+        case Settings
         case Other
     }
     
@@ -95,6 +96,8 @@ class Key: Hashable {
             case .Return:
                 return true
             case .Space:
+                return true
+            case .Settings:
                 return true
             default:
                 return false
