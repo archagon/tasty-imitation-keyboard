@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		4E00A6E5197183EE009414F2 /* KeyboardKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E807DC81946209600D875D1 /* KeyboardKey.swift */; };
+		4E3B5A941A0654A8003366F6 /* KeyboardInputTraits.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E3B5A931A0654A8003366F6 /* KeyboardInputTraits.swift */; };
+		4E52A6D21A06A61F006A08CE /* ImageKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E52A6D11A06A61F006A08CE /* ImageKey.swift */; };
+		4E52A6D41A06A626006A08CE /* ExtraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E52A6D31A06A626006A08CE /* ExtraView.swift */; };
 		4E5B67A2196E03B700114361 /* KeyboardModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E5B67A1196E03B700114361 /* KeyboardModel.swift */; };
 		4E60A13A1979FA5C00854CC8 /* KeyboardKeyBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E60A1391979FA5C00854CC8 /* KeyboardKeyBackground.swift */; };
 		4E60A13C1979FA8E00854CC8 /* KeyboardConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E60A13B1979FA8E00854CC8 /* KeyboardConnector.swift */; };
@@ -26,7 +29,6 @@
 		4EC2A47019DF811E00F789E1 /* ForwardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC2A46C19DF811E00F789E1 /* ForwardingView.swift */; };
 		4ECBD90219F16DC7004FA2A3 /* DefaultKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ECBD90119F16DC7004FA2A3 /* DefaultKeyboard.swift */; };
 		4EE7599B19F75A0D00B4E6ED /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE7599A19F75A0D00B4E6ED /* Utilities.swift */; };
-		4EEFD78719E0DBA5004D4974 /* BannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEFD78619E0DBA5004D4974 /* BannerView.swift */; };
 		4EEFD78919E0DC6B004D4974 /* CatboardBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEFD78819E0DC6B004D4974 /* CatboardBanner.swift */; };
 		4EEFD78B19E0DF15004D4974 /* Shapes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEFD78A19E0DF15004D4974 /* Shapes.swift */; };
 		4EF16F9119D254E00076AFCB /* Background.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4EF16F9019D254E00076AFCB /* Background.jpg */; };
@@ -93,6 +95,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4E3B5A931A0654A8003366F6 /* KeyboardInputTraits.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyboardInputTraits.swift; sourceTree = "<group>"; };
+		4E52A6D11A06A61F006A08CE /* ImageKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageKey.swift; sourceTree = "<group>"; };
+		4E52A6D31A06A626006A08CE /* ExtraView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExtraView.swift; sourceTree = "<group>"; };
 		4E5B67A1196E03B700114361 /* KeyboardModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyboardModel.swift; sourceTree = "<group>"; };
 		4E60A1391979FA5C00854CC8 /* KeyboardKeyBackground.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyboardKeyBackground.swift; sourceTree = "<group>"; };
 		4E60A13B1979FA8E00854CC8 /* KeyboardConnector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyboardConnector.swift; sourceTree = "<group>"; };
@@ -114,7 +119,6 @@
 		4EC3297C198030D6007B9BCB /* TODO.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = TODO.txt; sourceTree = "<group>"; };
 		4ECBD90119F16DC7004FA2A3 /* DefaultKeyboard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultKeyboard.swift; sourceTree = "<group>"; };
 		4EE7599A19F75A0D00B4E6ED /* Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
-		4EEFD78619E0DBA5004D4974 /* BannerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BannerView.swift; sourceTree = "<group>"; };
 		4EEFD78819E0DC6B004D4974 /* CatboardBanner.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CatboardBanner.swift; sourceTree = "<group>"; };
 		4EEFD78A19E0DF15004D4974 /* Shapes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Shapes.swift; sourceTree = "<group>"; };
 		4EF16F9019D254E00076AFCB /* Background.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Background.jpg; sourceTree = "<group>"; };
@@ -156,9 +160,10 @@
 			isa = PBXGroup;
 			children = (
 				4E807DC81946209600D875D1 /* KeyboardKey.swift */,
+				4E52A6D11A06A61F006A08CE /* ImageKey.swift */,
 				4E60A1391979FA5C00854CC8 /* KeyboardKeyBackground.swift */,
 				4E60A13B1979FA8E00854CC8 /* KeyboardConnector.swift */,
-				4EEFD78619E0DBA5004D4974 /* BannerView.swift */,
+				4E52A6D31A06A626006A08CE /* ExtraView.swift */,
 				4EEFD78A19E0DF15004D4974 /* Shapes.swift */,
 			);
 			name = Views;
@@ -178,6 +183,7 @@
 			isa = PBXGroup;
 			children = (
 				4EC2A46919DF811E00F789E1 /* KeyboardViewController.swift */,
+				4E3B5A931A0654A8003366F6 /* KeyboardInputTraits.swift */,
 				4EC2A46A19DF811E00F789E1 /* KeyboardLayout.swift */,
 				4EC2A46B19DF811E00F789E1 /* KeyboardViewControllerExtendableMethods.swift */,
 				4EC2A46C19DF811E00F789E1 /* ForwardingView.swift */,
@@ -438,6 +444,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4E52A6D21A06A61F006A08CE /* ImageKey.swift in Sources */,
+				4E52A6D41A06A626006A08CE /* ExtraView.swift in Sources */,
 				4EC2A47019DF811E00F789E1 /* ForwardingView.swift in Sources */,
 				4EC2A46E19DF811E00F789E1 /* KeyboardLayout.swift in Sources */,
 				4E60A13A1979FA5C00854CC8 /* KeyboardKeyBackground.swift in Sources */,
@@ -445,11 +453,11 @@
 				4E60A13C1979FA8E00854CC8 /* KeyboardConnector.swift in Sources */,
 				4EC2A46F19DF811E00F789E1 /* KeyboardViewControllerExtendableMethods.swift in Sources */,
 				4E00A6E5197183EE009414F2 /* KeyboardKey.swift in Sources */,
-				4EEFD78719E0DBA5004D4974 /* BannerView.swift in Sources */,
 				4EEFD78919E0DC6B004D4974 /* CatboardBanner.swift in Sources */,
 				4EE7599B19F75A0D00B4E6ED /* Utilities.swift in Sources */,
 				4EEFD78B19E0DF15004D4974 /* Shapes.swift in Sources */,
 				4ECBD90219F16DC7004FA2A3 /* DefaultKeyboard.swift in Sources */,
+				4E3B5A941A0654A8003366F6 /* KeyboardInputTraits.swift in Sources */,
 				4E72C96819E04A7A00DFDDB0 /* Catboard.swift in Sources */,
 				4E60A13E1979FB2E00854CC8 /* DirectionEnum.swift in Sources */,
 				4EC2A46D19DF811E00F789E1 /* KeyboardViewController.swift in Sources */,
@@ -711,6 +719,7 @@
 				4E8EF39C19F95D75009CBF5D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

@@ -30,7 +30,7 @@ class KeyboardViewController: UIInputViewController {
     var layout: KeyboardLayout?
     var heightConstraint: NSLayoutConstraint?
     
-    var bannerView: BannerView?
+    var bannerView: ExtraView?
     
     var currentMode: Int {
         didSet {
@@ -186,14 +186,13 @@ class KeyboardViewController: UIInputViewController {
             
             self.setupKludge()
             
-            self.constraintsAdded = true
-            
-            var banner = self.dynamicType.bannerClass(globalColors: self.dynamicType.globalColors, darkMode: self.darkMode(), solidColorMode: self.solidColorMode())
-            banner.hidden = true
-            self.view.insertSubview(banner, belowSubview: self.forwardingView)
-            self.bannerView = banner
-            
+            self.updateKeyCaps(!self.shiftState.uppercase())
             self.setCapsIfNeeded()
+            
+            self.updateAppearances(self.darkMode())
+            self.addInputTraitsObservers()
+            
+            self.constraintsAdded = true
         }
     }
     
@@ -244,6 +243,15 @@ class KeyboardViewController: UIInputViewController {
 //    override func viewWillAppear(animated: Bool) {
 //        checkDarkMode()
 //    }
+    override func loadView() {
+        super.loadView()
+        
+        if var aBanner = self.createBanner() {
+            aBanner.hidden = true
+            self.view.insertSubview(aBanner, belowSubview: self.forwardingView)
+            self.bannerView = aBanner
+        }
+    }
     
     override func viewDidAppear(animated: Bool) {
         self.bannerView?.hidden = false
@@ -691,7 +699,21 @@ class KeyboardViewController: UIInputViewController {
         }
     }
     
-    func keyPressed(key: Key) {}
+    //////////////////////////////////////
+    // MOST COMMONLY EXTENDABLE METHODS //
+    //////////////////////////////////////
+    
+    func keyPressed(key: Key) {
+        if let proxy = (self.textDocumentProxy as? UIKeyInput) {
+            proxy.insertText(key.outputForCase(self.shiftState.uppercase()))
+        }
+    }
+    
+    // a banner that sits in the empty space on top of the keyboard
+    func createBanner() -> ExtraView? {
+        //return ExtraView(globalColors: self.dynamicType.globalColors, darkMode: false, solidColorMode: self.solidColorMode())
+        return nil
+    }
 }
 
 //// does not work; drops CPU to 0% when run on device

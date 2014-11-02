@@ -1,5 +1,5 @@
 //
-//  BannerView.swift
+//  ExtraView.swift
 //  TastyImitationKeyboard
 //
 //  Created by Alexei Baboulevitch on 10/5/14.
@@ -8,8 +8,7 @@
 
 import UIKit
 
-// this banner sits in the empty space on top of the keyboard
-class BannerView: UIView {
+class ExtraView: UIView {
     
     var globalColors: GlobalColors.Type
     var darkMode: Bool
