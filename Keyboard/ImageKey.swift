@@ -1,6 +1,6 @@
 //
 //  ImageKey.swift
-//  RussianPhoneticKeyboard
+//  TastyImitationKeyboard
 //
 //  Created by Alexei Baboulevitch on 11/2/14.
 //  Copyright (c) 2014 Alexei Baboulevitch. All rights reserved.
@@ -12,6 +12,7 @@ class ImageKey: KeyboardKey {
     
     var image: UIImageView? {
         didSet {
+            image?.contentMode = UIViewContentMode.ScaleAspectFit
             self.redrawImage()
             updateColors()
         }
@@ -47,9 +48,15 @@ class ImageKey: KeyboardKey {
                 self.addSubview(image)
             }
             
-            image.frame.origin = CGPointMake(
-                (self.bounds.width - image.frame.width) / CGFloat(2),
-                (self.bounds.height - image.frame.height) / CGFloat(2))
+            let imageSize = CGSizeMake(20, 20)
+            let imageOrigin = CGPointMake(
+                (self.bounds.width - imageSize.width) / CGFloat(2),
+                (self.bounds.height - imageSize.height) / CGFloat(2))
+            var imageFrame = CGRectZero
+            imageFrame.origin = imageOrigin
+            imageFrame.size = imageSize
+            
+            image.frame = imageFrame
         }
     }
 }

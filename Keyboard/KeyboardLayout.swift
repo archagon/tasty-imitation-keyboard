@@ -317,7 +317,8 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
             key.textColor = (darkMode ? self.globalColors.darkModeTextColor : self.globalColors.lightModeTextColor)
         case
         Key.KeyType.Return,
-        Key.KeyType.KeyboardChange:
+        Key.KeyType.KeyboardChange,
+        Key.KeyType.Settings:
             key.color = self.globalColors.specialKey(darkMode, solidColorMode: solidColorMode)
             // TODO: actually a bit different
             key.downColor = self.globalColors.regularKey(darkMode, solidColorMode: solidColorMode)
@@ -354,6 +355,15 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
             key.shape = globeShape
         default:
             break
+        }
+        
+        // images
+        if model.type == Key.KeyType.Settings {
+            if let imageKey = key as? ImageKey {
+                var settingsImage = UIImage(named: "gear")
+                var settingsImageView = UIImageView(image: settingsImage)
+                imageKey.image = settingsImageView
+            }
         }
     }
     
@@ -394,7 +404,12 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
     
     // override to create custom keys
     func createKey(model: Key, vibrancy: VibrancyType?) -> KeyboardKey {
-        return KeyboardKey(vibrancy: vibrancy)
+        if model.type == Key.KeyType.Settings {
+            return ImageKey(vibrancy: vibrancy)
+        }
+        else {
+            return KeyboardKey(vibrancy: vibrancy)
+        }
     }
     
     //////////////////////
