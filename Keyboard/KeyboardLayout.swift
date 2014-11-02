@@ -62,6 +62,7 @@ class LayoutConstants: NSObject {
     class var lastRowLandscapeFirstTwoButtonAreaWidthToKeyboardAreaWidth: CGFloat { get { return 0.19 }}
     class var lastRowPortraitLastButtonAreaWidthToKeyboardAreaWidth: CGFloat { get { return 0.24 }}
     class var lastRowLandscapeLastButtonAreaWidthToKeyboardAreaWidth: CGFloat { get { return 0.19 }}
+    class var micButtonPortraitWidthRatioToOtherSpecialButtons: CGFloat { get { return 0.765 }}
     
     // TODO: not exactly precise
     class var popupGap: CGFloat { get { return 8 }}
@@ -498,7 +499,7 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
                     
                     // bottom row with things like space, return, etc.
                 else {
-                    self.layoutSpecialKeysRow(row, modelToView: self.modelToView, gapWidth: lastRowKeyGap, leftSideRatio: lastRowLeftSideRatio, rightSideRatio: lastRowRightSideRatio, frame: frame)
+                    self.layoutSpecialKeysRow(row, modelToView: self.modelToView, gapWidth: lastRowKeyGap, leftSideRatio: lastRowLeftSideRatio, rightSideRatio: lastRowRightSideRatio, micButtonRatio: self.layoutConstants.micButtonPortraitWidthRatioToOtherSpecialButtons, isLandscape: isLandscape, frame: frame)
                 }
             }
         }
@@ -568,7 +569,7 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         }
     }
     
-    func layoutSpecialKeysRow(row: [Key], modelToView: [Key:KeyboardKey], gapWidth: CGFloat, leftSideRatio: CGFloat, rightSideRatio: CGFloat, frame: CGRect) {
+    func layoutSpecialKeysRow(row: [Key], modelToView: [Key:KeyboardKey], gapWidth: CGFloat, leftSideRatio: CGFloat, rightSideRatio: CGFloat, micButtonRatio: CGFloat, isLandscape: Bool, frame: CGRect) {
         var keysBeforeSpace = 0
         var keysAfterSpace = 0
         var reachedSpace = false
@@ -586,15 +587,25 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
             }
         }
         
-        assert(keysBeforeSpace == 2, "invalid number of keys before space (only default 2 currently supported)")
+        assert(keysBeforeSpace <= 3, "invalid number of keys before space (only max 3 currently supported)")
         assert(keysAfterSpace == 1, "invalid number of keys after space (only default 1 currently supported)")
         
-        let leftSideAreaWidth = frame.width * leftSideRatio
+        let hasButtonInMicButtonPosition = (keysBeforeSpace == 3)
+        
+        var leftSideAreaWidth = frame.width * leftSideRatio
         let rightSideAreaWidth = frame.width * rightSideRatio
-        var leftButtonWidth = (leftSideAreaWidth - (gapWidth * CGFloat(keysBeforeSpace - 1))) / CGFloat(keysBeforeSpace)
+        var leftButtonWidth = (leftSideAreaWidth - (gapWidth * CGFloat(2 - 1))) / CGFloat(2)
         leftButtonWidth = rounded(leftButtonWidth)
         var rightButtonWidth = (rightSideAreaWidth - (gapWidth * CGFloat(keysAfterSpace - 1))) / CGFloat(keysAfterSpace)
         rightButtonWidth = rounded(rightButtonWidth)
+        
+        let micButtonWidth = (isLandscape ? leftButtonWidth : leftButtonWidth * micButtonRatio)
+        
+        // special case for mic button
+        if hasButtonInMicButtonPosition {
+            leftSideAreaWidth = leftSideAreaWidth + gapWidth + micButtonWidth
+        }
+        
         var spaceWidth = frame.width - leftSideAreaWidth - rightSideAreaWidth - gapWidth * CGFloat(2)
         spaceWidth = rounded(spaceWidth)
         
@@ -608,8 +619,14 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
                     beforeSpace = false
                 }
                 else if beforeSpace {
-                    view.frame = CGRectMake(rounded(currentOrigin), frame.origin.y, leftButtonWidth, frame.height)
-                    currentOrigin += (leftButtonWidth + gapWidth)
+                    if hasButtonInMicButtonPosition && k == 2 { //mic button position
+                        view.frame = CGRectMake(rounded(currentOrigin), frame.origin.y, micButtonWidth, frame.height)
+                        currentOrigin += (micButtonWidth + gapWidth)
+                    }
+                    else {
+                        view.frame = CGRectMake(rounded(currentOrigin), frame.origin.y, leftButtonWidth, frame.height)
+                        currentOrigin += (leftButtonWidth + gapWidth)
+                    }
                 }
                 else {
                     view.frame = CGRectMake(rounded(currentOrigin), frame.origin.y, rightButtonWidth, frame.height)
