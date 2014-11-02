@@ -49,4 +49,4 @@ Finally, keep in mind that I am not a framework maintainer nor intend to become 
 
 ## License
 
-This project is licensed under the 3-clause ("New") BSD license. (Go Bears!)
+This project is licensed under the 3-clause ("New") BSD license. Go Bears!
