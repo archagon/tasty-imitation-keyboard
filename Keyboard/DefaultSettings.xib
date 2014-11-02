@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="6250" systemVersion="14A389" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6244"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="539" height="372"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="B5p-cA-JBF">
+                    <rect key="frame" x="0.0" y="0.0" width="539" height="372"/>
+                    <subviews>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Settings" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YuR-yT-g8t">
+                            <rect key="frame" x="231" y="8" width="76" height="26"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="21"/>
+                            <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6Sa-WX-6JD">
+                            <rect key="frame" x="245" y="42" width="51" height="31"/>
+                        </switch>
+                        <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="I7U-L3-bHe">
+                            <rect key="frame" x="245" y="81" width="51" height="31"/>
+                        </switch>
+                        <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3rI-9b-Oil">
+                            <rect key="frame" x="245" y="120" width="51" height="31"/>
+                        </switch>
+                        <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="g8L-0D-4gY">
+                            <rect key="frame" x="245" y="159" width="51" height="31"/>
+                        </switch>
+                    </subviews>
+                    <constraints>
+                        <constraint firstItem="YuR-yT-g8t" firstAttribute="top" secondItem="B5p-cA-JBF" secondAttribute="topMargin" id="4KS-Zb-8Is"/>
+                        <constraint firstAttribute="trailing" secondItem="YuR-yT-g8t" secondAttribute="trailing" constant="232" id="O7I-Bo-rSn"/>
+                        <constraint firstItem="YuR-yT-g8t" firstAttribute="centerX" secondItem="B5p-cA-JBF" secondAttribute="centerX" id="lO2-hf-J4E"/>
+                    </constraints>
+                </scrollView>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+            <constraints>
+                <constraint firstAttribute="bottom" secondItem="B5p-cA-JBF" secondAttribute="bottom" id="Fdb-pi-5Do"/>
+                <constraint firstItem="B5p-cA-JBF" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="KKS-dT-v4r"/>
+                <constraint firstItem="B5p-cA-JBF" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="dHM-em-QAD"/>
+                <constraint firstAttribute="trailing" secondItem="B5p-cA-JBF" secondAttribute="trailing" id="obp-JH-p2e"/>
+            </constraints>
+            <nil key="simulatedStatusBarMetrics"/>
+            <nil key="simulatedTopBarMetrics"/>
+            <nil key="simulatedBottomBarMetrics"/>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <point key="canvasLocation" x="302.5" y="107"/>
+        </view>
+    </objects>
+</document>

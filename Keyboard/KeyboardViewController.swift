@@ -220,12 +220,16 @@ class KeyboardViewController: UIInputViewController {
         }
         else {
             self.forwardingView.frame = orientationSavvyBounds
+            self.settingsView?.frame = orientationSavvyBounds
             self.layout?.layoutTemp()
             self.lastLayoutBounds = orientationSavvyBounds
         }
         
         self.bannerView?.frame = CGRectMake(0, 0, self.view.bounds.width, metric("topBanner"))
-        self.forwardingView.frame.origin = CGPointMake(0, self.view.bounds.height - self.forwardingView.bounds.height)
+        
+        let newOrigin = CGPointMake(0, self.view.bounds.height - self.forwardingView.bounds.height)
+        self.forwardingView.frame.origin = newOrigin
+        self.settingsView?.frame.origin = newOrigin
     }
     
     override func loadView() {
@@ -235,6 +239,12 @@ class KeyboardViewController: UIInputViewController {
             aBanner.hidden = true
             self.view.insertSubview(aBanner, belowSubview: self.forwardingView)
             self.bannerView = aBanner
+        }
+        
+        if var aSettings = self.createSettings() {
+            aSettings.hidden = true
+            self.view.addSubview(aSettings)
+            self.settingsView = aSettings
         }
     }
     
@@ -296,6 +306,8 @@ class KeyboardViewController: UIInputViewController {
                         keyView.addTarget(self, action: Selector("shiftDoubleTapped:"), forControlEvents: .TouchDownRepeat)
                     case Key.KeyType.ModeChange:
                         keyView.addTarget(self, action: Selector("modeChangeTapped:"), forControlEvents: .TouchUpInside)
+                    case Key.KeyType.Settings:
+                        keyView.addTarget(self, action: Selector("toggleSettings"), forControlEvents: .TouchUpInside)
                     default:
                         break
                     }
@@ -591,6 +603,14 @@ class KeyboardViewController: UIInputViewController {
         }
     }
     
+    func toggleSettings() {
+        if let settings = self.settingsView {
+            let hidden = settings.hidden
+            settings.hidden = !hidden
+            self.forwardingView.hidden = hidden
+        }
+    }
+    
     // TODO: make this work if cursor position is shifted
     func setCapsIfNeeded() {
         if self.shouldAutoCapitalize() {
@@ -711,7 +731,7 @@ class KeyboardViewController: UIInputViewController {
     // a settings view that replaces the keyboard when the settings button is pressed
     func createSettings() -> ExtraView? {
         // note that dark mode is not yet valid here, so we just put false for clarity
-        return ExtraView(globalColors: self.dynamicType.globalColors, darkMode: false, solidColorMode: self.solidColorMode())
+        return DefaultSettings(globalColors: self.dynamicType.globalColors, darkMode: false, solidColorMode: self.solidColorMode())
     }
 }
 
