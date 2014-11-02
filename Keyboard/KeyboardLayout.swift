@@ -254,6 +254,29 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         return self.viewToModel[key]
     }
     
+    func updateKeyAppearance(keyboard: Keyboard, views: [Key:KeyboardKey]) {
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        
+        for (h, page) in enumerate(keyboard.pages) {
+            let numRows = page.rows.count
+            
+            for i in 0..<numRows {
+                let numKeys = page.rows[i].count
+                
+                for j in 0..<numKeys {
+                    var key = page.rows[i][j]
+                    
+                    if let keyView = views[key] {
+                        self.setAppearanceForKey(keyView, model: key, darkMode: self.darkMode, solidColorMode: self.solidColorMode)
+                    }
+                }
+            }
+        }
+        
+        CATransaction.commit()
+    }
+    
     func setAppearanceForKey(key: KeyboardKey, model: Key, darkMode: Bool, solidColorMode: Bool) {
         if model.type == Key.KeyType.Other {
             self.setAppearanceForOtherKey(key, model: model, darkMode: darkMode, solidColorMode: solidColorMode)
@@ -342,35 +365,30 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         for (h, page) in enumerate(keyboard.pages) {
             let numRows = page.rows.count
             
-            for i in 0...numRows {
-                
-                if (i < numRows) {
-                    let numKeys = page.rows[i].count
+            for i in 0..<numRows {
+                let numKeys = page.rows[i].count
                     
-                    for j in 0...numKeys {
+                for j in 0..<numKeys {
+                    
+                        var key = page.rows[i][j]
                         
-                        if (j < numKeys) {
-                            var key = page.rows[i][j]
-                            
-                            var keyView = self.createKey(key, vibrancy: key.isSpecial ? specialKeyVibrancy : normalKeyVibrancy)
-                            
-                            let keyViewName = "key\(j)x\(i)p\(h)"
-                            keyView.enabled = true
-                            keyView.text = key.keyCapForCase(false)
-                            keyView.delegate = self
-                            
-                            self.superview.addSubview(keyView)
-                            
-                            self.elements[keyViewName] = keyView
-                            self.modelToView[key] = keyView
-                            self.viewToModel[keyView] = key
-                            
-                            self.setAppearanceForKey(keyView, model: key, darkMode: self.darkMode, solidColorMode: self.solidColorMode)
-                        }
-                    }
+                        var keyView = self.createKey(key, vibrancy: key.isSpecial ? specialKeyVibrancy : normalKeyVibrancy)
+                        
+                        let keyViewName = "key\(j)x\(i)p\(h)"
+                        keyView.enabled = true
+                        keyView.text = key.keyCapForCase(false)
+                        keyView.delegate = self
+                        
+                        self.superview.addSubview(keyView)
+                        
+                        self.elements[keyViewName] = keyView
+                        self.modelToView[key] = keyView
+                        self.viewToModel[keyView] = key
                 }
             }
         }
+        
+        self.updateKeyAppearance(keyboard, views: self.modelToView)
     }
     
     // override to create custom keys
@@ -385,6 +403,10 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
     // TODO: temp
     func layoutTemp() {
         self.layoutKeys(self.model, views: self.modelToView, bounds: self.superview.bounds)
+    }
+
+    func updateKeyAppearanceTemp() {
+        self.updateKeyAppearance(self.model, views: self.modelToView)
     }
     
     func rounded(measurement: CGFloat) -> CGFloat {
