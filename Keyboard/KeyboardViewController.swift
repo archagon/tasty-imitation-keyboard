@@ -26,7 +26,7 @@ class KeyboardViewController: UIInputViewController {
     let backspaceRepeat: NSTimeInterval = 0.05
     
     var keyboard: Keyboard!
-    var forwardingView: ForwardingView
+    var forwardingView: ForwardingView!
     var layout: KeyboardLayout?
     var heightConstraint: NSLayoutConstraint?
     
@@ -108,22 +108,12 @@ class KeyboardViewController: UIInputViewController {
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
         self.keyboard = defaultKeyboard()
         
-        self.forwardingView = ForwardingView(frame: CGRectZero)
         self.shiftState = .Disabled
         self.currentMode = 0
         
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
         
-//        optional var autocapitalizationType: UITextAutocapitalizationType { get set } // default is UITextAutocapitalizationTypeSentences
-//        optional var autocorrectionType: UITextAutocorrectionType { get set } // default is UITextAutocorrectionTypeDefault
-//        @availability(iOS, introduced=5.0)
-//        optional var spellCheckingType: UITextSpellCheckingType { get set } // default is UITextSpellCheckingTypeDefault;
-//        optional var keyboardType: UIKeyboardType { get set } // default is UIKeyboardTypeDefault
-//        optional var keyboardAppearance: UIKeyboardAppearance { get set } // default is UIKeyboardAppearanceDefault
-//        optional var returnKeyType: UIReturnKeyType { get set } // default is UIReturnKeyDefault (See note under UIReturnKeyType enum)
-//        optional var enablesReturnKeyAutomatically: Bool { get set } // default is NO (when YES, will automatically disable return key when text widget has zero-length contents, and will automatically enable when text widget has non-zero-length contents)
-//        optional var secureTextEntry: Bool { get set } // default is NO
-        
+        self.forwardingView = ForwardingView(frame: CGRectZero)
         self.view.addSubview(self.forwardingView)
         
         self.view.setNeedsUpdateConstraints()
@@ -201,9 +191,6 @@ class KeyboardViewController: UIInputViewController {
     func darkMode() -> Bool {
         var darkMode = { () -> Bool in
             if let proxy = self.textDocumentProxy as? UITextDocumentProxy {
-                //if let app = proxy.keyboardAppearance {
-                //    NSLog("proxy appearance is \(app.rawValue)")
-                //}
                 return proxy.keyboardAppearance == UIKeyboardAppearance.Dark
             }
             else {
@@ -241,9 +228,6 @@ class KeyboardViewController: UIInputViewController {
         self.forwardingView.frame.origin = CGPointMake(0, self.view.bounds.height - self.forwardingView.bounds.height)
     }
     
-//    override func viewWillAppear(animated: Bool) {
-//        checkDarkMode()
-//    }
     override func loadView() {
         super.loadView()
         
