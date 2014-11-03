@@ -416,6 +416,7 @@ class KeyboardViewController: UIInputViewController {
         self.layout?.updateKeyAppearanceTemp()
         
         self.bannerView?.darkMode = appearanceIsDark
+        self.settingsView?.darkMode = appearanceIsDark
     }
     
     func highlightKey(sender: KeyboardKey) {

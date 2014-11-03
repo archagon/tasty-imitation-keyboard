@@ -22,33 +22,28 @@ let notes = [
 class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
     
     @IBOutlet var tableView: UITableView?
+    @IBOutlet var effectsView: UIVisualEffectView?
+    @IBOutlet var backButton: UIButton?
+    @IBOutlet var settingsLabel: UILabel?
+    
+    override var darkMode: Bool {
+        didSet {
+            self.updateAppearance(darkMode)
+        }
+    }
+    
+    let cellBackgroundColorDark = UIColor.whiteColor().colorWithAlphaComponent(CGFloat(0.25))
+    let cellBackgroundColorLight = UIColor.whiteColor().colorWithAlphaComponent(CGFloat(1))
+    let cellLabelColorDark = UIColor.whiteColor()
+    let cellLabelColorLight = UIColor.blackColor()
     
     required init(globalColors: GlobalColors.Type?, darkMode: Bool, solidColorMode: Bool) {
-        super.init(globalColors: globalColors, darkMode: darkMode, solidColorMode: solidColorMode)
+        fatalError("this class requires a nib")
     }
 
     required init(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-    }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        
-        if let tableView = self.tableView {
-            let numRows = self.tableView(tableView, numberOfRowsInSection: 0)
-            let fakeTableHeight = self.bounds.height - 85 //TODO: so sue me
-            let rowHeight = self.tableView(tableView, heightForRowAtIndexPath: NSIndexPath(forRow: 0, inSection: 0))
-            let offset = (fakeTableHeight - (CGFloat(numRows) * rowHeight)) / CGFloat(2)
-            
-            if offset >= 0 {
-                tableView.scrollEnabled = false
-                tableView.contentInset = UIEdgeInsetsMake(offset, 0, 0, 0)
-            }
-            else {
-                tableView.scrollEnabled = true
-                tableView.contentInset = UIEdgeInsetsMake(0, 0, 0, 0)
-            }
-        }
+        self.updateAppearance(self.darkMode)
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -59,6 +54,18 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
         return 44
     }
     
+    func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 35
+    }
+    
+    func tableView(tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        return 50
+    }
+    
+    func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return "General Settings"
+    }
+    
     // TODO: I couldn't add a prototype cell to the table view in the nib for some reason
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         var cell = UITableViewCell()
@@ -66,6 +73,8 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
         var label = UILabel()
         sw.setTranslatesAutoresizingMaskIntoConstraints(false)
         label.setTranslatesAutoresizingMaskIntoConstraints(false)
+        sw.tag = 1
+        label.tag = 2
         
         sw.on = NSUserDefaults.standardUserDefaults().boolForKey(settings[indexPath.row].0)
         label.text = settings[indexPath.row].1
@@ -85,8 +94,43 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
         cell.addConstraint(right)
         cell.addConstraint(labelCenterY)
         cell.addConstraint(swCenterY)
+        
+        cell.backgroundColor = (self.darkMode ? cellBackgroundColorDark : cellBackgroundColorLight)
+        label.textColor = (self.darkMode ? cellLabelColorDark : cellLabelColorLight)
 
         return cell
+    }
+    
+    func updateAppearance(dark: Bool) {
+        if dark {
+            self.effectsView?.effect
+            self.backButton?.setTitleColor(UIColor(red: 135/CGFloat(255), green: 206/CGFloat(255), blue: 250/CGFloat(255), alpha: 1), forState: UIControlState.Normal)
+            self.settingsLabel?.textColor = UIColor.whiteColor()
+            
+            if let visibleCells = self.tableView?.visibleCells() {
+                for cell in visibleCells {
+                    if var cell = cell as? UITableViewCell {
+                        cell.backgroundColor = cellBackgroundColorDark
+                        var label = cell.viewWithTag(2) as? UILabel
+                        label?.textColor = cellLabelColorDark
+                    }
+                }
+            }
+        }
+        else {
+            self.backButton?.setTitleColor(UIColor(red: 0/CGFloat(255), green: 122/CGFloat(255), blue: 255/CGFloat(255), alpha: 1), forState: UIControlState.Normal)
+            self.settingsLabel?.textColor = UIColor.grayColor()
+            
+            if let visibleCells = self.tableView?.visibleCells() {
+                for cell in visibleCells {
+                    if var cell = cell as? UITableViewCell {
+                        cell.backgroundColor = cellBackgroundColorLight
+                        var label = cell.viewWithTag(2) as? UILabel
+                        label?.textColor = cellLabelColorLight
+                    }
+                }
+            }
+        }
     }
     
     func toggleSetting(sender: UISwitch) {
