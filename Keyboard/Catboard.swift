@@ -10,7 +10,7 @@ import UIKit
 
 /*
 This is the demo keyboard. If you're implementing your own keyboard, simply follow the example here and then
-set the name of your subclass in the Info.plist file.
+set the name of your KeyboardViewController subclass in the Info.plist file.
 */
 
 class Catboard: KeyboardViewController {
@@ -18,9 +18,6 @@ class Catboard: KeyboardViewController {
     var runningKeystrokes: Int = 0
     
     override func keyPressed(key: Key) {
-//        NSLog("context before input: \((self.textDocumentProxy as UITextDocumentProxy).documentContextBeforeInput)")
-//        NSLog("context after input: \((self.textDocumentProxy as UITextDocumentProxy).documentContextAfterInput)")
-
         if self.runningKeystrokes < 3 {
             if let textDocumentProxy = self.textDocumentProxy as? UIKeyInput {
                 textDocumentProxy.insertText(key.outputForCase(self.shiftState.uppercase()))
@@ -36,9 +33,34 @@ class Catboard: KeyboardViewController {
             }
             self.runningKeystrokes = 0
         }
+        
+        //self.takeScreenshotDelay()
     }
     
-//    override class var bannerClass: BannerView.Type { get { return CatboardBanner.self }}
+    func takeScreenshotDelay() {
+        var timer = NSTimer.scheduledTimerWithTimeInterval(0.1, target: self, selector: Selector("takeScreenshot"), userInfo: nil, repeats: false)
+    }
+    
+    func takeScreenshot() {
+        if !CGRectIsEmpty(self.view.bounds) {
+            UIDevice.currentDevice().beginGeneratingDeviceOrientationNotifications()
+            
+            let oldViewColor = self.view.backgroundColor
+            self.view.backgroundColor = UIColor(hue: (216/360.0), saturation: 0.05, brightness: 0.86, alpha: 1)
+            
+            var rect = self.view.bounds
+            UIGraphicsBeginImageContextWithOptions(rect.size, true, 0)
+            var context = UIGraphicsGetCurrentContext()
+            self.view.drawViewHierarchyInRect(self.view.bounds, afterScreenUpdates: true)
+            var capturedImage = UIGraphicsGetImageFromCurrentImageContext()
+            UIGraphicsEndImageContext()
+            let name = (self.interfaceOrientation.isPortrait ? "Screenshot-Portrait" : "Screenshot-Landscape")
+            var imagePath = "/Users/archagon/Documents/Programming/OSX/tasty-imitation-keyboard/\(name).png"
+            UIImagePNGRepresentation(capturedImage).writeToFile(imagePath, atomically: true)
+            
+            self.view.backgroundColor = oldViewColor
+        }
+    }
 }
 
 func randomCat() -> String {
