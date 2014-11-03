@@ -404,6 +404,7 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
     
     // override to create custom keys
     func createKey(model: Key, vibrancy: VibrancyType?) -> KeyboardKey {
+        let vibrancy: VibrancyType? = nil //TODO: vibrancy currently too slow; temporarily disabled
         if model.type == Key.KeyType.Settings {
             return ImageKey(vibrancy: vibrancy)
         }
