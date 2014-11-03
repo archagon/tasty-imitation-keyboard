@@ -207,7 +207,8 @@ class KeyboardViewController: UIInputViewController {
     }
     
     func solidColorMode() -> Bool {
-        return UIAccessibilityIsReduceTransparencyEnabled()
+        return true //TODO: temporary, until vibrancy performance is fixed
+        //return UIAccessibilityIsReduceTransparencyEnabled()
     }
     
     var lastLayoutBounds: CGRect?
