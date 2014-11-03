@@ -66,6 +66,8 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
         label.text = settings[indexPath.row].1
         label.sizeToFit()
         
+        sw.addTarget(self, action: Selector("toggleSetting:"), forControlEvents: UIControlEvents.ValueChanged)
+        
         cell.addSubview(sw)
         cell.addSubview(label)
         
@@ -80,5 +82,14 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
         cell.addConstraint(swCenterY)
 
         return cell
+    }
+    
+    func toggleSetting(sender: UISwitch) {
+        if let cell = sender.superview as? UITableViewCell {
+            if let indexPath = self.tableView?.indexPathForCell(cell) {
+                let key = settings[indexPath.row].0
+                NSUserDefaults.standardUserDefaults().setBool(sender.on, forKey: key)
+            }
+        }
     }
 }

@@ -458,6 +458,10 @@ class KeyboardViewController: UIInputViewController {
     }
     
     func handleAutoPeriod(key: Key) {
+        if !NSUserDefaults.standardUserDefaults().boolForKey(kPeriodShortcut) {
+            return
+        }
+        
         if self.autoPeriodState == .FirstSpace {
             if key.type != Key.KeyType.Space {
                 self.autoPeriodState = .NoSpace
@@ -621,6 +625,7 @@ class KeyboardViewController: UIInputViewController {
             settings.hidden = !hidden
             self.forwardingView.hidden = hidden
             self.forwardingView.userInteractionEnabled = !hidden
+            self.bannerView?.hidden = hidden
         }
     }
     
@@ -663,6 +668,10 @@ class KeyboardViewController: UIInputViewController {
     }
     
     func shouldAutoCapitalize() -> Bool {
+        if !NSUserDefaults.standardUserDefaults().boolForKey(kAutoCapitalization) {
+            return false
+        }
+        
         if let traits = self.textDocumentProxy as? UITextInputTraits {
             if let autocapitalization = traits.autocapitalizationType {
                 var documentProxy = self.textDocumentProxy as? UITextDocumentProxy
