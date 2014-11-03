@@ -10,11 +10,11 @@ import UIKit
 
 class ExtraView: UIView {
     
-    var globalColors: GlobalColors.Type
+    var globalColors: GlobalColors.Type?
     var darkMode: Bool
     var solidColorMode: Bool
     
-    required init(globalColors: GlobalColors.Type, darkMode: Bool, solidColorMode: Bool) {
+    required init(globalColors: GlobalColors.Type?, darkMode: Bool, solidColorMode: Bool) {
         self.globalColors = globalColors
         self.darkMode = darkMode
         self.solidColorMode = solidColorMode
@@ -23,6 +23,10 @@ class ExtraView: UIView {
     }
     
     required init(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        self.globalColors = nil
+        self.darkMode = false
+        self.solidColorMode = false
+        
+        super.init(coder: aDecoder)
     }
 }

@@ -38,7 +38,12 @@ class ForwardingView: UIView {
     override func drawRect(rect: CGRect) {}
     
     override func hitTest(point: CGPoint, withEvent event: UIEvent!) -> UIView? {
-        return (CGRectContainsPoint(self.bounds, point) ? self : nil)
+        if self.hidden || self.alpha == 0 {
+            return nil
+        }
+        else {
+            return (CGRectContainsPoint(self.bounds, point) ? self : nil)
+        }
     }
     
     func handleControl(view: UIView?, controlEvent: UIControlEvents) {

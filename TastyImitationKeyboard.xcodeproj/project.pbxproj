@@ -170,8 +170,8 @@
 				4E60A13B1979FA8E00854CC8 /* KeyboardConnector.swift */,
 				4E52A6D31A06A626006A08CE /* ExtraView.swift */,
 				4E52A6D71A06C16C006A08CE /* DefaultSettings.swift */,
-				4EEFD78A19E0DF15004D4974 /* Shapes.swift */,
 				4E52A6D91A06C198006A08CE /* DefaultSettings.xib */,
+				4EEFD78A19E0DF15004D4974 /* Shapes.swift */,
 			);
 			name = Views;
 			sourceTree = "<group>";

@@ -21,7 +21,7 @@ class CatboardBanner: ExtraView {
     var marqueeTimer: NSTimer?
     var marqueeOffset: CGFloat = 0
     
-    required init(globalColors: GlobalColors.Type, darkMode: Bool, solidColorMode: Bool) {
+    required init(globalColors: GlobalColors.Type?, darkMode: Bool, solidColorMode: Bool) {
         super.init(globalColors: globalColors, darkMode: darkMode, solidColorMode: solidColorMode)
         
         self.addSubview(self.label)

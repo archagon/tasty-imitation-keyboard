@@ -13,13 +13,10 @@ let metrics: [String:Double] = [
 ]
 func metric(name: String) -> CGFloat { return CGFloat(metrics[name]!) }
 
-// TODO: settings screen with
-//  * autocaps
-//  * caps lock
-//  * . shortcut
-//  * keyboard click
+// TODO: move this somewhere else and localize
+let kAutoCapitalization = "kAutoCapitalization"
+let kPeriodShortcut = "kPeriodShortcut"
 
-// TODO: live color changes! colors persist if keyboard is not unloaded between appearances, oh noes
 class KeyboardViewController: UIInputViewController {
     
     let backspaceDelay: NSTimeInterval = 0.5
@@ -106,6 +103,11 @@ class KeyboardViewController: UIInputViewController {
     }
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
+        NSUserDefaults.standardUserDefaults().registerDefaults([
+            kAutoCapitalization: true,
+            kPeriodShortcut: true
+        ])
+        
         self.keyboard = defaultKeyboard()
         
         self.shiftState = .Disabled
@@ -220,7 +222,6 @@ class KeyboardViewController: UIInputViewController {
         }
         else {
             self.forwardingView.frame = orientationSavvyBounds
-            self.settingsView?.frame = orientationSavvyBounds
             self.layout?.layoutTemp()
             self.lastLayoutBounds = orientationSavvyBounds
         }
@@ -229,7 +230,6 @@ class KeyboardViewController: UIInputViewController {
         
         let newOrigin = CGPointMake(0, self.view.bounds.height - self.forwardingView.bounds.height)
         self.forwardingView.frame.origin = newOrigin
-        self.settingsView?.frame.origin = newOrigin
     }
     
     override func loadView() {
@@ -245,6 +245,18 @@ class KeyboardViewController: UIInputViewController {
             aSettings.hidden = true
             self.view.addSubview(aSettings)
             self.settingsView = aSettings
+            
+            aSettings.setTranslatesAutoresizingMaskIntoConstraints(false)
+            
+            let widthConstraint = NSLayoutConstraint(item: aSettings, attribute: NSLayoutAttribute.Width, relatedBy: NSLayoutRelation.Equal, toItem: self.view, attribute: NSLayoutAttribute.Width, multiplier: 1, constant: 0)
+            let heightConstraint = NSLayoutConstraint(item: aSettings, attribute: NSLayoutAttribute.Height, relatedBy: NSLayoutRelation.Equal, toItem: self.view, attribute: NSLayoutAttribute.Height, multiplier: 1, constant: 0)
+            let centerXConstraint = NSLayoutConstraint(item: aSettings, attribute: NSLayoutAttribute.CenterX, relatedBy: NSLayoutRelation.Equal, toItem: self.view, attribute: NSLayoutAttribute.CenterX, multiplier: 1, constant: 0)
+            let centerYConstraint = NSLayoutConstraint(item: aSettings, attribute: NSLayoutAttribute.CenterY, relatedBy: NSLayoutRelation.Equal, toItem: self.view, attribute: NSLayoutAttribute.CenterY, multiplier: 1, constant: 0)
+            
+            self.view.addConstraint(widthConstraint)
+            self.view.addConstraint(heightConstraint)
+            self.view.addConstraint(centerXConstraint)
+            self.view.addConstraint(centerYConstraint)
         }
     }
     
@@ -603,11 +615,12 @@ class KeyboardViewController: UIInputViewController {
         }
     }
     
-    func toggleSettings() {
+    @IBAction func toggleSettings() {
         if let settings = self.settingsView {
             let hidden = settings.hidden
             settings.hidden = !hidden
             self.forwardingView.hidden = hidden
+            self.forwardingView.userInteractionEnabled = !hidden
         }
     }
     
@@ -724,14 +737,30 @@ class KeyboardViewController: UIInputViewController {
     
     // a banner that sits in the empty space on top of the keyboard
     func createBanner() -> ExtraView? {
+        // note that dark mode is not yet valid here, so we just put false for clarity
         //return ExtraView(globalColors: self.dynamicType.globalColors, darkMode: false, solidColorMode: self.solidColorMode())
         return nil
     }
     
     // a settings view that replaces the keyboard when the settings button is pressed
     func createSettings() -> ExtraView? {
-        // note that dark mode is not yet valid here, so we just put false for clarity
-        return DefaultSettings(globalColors: self.dynamicType.globalColors, darkMode: false, solidColorMode: self.solidColorMode())
+        let assets = NSBundle.mainBundle().loadNibNamed("DefaultSettings", owner: self, options: nil)
+        
+        if assets.count > 0 && assets.first is ExtraView {
+            if let settingsView = assets.first as? ExtraView {
+                settingsView.globalColors = self.dynamicType.globalColors
+                settingsView.darkMode = false
+                settingsView.solidColorMode = self.solidColorMode()
+                
+                return settingsView
+            }
+            else {
+                return nil
+            }
+        }
+        else {
+            return nil
+        }
     }
 }
 
