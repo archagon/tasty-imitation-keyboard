@@ -21,8 +21,12 @@ class HostingAppViewController: UIViewController {
         super.didReceiveMemoryWarning()
     }
     
-    @IBAction func darkMode(sender: UISwitch) {
-        self.textField?.keyboardAppearance = (sender.on ? UIKeyboardAppearance.Dark : UIKeyboardAppearance.Light)
+    @IBAction func dismiss() {
+        for view in self.view.subviews {
+            if var inputView = view as? UITextField {
+                inputView.resignFirstResponder()
+            }
+        }
     }
 }
 
