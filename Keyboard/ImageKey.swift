@@ -11,10 +11,16 @@ import UIKit
 class ImageKey: KeyboardKey {
     
     var image: UIImageView? {
+        willSet {
+            image?.removeFromSuperview()
+        }
         didSet {
-            image?.contentMode = UIViewContentMode.ScaleAspectFit
-            self.redrawImage()
-            updateColors()
+            if var imageView = image {
+                self.addSubview(imageView)
+                imageView.contentMode = UIViewContentMode.ScaleAspectFit
+                self.redrawImage()
+                updateColors()
+            }
         }
     }
     
@@ -43,11 +49,6 @@ class ImageKey: KeyboardKey {
     
     func redrawImage() {
         if let image = self.image {
-            if image.superview != self {
-                image.removeFromSuperview()
-                self.addSubview(image)
-            }
-            
             let imageSize = CGSizeMake(20, 20)
             let imageOrigin = CGPointMake(
                 (self.bounds.width - imageSize.width) / CGFloat(2),
