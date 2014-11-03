@@ -330,6 +330,8 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         key.underColor = (self.darkMode ? self.globalColors.darkModeUnderColor : self.globalColors.lightModeUnderColor)
         key.borderColor = (self.darkMode ? self.globalColors.darkModeBorderColor : self.globalColors.lightModeBorderColor)
         
+        // TODO: remove these to another method, since they shouldn't be called multiple times
+        
         // font sizing
         switch model.type {
         case
@@ -345,14 +347,20 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         // shapes
         switch model.type {
         case Key.KeyType.Shift:
-            let shiftShape = ShiftShape()
-            key.shape = shiftShape
+            if key.shape == nil {
+                let shiftShape = ShiftShape()
+                key.shape = shiftShape
+            }
         case Key.KeyType.Backspace:
-            let backspaceShape = BackspaceShape()
-            key.shape = backspaceShape
+            if key.shape == nil {
+                let backspaceShape = BackspaceShape()
+                key.shape = backspaceShape
+            }
         case Key.KeyType.KeyboardChange:
-            let globeShape = GlobeShape()
-            key.shape = globeShape
+            if key.shape == nil {
+                let globeShape = GlobeShape()
+                key.shape = globeShape
+            }
         default:
             break
         }
@@ -360,9 +368,11 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         // images
         if model.type == Key.KeyType.Settings {
             if let imageKey = key as? ImageKey {
-                var settingsImage = UIImage(named: "gear")
-                var settingsImageView = UIImageView(image: settingsImage)
-                imageKey.image = settingsImageView
+                if imageKey.image == nil {
+                    var gearImage = UIImage(named: "gear")
+                    var settingsImageView = UIImageView(image: gearImage)
+                    imageKey.image = settingsImageView
+                }
             }
         }
     }
