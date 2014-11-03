@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AudioToolbox
 
 let metrics: [String:Double] = [
     "topBanner": 30
@@ -16,6 +17,7 @@ func metric(name: String) -> CGFloat { return CGFloat(metrics[name]!) }
 // TODO: move this somewhere else and localize
 let kAutoCapitalization = "kAutoCapitalization"
 let kPeriodShortcut = "kPeriodShortcut"
+let kKeyboardClicks = "kKeyboardClicks"
 
 class KeyboardViewController: UIInputViewController {
     
@@ -105,7 +107,8 @@ class KeyboardViewController: UIInputViewController {
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
         NSUserDefaults.standardUserDefaults().registerDefaults([
             kAutoCapitalization: true,
-            kPeriodShortcut: true
+            kPeriodShortcut: true,
+            kKeyboardClicks: true
         ])
         
         self.keyboard = defaultKeyboard()
@@ -423,8 +426,7 @@ class KeyboardViewController: UIInputViewController {
     }
     
     func keyPressedHelper(sender: KeyboardKey) {
-        // alas, this doesn't seem to work yet
-        UIDevice.currentDevice().playInputClick()
+        self.playKeySound()
         
         if let model = self.layout?.keyForView(sender) {
             self.keyPressed(model)
@@ -522,8 +524,7 @@ class KeyboardViewController: UIInputViewController {
     func backspaceDown(sender: KeyboardKey) {
         self.cancelBackspaceTimers()
         
-        // first delete
-        UIDevice.currentDevice().playInputClick()
+        self.playKeySound()
         
         if let textDocumentProxy = self.textDocumentProxy as? UIKeyInput {
             textDocumentProxy.deleteBackward()
@@ -732,6 +733,17 @@ class KeyboardViewController: UIInputViewController {
         else {
             return false
         }
+    }
+    
+    // this only works if full access is enabled
+    func playKeySound() {
+        if !NSUserDefaults.standardUserDefaults().boolForKey(kKeyboardClicks) {
+            return
+        }
+        
+        //dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), {
+            AudioServicesPlaySystemSound(1104)
+        //})
     }
     
     //////////////////////////////////////

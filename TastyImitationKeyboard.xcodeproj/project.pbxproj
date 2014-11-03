@@ -109,6 +109,8 @@
 		4E60A13B1979FA8E00854CC8 /* KeyboardConnector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyboardConnector.swift; sourceTree = "<group>"; };
 		4E60A13D1979FB2E00854CC8 /* DirectionEnum.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DirectionEnum.swift; sourceTree = "<group>"; };
 		4E6AEE4B19D246D700931E8F /* Catboard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Catboard.swift; sourceTree = "<group>"; };
+		4E7CDF921A079E3E0015BB90 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4E7CDF931A079E3E0015BB90 /* KeyboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardViewController.swift; sourceTree = "<group>"; };
 		4E807D9319461D9000D875D1 /* HostingApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HostingApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E807DB919461DC700D875D1 /* Keyboard.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Keyboard.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E807DBC19461DC700D875D1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -207,12 +209,30 @@
 			name = Demo;
 			sourceTree = "<group>";
 		};
+		4E7CDF901A079E3E0015BB90 /* KeyboardSound */ = {
+			isa = PBXGroup;
+			children = (
+				4E7CDF931A079E3E0015BB90 /* KeyboardViewController.swift */,
+				4E7CDF911A079E3E0015BB90 /* Supporting Files */,
+			);
+			path = KeyboardSound;
+			sourceTree = "<group>";
+		};
+		4E7CDF911A079E3E0015BB90 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				4E7CDF921A079E3E0015BB90 /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		4E807D8A19461D9000D875D1 = {
 			isa = PBXGroup;
 			children = (
 				4E807D9519461D9000D875D1 /* HostingApp */,
 				4E807DBA19461DC700D875D1 /* Keyboard */,
 				4E8EF38219F95D75009CBF5D /* KeyboardFramework */,
+				4E7CDF901A079E3E0015BB90 /* KeyboardSound */,
 				4E807D9419461D9000D875D1 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -604,6 +624,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
 				INFOPLIST_FILE = HostingApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -615,6 +636,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
 				INFOPLIST_FILE = HostingApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";

@@ -11,7 +11,12 @@ import UIKit
 // TODO: move this somewhere else and localize
 let settings = [
     (kAutoCapitalization, "Auto-Capitalization"),
-    (kPeriodShortcut,  "“.” Shortcut")
+    (kPeriodShortcut,  "“.” Shortcut"),
+    (kKeyboardClicks, "Keyboard Clicks")
+]
+
+let notes = [
+    kKeyboardClicks: "Please note that keyboard clicks will work only if “Allow Full Access” is enabled in the keyboard settings. Unfortunately, this is a limitation of the operating system. Rest assured that absoutely none of your keystrokes will be recorded or sent over the network with this setting enabled — it is strictly for sound playback and nothing else."
 ]
 
 class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
