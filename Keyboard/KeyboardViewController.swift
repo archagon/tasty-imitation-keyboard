@@ -120,8 +120,6 @@ class KeyboardViewController: UIInputViewController {
         
         self.forwardingView = ForwardingView(frame: CGRectZero)
         self.view.addSubview(self.forwardingView)
-        
-        self.view.setNeedsUpdateConstraints()
     }
     
     required init(coder: NSCoder) {
