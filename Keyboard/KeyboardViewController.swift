@@ -551,6 +551,8 @@ class KeyboardViewController: UIInputViewController {
     }
     
     func shiftDown(sender: KeyboardKey) {
+        self.playKeySound()
+        
         if self.shiftWasMultitapped {
             self.shiftWasMultitapped = false
             return
@@ -603,6 +605,8 @@ class KeyboardViewController: UIInputViewController {
     }
     
     func modeChangeTapped(sender: KeyboardKey) {
+        self.playKeySound()
+        
         if let toMode = self.layout?.viewToModel[sender]?.toMode {
             self.currentMode = toMode
         }
@@ -622,6 +626,8 @@ class KeyboardViewController: UIInputViewController {
     }
     
     @IBAction func toggleSettings() {
+        self.playKeySound()
+        
         if let settings = self.settingsView {
             let hidden = settings.hidden
             settings.hidden = !hidden
