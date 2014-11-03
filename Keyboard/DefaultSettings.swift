@@ -26,11 +26,32 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
         super.init(coder: aDecoder)
     }
     
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        self.tableView?.scrollEnabled = false
-        self.tableView?.contentInset = UIEdgeInsetsMake(40, 0, 0, 0)
+    override func layoutSubviews() {
+        super.layoutSubviews()
         
+        if let tableView = self.tableView {
+            let numRows = self.tableView(tableView, numberOfRowsInSection: 0)
+            let fakeTableHeight = self.bounds.height - 85 //TODO: so sue me
+            let rowHeight = self.tableView(tableView, heightForRowAtIndexPath: NSIndexPath(forRow: 0, inSection: 0))
+            let offset = (fakeTableHeight - (CGFloat(numRows) * rowHeight)) / CGFloat(2)
+            
+            if offset >= 0 {
+                tableView.scrollEnabled = false
+                tableView.contentInset = UIEdgeInsetsMake(offset, 0, 0, 0)
+            }
+            else {
+                tableView.scrollEnabled = true
+                tableView.contentInset = UIEdgeInsetsMake(0, 0, 0, 0)
+            }
+        }
+    }
+    
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return settings.count
+    }
+    
+    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+        return 44
     }
     
     // TODO: I couldn't add a prototype cell to the table view in the nib for some reason

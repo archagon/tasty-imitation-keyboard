@@ -8,11 +8,11 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="KeyboardViewController" customModule="Keyboard" customModuleProvider="target"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
         <view contentMode="scaleToFill" id="iN0-l3-epB" customClass="DefaultSettings" customModule="Keyboard" customModuleProvider="target">
-            <rect key="frame" x="0.0" y="0.0" width="679" height="415"/>
+            <rect key="frame" x="0.0" y="0.0" width="679" height="392"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Ibn-Pg-NVs">
-                    <rect key="frame" x="0.0" y="0.0" width="679" height="369"/>
+                    <rect key="frame" x="0.0" y="0.0" width="679" height="346"/>
                     <subviews>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Settings" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YuR-yT-g8t">
                             <rect key="frame" x="301" y="8" width="75.5" height="25.5"/>
@@ -21,7 +21,7 @@
                             <nil key="highlightedColor"/>
                         </label>
                         <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="default" allowsSelection="NO" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="PIq-gg-rs6">
-                            <rect key="frame" x="0.0" y="41" width="679" height="327.5"/>
+                            <rect key="frame" x="0.0" y="41" width="679" height="304.5"/>
                             <connections>
                                 <outlet property="dataSource" destination="iN0-l3-epB" id="QGI-Ha-4wk"/>
                                 <outlet property="delegate" destination="iN0-l3-epB" id="wMx-61-MqY"/>
@@ -38,7 +38,7 @@
                     </constraints>
                 </view>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="x35-jI-wEW">
-                    <rect key="frame" x="8" y="377" width="55" height="30"/>
+                    <rect key="frame" x="8" y="354" width="55" height="30"/>
                     <state key="normal" title="〈 Back">
                         <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                     </state>
@@ -62,7 +62,7 @@
             <connections>
                 <outlet property="tableView" destination="PIq-gg-rs6" id="vFH-DP-jp0"/>
             </connections>
-            <point key="canvasLocation" x="372.5" y="128.5"/>
+            <point key="canvasLocation" x="372.5" y="117"/>
         </view>
     </objects>
 </document>
