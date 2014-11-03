@@ -765,7 +765,7 @@ class KeyboardViewController: UIInputViewController {
     
     // a settings view that replaces the keyboard when the settings button is pressed
     func createSettings() -> ExtraView? {
-        let assets = NSBundle.mainBundle().loadNibNamed("DefaultSettings", owner: self, options: nil)
+        let assets = NSBundle(forClass: self.dynamicType).loadNibNamed("DefaultSettings", owner: self, options: nil)
         
         if assets.count > 0 && assets.first is ExtraView {
             if let settingsView = assets.first as? ExtraView {
