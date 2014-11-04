@@ -162,10 +162,11 @@ class GlobalColors: NSObject {
     class var darkModeRegularKey: UIColor { get { return UIColor.grayColor().colorWithAlphaComponent(CGFloat(0.25)) }}
     class var darkModeSolidColorRegularKey: UIColor { get { return UIColor(red: CGFloat(83)/CGFloat(255), green: CGFloat(83)/CGFloat(255), blue: CGFloat(83)/CGFloat(255), alpha: 1) }}
     class var lightModeSpecialKey: UIColor { get { return UIColor.blackColor().colorWithAlphaComponent(CGFloat(0.25)) }}
-    class var lightModeSolidColorSpecialKey: UIColor { get { return UIColor(red: CGFloat(180)/CGFloat(255), green: CGFloat(188)/CGFloat(255), blue: CGFloat(201)/CGFloat(255), alpha: 1) }}
+    class var lightModeSolidColorSpecialKey: UIColor { get { return UIColor(red: CGFloat(177)/CGFloat(255), green: CGFloat(177)/CGFloat(255), blue: CGFloat(177)/CGFloat(255), alpha: 1) }}
     class var darkModeSpecialKey: UIColor { get { return UIColor.blackColor().colorWithAlphaComponent(CGFloat(0.25)) }}
     class var darkModeSolidColorSpecialKey: UIColor { get { return UIColor(red: CGFloat(45)/CGFloat(255), green: CGFloat(45)/CGFloat(255), blue: CGFloat(45)/CGFloat(255), alpha: 1) }}
     class var darkModeShiftKeyDown: UIColor { get { return UIColor(red: CGFloat(214)/CGFloat(255), green: CGFloat(220)/CGFloat(255), blue: CGFloat(208)/CGFloat(255), alpha: 1) }}
+    
     class var lightModeUnderColor: UIColor { get { return UIColor(hue: (220/360.0), saturation: 0.04, brightness: 0.56, alpha: 1) }}
     class var darkModeUnderColor: UIColor { get { return UIColor(red: CGFloat(38.6)/CGFloat(255), green: CGFloat(18)/CGFloat(255), blue: CGFloat(39.3)/CGFloat(255), alpha: 0.4) }}
     class var lightModeTextColor: UIColor { get { return UIColor.blackColor() }}
@@ -393,8 +394,8 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
                 for j in 0..<numKeys {
                     
                         var key = page.rows[i][j]
-                        
-                        var keyView = self.createKey(key, vibrancy: key.isSpecial ? specialKeyVibrancy : normalKeyVibrancy)
+                    
+                        var keyView = self.createKey(key, vibrancy: (self.solidColorMode ? nil : (key.isSpecial ? specialKeyVibrancy : normalKeyVibrancy)))
                         
                         let keyViewName = "key\(j)x\(i)p\(h)"
                         keyView.enabled = true
