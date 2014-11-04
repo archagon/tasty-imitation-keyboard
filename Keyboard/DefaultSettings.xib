@@ -91,6 +91,7 @@
             <connections>
                 <outlet property="backButton" destination="x35-jI-wEW" id="olh-vc-HPI"/>
                 <outlet property="effectsView" destination="p1b-aL-nFG" id="Urb-ow-ENT"/>
+                <outlet property="pixelLine" destination="ooR-t1-RO3" id="Hc3-6E-C9e"/>
                 <outlet property="settingsLabel" destination="YuR-yT-g8t" id="bzf-AH-00o"/>
                 <outlet property="tableView" destination="PIq-gg-rs6" id="vFH-DP-jp0"/>
             </connections>
