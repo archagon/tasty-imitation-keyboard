@@ -52,6 +52,7 @@ class LayoutConstants: NSObject {
     class var flexibleEndRowTotalWidthToKeyWidthCPortrait: CGFloat { get { return -14 }}
     class var flexibleEndRowTotalWidthToKeyWidthMLandscape: CGFloat { get { return 0.9231 }}
     class var flexibleEndRowTotalWidthToKeyWidthCLandscape: CGFloat { get { return -9.4615 }}
+    class var flexibleEndRowMinimumStandardCharacterWidth: CGFloat { get { return 7 }}
     
     class var lastRowKeyGapPortrait: CGFloat { get { return 6 }}
     class var lastRowKeyGapLandscapeArray: [CGFloat] { get { return [8, 7, 5] }}
@@ -469,28 +470,16 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         let lastRowRightSideRatio = (isLandscape ? self.layoutConstants.lastRowLandscapeLastButtonAreaWidthToKeyboardAreaWidth : self.layoutConstants.lastRowPortraitLastButtonAreaWidthToKeyboardAreaWidth)
         let lastRowKeyGap = (isLandscape ? self.layoutConstants.lastRowKeyGapLandscape(bounds.width) : self.layoutConstants.lastRowKeyGapPortrait)
         
-        let mostKeysInRow: Int = {
-            var currentMax: Int = 0
-            for page in model.pages {
+        for page in model.pages {
+            let numRows = page.rows.count
+            
+            let mostKeysInRow: Int = {
+                var currentMax: Int = 0
                 for (i, row) in enumerate(page.rows) {
                     currentMax = max(currentMax, row.count)
                 }
-            }
-            return currentMax
+                return currentMax
             }()
-        
-        let charactersInDoubleSidedRowOnFirstPage: Int = {
-            var currentMax: Int = 0
-            for (i, row) in enumerate(model.pages[0].rows) {
-                if self.doubleSidedRowHeuristic(row) {
-                    currentMax = max(currentMax, row.count - 2)
-                }
-            }
-            return currentMax
-            }()
-        
-        for page in model.pages {
-            let numRows = page.rows.count
             
             let rowGapTotal = CGFloat(numRows - 1 - 1) * rowGap + lastRowGap
             
@@ -519,7 +508,7 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
                     
                     // character row with side buttons: shift, backspace, etc.
                 else if self.doubleSidedRowHeuristic(row) {
-                    self.layoutCharacterWithSidesRow(row, modelToView: self.modelToView, keyWidth: letterKeyWidth, gapWidth: keyGap, mostCharactersInRowInAllPages: charactersInDoubleSidedRowOnFirstPage, m: flexibleEndRowM, c: flexibleEndRowC, frame: frame)
+                    self.layoutCharacterWithSidesRow(row, frame: frame, isLandscape: isLandscape, keyWidth: letterKeyWidth, keyGap: keyGap)
                 }
                     
                     // bottom row with things like space, return, etc.
@@ -555,11 +544,28 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
     }
     
     // TODO: pass in actual widths instead
-    func layoutCharacterWithSidesRow(row: [Key], modelToView: [Key:KeyboardKey], keyWidth: CGFloat, gapWidth: CGFloat, mostCharactersInRowInAllPages: Int, m: CGFloat, c: CGFloat, frame: CGRect) {
-        let keySpace = CGFloat(mostCharactersInRowInAllPages) * keyWidth + CGFloat(mostCharactersInRowInAllPages - 1) * gapWidth
-        let numCharacters = row.count - 2
-        let actualKeyWidth = (keySpace - CGFloat(numCharacters - 1) * gapWidth) / CGFloat(numCharacters)
-        let sideSpace = (frame.width - keySpace) / CGFloat(2)
+    func layoutCharacterWithSidesRow(row: [Key], frame: CGRect, isLandscape: Bool, keyWidth: CGFloat, keyGap: CGFloat) {
+        let standardFullKeyCount = Int(self.layoutConstants.keyCompressedThreshhold) - 1
+        let standardGap = (isLandscape ? self.layoutConstants.keyGapLandscape : self.layoutConstants.keyGapPortrait)(frame.width, rowCharacterCount: standardFullKeyCount)
+        let sideEdges = (isLandscape ? self.layoutConstants.sideEdgesLandscape : self.layoutConstants.sideEdgesPortrait(frame.width))
+        var standardKeyWidth = (frame.width - sideEdges - (standardGap * CGFloat(standardFullKeyCount - 1)) - sideEdges)
+        standardKeyWidth /= CGFloat(standardFullKeyCount)
+        let standardKeyCount = self.layoutConstants.flexibleEndRowMinimumStandardCharacterWidth
+        
+        let standardWidth = CGFloat(standardKeyWidth * standardKeyCount + standardGap * (standardKeyCount - 1))
+        let currentWidth = CGFloat(row.count - 2) * keyWidth + CGFloat(row.count - 3) * keyGap
+        
+        let isStandardWidth = (currentWidth < standardWidth)
+        let actualWidth = (isStandardWidth ? standardWidth : currentWidth)
+        let actualGap = (isStandardWidth ? standardGap : keyGap)
+        let actualKeyWidth = (actualWidth - CGFloat(row.count - 3) * actualGap) / CGFloat(row.count - 2)
+        
+        NSLog("\(isStandardWidth), \(standardWidth), \(currentWidth)")
+        
+        let sideSpace = (frame.width - actualWidth) / CGFloat(2)
+        
+        let m = (isLandscape ? self.layoutConstants.flexibleEndRowTotalWidthToKeyWidthMLandscape : self.layoutConstants.flexibleEndRowTotalWidthToKeyWidthMPortrait)
+        let c = (isLandscape ? self.layoutConstants.flexibleEndRowTotalWidthToKeyWidthCLandscape : self.layoutConstants.flexibleEndRowTotalWidthToKeyWidthCPortrait)
         
         var specialCharacterWidth = sideSpace * m + c
         specialCharacterWidth = max(specialCharacterWidth, keyWidth)
@@ -584,7 +590,7 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
                         currentOrigin += (actualKeyWidth)
                     }
                     else {
-                        currentOrigin += (actualKeyWidth + gapWidth)
+                        currentOrigin += (actualKeyWidth + keyGap)
                     }
                 }
             }
