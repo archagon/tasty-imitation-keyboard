@@ -18,8 +18,6 @@ class Catboard: KeyboardViewController {
     var runningKeystrokes: Int = 0
     
     override func keyPressed(key: Key) {
-        //self.takeScreenshotDelay()
-        
         if let textDocumentProxy = self.textDocumentProxy as? UITextDocumentProxy {
             let keyOutput = key.outputForCase(self.shiftState.uppercase())
             
@@ -62,6 +60,28 @@ class Catboard: KeyboardViewController {
         }
     }
     
+    let takeDebugScreenshot: Bool = true
+    
+    override func setupKeys() {
+        if self.layout == nil {
+            return
+        }
+        
+        super.setupKeys()
+        
+        if takeDebugScreenshot {
+            for page in keyboard.pages {
+                for rowKeys in page.rows {
+                    for key in rowKeys {
+                        if let keyView = self.layout!.viewForKey(key) {
+                            keyView.addTarget(self, action: "takeScreenshotDelay", forControlEvents: .TouchDown)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     func takeScreenshotDelay() {
         var timer = NSTimer.scheduledTimerWithTimeInterval(0.1, target: self, selector: Selector("takeScreenshot"), userInfo: nil, repeats: false)
     }
@@ -80,7 +100,7 @@ class Catboard: KeyboardViewController {
             var capturedImage = UIGraphicsGetImageFromCurrentImageContext()
             UIGraphicsEndImageContext()
             let name = (self.interfaceOrientation.isPortrait ? "Screenshot-Portrait" : "Screenshot-Landscape")
-            var imagePath = "/Users/archagon/Documents/Programming/OSX/tasty-imitation-keyboard/\(name).png"
+            var imagePath = "/Users/archagon/Documents/Programming/OSX/RussianPhoneticKeyboard/External/tasty-imitation-keyboard/\(name).png"
             UIImagePNGRepresentation(capturedImage).writeToFile(imagePath, atomically: true)
             
             self.view.backgroundColor = oldViewColor
