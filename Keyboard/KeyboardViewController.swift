@@ -328,7 +328,6 @@ class KeyboardViewController: UIInputViewController {
                     
                     if key.hasOutput {
                         keyView.addTarget(self, action: "keyPressedHelper:", forControlEvents: .TouchUpInside)
-//                    keyView.addTarget(self, action: "takeScreenshotDelay", forControlEvents: .TouchDown)
                     }
                     
                     if key.isCharacter {
