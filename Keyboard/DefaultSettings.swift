@@ -36,7 +36,7 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
         (kKeyboardClicks, "Keyboard Clicks")
     ]
     let notes = [
-        kKeyboardClicks: "Please note that keyboard clicks will work only if “Allow Full Access” is enabled in the keyboard settings. Unfortunately, this is a limitation of the operating system. Rest assured that absoutely none of your keystrokes will be recorded or sent over the network with this setting enabled — it is strictly for sound playback and nothing else."
+        kKeyboardClicks: "Please note that keyboard clicks will work only if “Allow Full Access” is enabled in the keyboard settings. Unfortunately, this is a limitation of the operating system."
     ]
     
     required init(globalColors: GlobalColors.Type?, darkMode: Bool, solidColorMode: Bool) {
