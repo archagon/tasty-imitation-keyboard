@@ -262,7 +262,7 @@ class KeyboardViewController: UIInputViewController {
         }
     }
     
-    override func viewDidAppear(animated: Bool) {
+    override func viewWillAppear(animated: Bool) {
         self.bannerView?.hidden = false
         self.keyboardHeight = self.heightForOrientation(self.interfaceOrientation, withTopBanner: true)
     }
@@ -398,8 +398,6 @@ class KeyboardViewController: UIInputViewController {
     
     func setHeight(height: CGFloat) {
         if self.heightConstraint == nil {
-            assert(self.view.bounds.height != 0, "attempted to set height when view hasn't appeared yet")
-            
             self.heightConstraint = NSLayoutConstraint(
                 item:self.view,
                 attribute:NSLayoutAttribute.Height,
