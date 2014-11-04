@@ -18,23 +18,48 @@ class Catboard: KeyboardViewController {
     var runningKeystrokes: Int = 0
     
     override func keyPressed(key: Key) {
-        if self.runningKeystrokes < 3 {
-            if let textDocumentProxy = self.textDocumentProxy as? UIKeyInput {
-                textDocumentProxy.insertText(key.outputForCase(self.shiftState.uppercase()))
-            }
-            self.runningKeystrokes += 1
-        }
-        else {
-            if let textDocumentProxy = self.textDocumentProxy as? UIKeyInput {
-                textDocumentProxy.deleteBackward()
-                textDocumentProxy.deleteBackward()
-                textDocumentProxy.deleteBackward()
-                textDocumentProxy.insertText(randomCat())
-            }
-            self.runningKeystrokes = 0
-        }
-        
         //self.takeScreenshotDelay()
+        
+        if let textDocumentProxy = self.textDocumentProxy as? UITextDocumentProxy {
+            let keyOutput = key.outputForCase(self.shiftState.uppercase())
+            
+            if key.type == .Character || key.type == .SpecialCharacter {
+                let context = textDocumentProxy.documentContextBeforeInput
+                if context != nil {
+                    if countElements(context) < 2 {
+                        textDocumentProxy.insertText(keyOutput)
+                        return
+                    }
+                    
+                    var index = context!.endIndex
+                    
+                    index = index.predecessor()
+                    if context[index] != " " {
+                        textDocumentProxy.insertText(keyOutput)
+                        return
+                    }
+                    
+                    index = index.predecessor()
+                    if context[index] == " " {
+                        textDocumentProxy.insertText(keyOutput)
+                        return
+                    }
+
+                    textDocumentProxy.insertText("\(randomCat())")
+                    textDocumentProxy.insertText(" ")
+                    textDocumentProxy.insertText(keyOutput)
+                    return
+                }
+                else {
+                    textDocumentProxy.insertText(keyOutput)
+                    return
+                }
+            }
+            else {
+                textDocumentProxy.insertText(keyOutput)
+                return
+            }
+        }
     }
     
     func takeScreenshotDelay() {
