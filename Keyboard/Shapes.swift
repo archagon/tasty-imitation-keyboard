@@ -131,7 +131,30 @@ class Shape: UIView {
 /////////////////////
 
 func getFactors(fromSize: CGSize, toRect: CGRect) -> (xScalingFactor: CGFloat, yScalingFactor: CGFloat, lineWidthScalingFactor: CGFloat, fillIsHorizontal: Bool, offset: CGFloat) {
-    return (0.5, 0.5, 0.5, false, 0)
+    
+    var xSize = { () -> CGFloat in
+        let scaledSize = (fromSize.width / CGFloat(2))
+        if scaledSize > toRect.width {
+            return (toRect.width / scaledSize) / CGFloat(2)
+        }
+        else {
+            return CGFloat(0.5)
+        }
+    }()
+    
+    var ySize = { () -> CGFloat in
+        let scaledSize = (fromSize.height / CGFloat(2))
+        if scaledSize > toRect.height {
+            return (toRect.height / scaledSize) / CGFloat(2)
+        }
+        else {
+            return CGFloat(0.5)
+        }
+    }()
+    
+    let actualSize = min(xSize, ySize)
+    
+    return (actualSize, actualSize, actualSize, false, 0)
 }
 
 func centerShape(fromSize: CGSize, toRect: CGRect) {

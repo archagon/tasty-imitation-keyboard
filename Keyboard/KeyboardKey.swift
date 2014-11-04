@@ -46,7 +46,7 @@ class KeyboardKey: UIControl {
     var text: String {
         didSet {
             self.label.text = text
-            self.label.frame = CGRectMake((self.bounds.width - self.bounds.width * CGFloat(0.8)) / CGFloat(2), 0, self.bounds.width * CGFloat(0.8), self.bounds.height)
+            self.label.frame = self.bounds
             self.redrawText()
         }
     }
@@ -247,7 +247,7 @@ class KeyboardKey: UIControl {
         CATransaction.setDisableActions(true)
         
         self.background.frame = self.bounds
-        self.label.frame = CGRectMake((self.bounds.width - self.bounds.width * CGFloat(0.8)) / CGFloat(2), 0, self.bounds.width * CGFloat(0.8), self.bounds.height)
+        self.label.frame = self.bounds
         
         if let maskView = self.displayMaskView {
             maskView.frame = boundingBox
@@ -368,15 +368,15 @@ class KeyboardKey: UIControl {
             shape.removeFromSuperview()
             self.addSubview(shape)
             
-            let sizeRatio = CGFloat(1)
-            let size = CGSizeMake(self.bounds.width * sizeRatio, self.bounds.height * sizeRatio)
+            let pointOffset: CGFloat = 4
+            let size = CGSizeMake(self.bounds.width - pointOffset - pointOffset, self.bounds.height - pointOffset - pointOffset)
             shape.frame = CGRectMake(
                 CGFloat((self.bounds.width - size.width) / 2.0),
                 CGFloat((self.bounds.height - size.height) / 2.0),
                 size.width,
                 size.height)
             
-            shape.setNeedsDisplay()
+            shape.setNeedsLayout()
         }
     }
     
