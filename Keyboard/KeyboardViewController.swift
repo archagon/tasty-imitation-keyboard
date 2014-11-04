@@ -763,6 +763,10 @@ class KeyboardViewController: UIInputViewController {
     // MOST COMMONLY EXTENDABLE METHODS //
     //////////////////////////////////////
     
+    class var layoutClass: KeyboardLayout.Type { get { return KeyboardLayout.self }}
+    class var layoutConstants: LayoutConstants.Type { get { return LayoutConstants.self }}
+    class var globalColors: GlobalColors.Type { get { return GlobalColors.self }}
+    
     func keyPressed(key: Key) {
         if let proxy = (self.textDocumentProxy as? UIKeyInput) {
             proxy.insertText(key.outputForCase(self.shiftState.uppercase()))
@@ -778,23 +782,10 @@ class KeyboardViewController: UIInputViewController {
     
     // a settings view that replaces the keyboard when the settings button is pressed
     func createSettings() -> ExtraView? {
-        let assets = NSBundle(forClass: self.dynamicType).loadNibNamed("DefaultSettings", owner: self, options: nil)
-        
-        if assets.count > 0 && assets.first is ExtraView {
-            if let settingsView = assets.first as? ExtraView {
-                settingsView.globalColors = self.dynamicType.globalColors
-                settingsView.darkMode = false
-                settingsView.solidColorMode = self.solidColorMode()
-                
-                return settingsView
-            }
-            else {
-                return nil
-            }
-        }
-        else {
-            return nil
-        }
+        // note that dark mode is not yet valid here, so we just put false for clarity
+        var settingsView = DefaultSettings(globalColors: self.dynamicType.globalColors, darkMode: false, solidColorMode: self.solidColorMode())
+        settingsView.backButton?.addTarget(self, action: Selector("toggleSettings"), forControlEvents: UIControlEvents.TouchUpInside)
+        return settingsView
     }
 }
 

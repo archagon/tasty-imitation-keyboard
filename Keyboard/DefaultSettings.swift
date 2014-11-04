@@ -8,6 +8,15 @@
 
 import UIKit
 
+let globalSettings = [
+    (kAutoCapitalization, "Auto-Capitalization"),
+    (kPeriodShortcut,  "“.” Shortcut"),
+    (kKeyboardClicks, "Keyboard Clicks")
+]
+let globalNotes = [
+    kKeyboardClicks: "Please note that keyboard clicks will work only if “Allow Full Access” is enabled in the keyboard settings. Unfortunately, this is a limitation of the operating system."
+]
+
 class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
     
     @IBOutlet var tableView: UITableView?
@@ -29,30 +38,57 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
     let cellLongLabelColorDark = UIColor.lightGrayColor()
     let cellLongLabelColorLight = UIColor.grayColor()
     
-    // TODO: move this somewhere else and localize
-    let settings = [
-        (kAutoCapitalization, "Auto-Capitalization"),
-        (kPeriodShortcut,  "“.” Shortcut"),
-        (kKeyboardClicks, "Keyboard Clicks")
-    ]
-    let notes = [
-        kKeyboardClicks: "Please note that keyboard clicks will work only if “Allow Full Access” is enabled in the keyboard settings. Unfortunately, this is a limitation of the operating system."
-    ]
+    // TODO: this is weird and hacky, move this somewhere else and localize
+    var settings: [(String, String)] {
+        get {
+            return globalSettings
+        }
+    }
+    var notes: [String: String] {
+        get {
+            return globalNotes
+        }
+    }
     
     required init(globalColors: GlobalColors.Type?, darkMode: Bool, solidColorMode: Bool) {
-        fatalError("this class requires a nib")
+        super.init(globalColors: globalColors, darkMode: darkMode, solidColorMode: solidColorMode)
+        self.loadNib()
     }
 
     required init(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
+        fatalError("loading from nib not supported")
     }
     
-    override func awakeFromNib() {
+    func loadNib() {
+        let assets = NSBundle(forClass: self.dynamicType).loadNibNamed("DefaultSettings", owner: self, options: nil)
+        
+        if assets.count > 0 {
+            if var rootView = assets.first as? UIView {
+                rootView.setTranslatesAutoresizingMaskIntoConstraints(false)
+                self.addSubview(rootView)
+                
+                let left = NSLayoutConstraint(item: rootView, attribute: NSLayoutAttribute.Left, relatedBy: NSLayoutRelation.Equal, toItem: self, attribute: NSLayoutAttribute.Left, multiplier: 1, constant: 0)
+                let right = NSLayoutConstraint(item: rootView, attribute: NSLayoutAttribute.Right, relatedBy: NSLayoutRelation.Equal, toItem: self, attribute: NSLayoutAttribute.Right, multiplier: 1, constant: 0)
+                let top = NSLayoutConstraint(item: rootView, attribute: NSLayoutAttribute.Top, relatedBy: NSLayoutRelation.Equal, toItem: self, attribute: NSLayoutAttribute.Top, multiplier: 1, constant: 0)
+                let bottom = NSLayoutConstraint(item: rootView, attribute: NSLayoutAttribute.Bottom, relatedBy: NSLayoutRelation.Equal, toItem: self, attribute: NSLayoutAttribute.Bottom, multiplier: 1, constant: 0)
+                
+                self.addConstraint(left)
+                self.addConstraint(right)
+                self.addConstraint(top)
+                self.addConstraint(bottom)
+            }
+        }
+        
         self.tableView?.registerClass(DefaultSettingsTableViewCell.self, forCellReuseIdentifier: "cell")
         self.tableView?.estimatedRowHeight = 44;
         self.tableView?.rowHeight = UITableViewAutomaticDimension;
-
+        
         self.updateAppearance(self.darkMode)
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        NSLog("settings subview layed out to \(self.frame)")
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -72,23 +108,27 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        var cell = tableView.dequeueReusableCellWithIdentifier("cell") as DefaultSettingsTableViewCell
-        
-        let key = settings[indexPath.row].0
-        
-        if cell.sw.allTargets().count == 0 {
-            cell.sw.addTarget(self, action: Selector("toggleSetting:"), forControlEvents: UIControlEvents.ValueChanged)
+        if var cell = tableView.dequeueReusableCellWithIdentifier("cell") as? DefaultSettingsTableViewCell {
+            let key = settings[indexPath.row].0
+            
+            if cell.sw.allTargets().count == 0 {
+                cell.sw.addTarget(self, action: Selector("toggleSetting:"), forControlEvents: UIControlEvents.ValueChanged)
+            }
+            
+            cell.sw.on = NSUserDefaults.standardUserDefaults().boolForKey(key)
+            cell.label.text = settings[indexPath.row].1
+            cell.longLabel.text = notes[key]
+            
+            cell.backgroundColor = (self.darkMode ? cellBackgroundColorDark : cellBackgroundColorLight)
+            cell.label.textColor = (self.darkMode ? cellLabelColorDark : cellLabelColorLight)
+            cell.longLabel.textColor = (self.darkMode ? cellLongLabelColorDark : cellLongLabelColorLight)
+            
+            return cell
         }
-        
-        cell.sw.on = NSUserDefaults.standardUserDefaults().boolForKey(key)
-        cell.label.text = settings[indexPath.row].1
-        cell.longLabel.text = notes[key]
-        
-        cell.backgroundColor = (self.darkMode ? cellBackgroundColorDark : cellBackgroundColorLight)
-        cell.label.textColor = (self.darkMode ? cellLabelColorDark : cellLabelColorLight)
-        cell.longLabel.textColor = (self.darkMode ? cellLongLabelColorDark : cellLongLabelColorLight)
-        
-        return cell
+        else {
+            assert(false, "this is a bad thing that just happened")
+            return UITableViewCell()
+        }
     }
     
     func updateAppearance(dark: Bool) {

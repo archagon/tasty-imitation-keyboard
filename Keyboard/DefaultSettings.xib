@@ -4,9 +4,17 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6244"/>
     </dependencies>
     <objects>
-        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="KeyboardViewController" customModule="Keyboard" customModuleProvider="target"/>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="DefaultSettings" customModule="Keyboard" customModuleProvider="target">
+            <connections>
+                <outlet property="backButton" destination="x35-jI-wEW" id="8Jf-cz-Pfk"/>
+                <outlet property="effectsView" destination="p1b-aL-nFG" id="qVH-MN-nbd"/>
+                <outlet property="pixelLine" destination="ooR-t1-RO3" id="RNZ-JA-0tO"/>
+                <outlet property="settingsLabel" destination="YuR-yT-g8t" id="Zwy-Pa-l78"/>
+                <outlet property="tableView" destination="PIq-gg-rs6" id="rBh-eg-uhG"/>
+            </connections>
+        </placeholder>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <view contentMode="scaleToFill" id="iN0-l3-epB" customClass="DefaultSettings" customModule="Keyboard" customModuleProvider="target">
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
             <rect key="frame" x="0.0" y="0.0" width="679" height="392"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
@@ -17,8 +25,8 @@
                             <rect key="frame" x="0.0" y="0.0" width="679" height="391.5"/>
                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                             <connections>
-                                <outlet property="dataSource" destination="iN0-l3-epB" id="QGI-Ha-4wk"/>
-                                <outlet property="delegate" destination="iN0-l3-epB" id="wMx-61-MqY"/>
+                                <outlet property="dataSource" destination="-1" id="pOX-gT-pSA"/>
+                                <outlet property="delegate" destination="-1" id="6Mw-Uw-d7I"/>
                             </connections>
                         </tableView>
                     </subviews>
@@ -47,9 +55,6 @@
                                     <color key="titleColor" red="0.0" green="0.47843137254901963" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
-                                <connections>
-                                    <action selector="toggleSettings" destination="-1" eventType="touchUpInside" id="eNw-hf-C9Q"/>
-                                </connections>
                             </button>
                             <view alpha="0.5" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ooR-t1-RO3">
                                 <rect key="frame" x="0.0" y="0.0" width="679" height="1"/>
@@ -88,13 +93,6 @@
             <nil key="simulatedTopBarMetrics"/>
             <nil key="simulatedBottomBarMetrics"/>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
-            <connections>
-                <outlet property="backButton" destination="x35-jI-wEW" id="olh-vc-HPI"/>
-                <outlet property="effectsView" destination="p1b-aL-nFG" id="Urb-ow-ENT"/>
-                <outlet property="pixelLine" destination="ooR-t1-RO3" id="Hc3-6E-C9e"/>
-                <outlet property="settingsLabel" destination="YuR-yT-g8t" id="bzf-AH-00o"/>
-                <outlet property="tableView" destination="PIq-gg-rs6" id="vFH-DP-jp0"/>
-            </connections>
             <point key="canvasLocation" x="372.5" y="117"/>
         </view>
     </objects>
