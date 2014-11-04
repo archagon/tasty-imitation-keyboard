@@ -6,9 +6,9 @@ This keyboard is currently optimized for iPhone. iPad should work, but it'll loo
 
 ## Recent Screenshots
 
-<img width="320px" src="./Screenshot-Portrait.png"></img>
-<img width="568px" src="./Screenshot-Landscape.png"></img>
-<img width="320px" src="./Settings-Portrait.png"></img>
+<img style="border: gray 1px solid;" width="320px" src="./Screenshot-Portrait.png"></img>
+<img style="border: gray 1px solid;" width="568px" src="./Screenshot-Landscape.png"></img>
+<img style="border: gray 1px solid;" width="320px" src="./Settings-Portrait.png"></img>
 
 ## Fantastic Features
 
