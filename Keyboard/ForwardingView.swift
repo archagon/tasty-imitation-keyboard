@@ -146,9 +146,9 @@ class ForwardingView: UIView {
             var newView = findNearestView(position)
             
             if view != newView {
-                self.handleControl(view, controlEvent: .TouchUpOutside)
+                self.handleControl(view, controlEvent: .TouchDragExit)
                 self.touchToView[touch] = newView
-                self.handleControl(newView, controlEvent: .TouchDown)
+                self.handleControl(newView, controlEvent: .TouchDragEnter)
             }
             else {
                 self.handleControl(view, controlEvent: .TouchDragInside)

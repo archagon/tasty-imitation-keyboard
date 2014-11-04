@@ -304,9 +304,6 @@ class KeyboardViewController: UIInputViewController {
                 for key in rowKeys {
                     var keyView = self.layout!.viewForKey(key)! // TODO: check
                     
-                    let showOptions: UIControlEvents = .TouchDown | .TouchDragInside | .TouchDragEnter
-                    let hideOptions: UIControlEvents = .TouchUpInside | .TouchUpOutside | .TouchDragOutside
-                    
                     switch key.type {
                     case Key.KeyType.KeyboardChange:
                         keyView.addTarget(self, action: "advanceToNextInputMode", forControlEvents: .TouchUpInside)
@@ -332,44 +329,57 @@ class KeyboardViewController: UIInputViewController {
                     
                     if key.isCharacter {
                         if UIDevice.currentDevice().userInterfaceIdiom != UIUserInterfaceIdiom.Pad {
-                            keyView.addTarget(keyView, action: Selector("showPopup"), forControlEvents: showOptions)
-                            keyView.addTarget(keyView, action: Selector("hidePopup"), forControlEvents: hideOptions)
+                            keyView.addTarget(self, action: Selector("showPopup:"), forControlEvents: .TouchDown | .TouchDragInside | .TouchDragEnter)
+                            keyView.addTarget(keyView, action: Selector("hidePopup"), forControlEvents: .TouchDragExit)
+                            keyView.addTarget(self, action: Selector("hidePopupDelay:"), forControlEvents: .TouchUpInside | .TouchUpOutside | .TouchDragOutside)
                         }
                     }
                     
                     if key.type != Key.KeyType.Shift {
-                        keyView.addTarget(self, action: Selector("highlightKey:"), forControlEvents: showOptions)
-                        keyView.addTarget(self, action: Selector("unHighlightKey:"), forControlEvents: hideOptions)
+                        keyView.addTarget(self, action: Selector("highlightKey:"), forControlEvents: .TouchDown | .TouchDragInside | .TouchDragEnter)
+                        keyView.addTarget(self, action: Selector("unHighlightKey:"), forControlEvents: .TouchUpInside | .TouchUpOutside | .TouchDragOutside | .TouchDragExit)
                     }
                 }
             }
         }
     }
     
-    func takeScreenshotDelay() {
-        var timer = NSTimer.scheduledTimerWithTimeInterval(0.1, target: self, selector: Selector("takeScreenshot"), userInfo: nil, repeats: false)
+    /////////////////
+    // POPUP DELAY //
+    /////////////////
+    
+    var keyWithDelayedPopup: KeyboardKey?
+    var popupDelayTimer: NSTimer?
+    
+    func showPopup(sender: KeyboardKey) {
+        if sender == self.keyWithDelayedPopup {
+            self.popupDelayTimer?.invalidate()
+        }
+        sender.showPopup()
     }
     
-    func takeScreenshot() {
-        if !CGRectIsEmpty(self.view.bounds) {
-            UIDevice.currentDevice().beginGeneratingDeviceOrientationNotifications()
-            
-            let oldViewColor = self.view.backgroundColor
-            self.view.backgroundColor = UIColor(hue: (216/360.0), saturation: 0.05, brightness: 0.86, alpha: 1)
-            
-            var rect = self.view.bounds
-            UIGraphicsBeginImageContextWithOptions(rect.size, true, 0)
-            var context = UIGraphicsGetCurrentContext()
-            self.view.drawViewHierarchyInRect(self.view.bounds, afterScreenUpdates: true)
-            var capturedImage = UIGraphicsGetImageFromCurrentImageContext()
-            UIGraphicsEndImageContext()
-            let name = (self.interfaceOrientation.isPortrait ? "Screenshot-Portrait" : "Screenshot-Landscape")
-            var imagePath = "/Users/archagon/Documents/Programming/OSX/tasty-imitation-keyboard/\(name).png"
-            UIImagePNGRepresentation(capturedImage).writeToFile(imagePath, atomically: true)
-            
-            self.view.backgroundColor = oldViewColor
+    func hidePopupDelay(sender: KeyboardKey) {
+        self.popupDelayTimer?.invalidate()
+        
+        if sender != self.keyWithDelayedPopup {
+            self.keyWithDelayedPopup?.hidePopup()
+            self.keyWithDelayedPopup = sender
+        }
+        
+        if sender.popup != nil {
+            self.popupDelayTimer = NSTimer.scheduledTimerWithTimeInterval(0.05, target: self, selector: Selector("hidePopupCallback"), userInfo: nil, repeats: false)
         }
     }
+    
+    func hidePopupCallback() {
+        self.keyWithDelayedPopup?.hidePopup()
+        self.keyWithDelayedPopup = nil
+        self.popupDelayTimer = nil
+    }
+    
+    /////////////////////
+    // POPUP DELAY END //
+    /////////////////////
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
