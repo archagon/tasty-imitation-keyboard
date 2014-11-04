@@ -60,16 +60,16 @@ class Catboard: KeyboardViewController {
         }
     }
     
-    let takeDebugScreenshot: Bool = true
+    let takeDebugScreenshot: Bool = false
     
     override func setupKeys() {
-        if self.layout == nil {
-            return
-        }
-        
         super.setupKeys()
         
         if takeDebugScreenshot {
+            if self.layout == nil {
+                return
+            }
+            
             for page in keyboard.pages {
                 for rowKeys in page.rows {
                     for key in rowKeys {
