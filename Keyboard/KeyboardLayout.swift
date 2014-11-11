@@ -561,8 +561,6 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         let actualGap = (isStandardWidth ? standardGap : keyGap)
         let actualKeyWidth = (actualWidth - CGFloat(row.count - 3) * actualGap) / CGFloat(row.count - 2)
         
-        NSLog("\(isStandardWidth), \(standardWidth), \(currentWidth)")
-        
         let sideSpace = (frame.width - actualWidth) / CGFloat(2)
         
         let m = (isLandscape ? self.layoutConstants.flexibleEndRowTotalWidthToKeyWidthMLandscape : self.layoutConstants.flexibleEndRowTotalWidthToKeyWidthMPortrait)

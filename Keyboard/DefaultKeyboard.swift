@@ -94,13 +94,6 @@ func defaultKeyboard() -> Keyboard {
     
     defaultKeyboard.addKey(Key(returnKey), row: 3, page: 1)
     
-    //var currencyFormatter = NSNumberFormatter()
-    //currencyFormatter.locale = NSLocale.currentLocale()
-    //currencyFormatter.numberStyle = NSNumberFormatterStyle.CurrencyStyle
-    //NSLog("my currency symbol is: \(currencyFormatter.currencySymbol) or \(currencyFormatter.internationalCurrencySymbol) and the language is: \(NSLocale.currentLocale().objectForKey(NSLocaleLanguageCode)), \(NSLocale.currentLocale().objectForKey(NSLocaleCurrencySymbol))")
-    //    currency second page = dollar, euro, pound
-    //    currency second page = euro, dollar, yen
-    
     for key in ["[", "]", "{", "}", "#", "%", "^", "*", "+", "="] {
         var keyModel = Key(.SpecialCharacter)
         keyModel.setLetter(key)

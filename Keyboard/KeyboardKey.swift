@@ -264,11 +264,6 @@ class KeyboardKey: UIControl {
         CATransaction.commit()
         
         self.refreshViews()
-
-//        if self.text == "a" || self.text == "A" {
-//            self.background.trackMe = true
-//            NSLog("relayingout a: \(self.bounds)")
-//        }
     }
     
     func refreshViews() {

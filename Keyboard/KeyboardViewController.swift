@@ -278,7 +278,6 @@ class KeyboardViewController: UIInputViewController {
         self.keyboardHeight = self.heightForOrientation(self.interfaceOrientation, withTopBanner: true)
     }
     
-    // TODO: the new size "snaps" into place on rotation, which I believe is related to performance
     override func willRotateToInterfaceOrientation(toInterfaceOrientation: UIInterfaceOrientation, duration: NSTimeInterval) {
         self.keyboardHeight = self.heightForOrientation(toInterfaceOrientation, withTopBanner: true)
     }
@@ -604,7 +603,6 @@ class KeyboardViewController: UIInputViewController {
     func updateKeyCaps(lowercase: Bool) {
         if self.layout != nil {
             let actualUppercase = (NSUserDefaults.standardUserDefaults().boolForKey(kSmallLowercase) ? !lowercase : true)
-            NSLog("defaults: \(NSUserDefaults.standardUserDefaults().boolForKey(kSmallLowercase)), lowercase: \(lowercase), actual: \(actualUppercase)")
             
             for (model, key) in self.layout!.modelToView {
                 key.text = model.keyCapForCase(actualUppercase)
