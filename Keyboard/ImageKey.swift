@@ -12,7 +12,8 @@ class ImageKey: KeyboardKey {
     
     var image: UIImageView? {
         willSet {
-            image?.removeFromSuperview()
+            var anImage = image
+            anImage?.removeFromSuperview()
         }
         didSet {
             if var imageView = image {
