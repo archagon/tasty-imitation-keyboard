@@ -108,7 +108,7 @@ class KeyboardViewController: UIInputViewController {
         NSUserDefaults.standardUserDefaults().registerDefaults([
             kAutoCapitalization: true,
             kPeriodShortcut: true,
-            kKeyboardClicks: true
+            kKeyboardClicks: false
         ])
         
         self.keyboard = defaultKeyboard()
