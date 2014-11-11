@@ -18,6 +18,7 @@ func metric(name: String) -> CGFloat { return CGFloat(metrics[name]!) }
 let kAutoCapitalization = "kAutoCapitalization"
 let kPeriodShortcut = "kPeriodShortcut"
 let kKeyboardClicks = "kKeyboardClicks"
+let kSmallLowercase = "kSmallLowercase"
 
 class KeyboardViewController: UIInputViewController {
     
@@ -108,7 +109,8 @@ class KeyboardViewController: UIInputViewController {
         NSUserDefaults.standardUserDefaults().registerDefaults([
             kAutoCapitalization: true,
             kPeriodShortcut: true,
-            kKeyboardClicks: false
+            kKeyboardClicks: false,
+            kSmallLowercase: false
         ])
         
         self.keyboard = defaultKeyboard()
@@ -120,6 +122,8 @@ class KeyboardViewController: UIInputViewController {
         
         self.forwardingView = ForwardingView(frame: CGRectZero)
         self.view.addSubview(self.forwardingView)
+        
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("defaultsChanged:"), name: NSUserDefaultsDidChangeNotification, object: nil)
     }
     
     required init(coder: NSCoder) {
@@ -129,6 +133,13 @@ class KeyboardViewController: UIInputViewController {
     deinit {
         backspaceDelayTimer?.invalidate()
         backspaceRepeatTimer?.invalidate()
+        
+        NSNotificationCenter.defaultCenter().removeObserver(self)
+    }
+    
+    func defaultsChanged(notification: NSNotification) {
+        let defaults = notification.object as NSUserDefaults
+        self.updateKeyCaps(!self.shiftState.uppercase())
     }
     
     // without this here kludge, the height constraint for the keyboard does not work for some reason
@@ -589,10 +600,14 @@ class KeyboardViewController: UIInputViewController {
         }
     }
     
+    // TODO: this should be uppercase, not lowercase
     func updateKeyCaps(lowercase: Bool) {
         if self.layout != nil {
+            let actualUppercase = (NSUserDefaults.standardUserDefaults().boolForKey(kSmallLowercase) ? !lowercase : true)
+            NSLog("defaults: \(NSUserDefaults.standardUserDefaults().boolForKey(kSmallLowercase)), lowercase: \(lowercase), actual: \(actualUppercase)")
+            
             for (model, key) in self.layout!.modelToView {
-                key.text = model.keyCapForCase(!lowercase)
+                key.text = model.keyCapForCase(actualUppercase)
                 
                 if model.type == Key.KeyType.Shift {
                     switch self.shiftState {
