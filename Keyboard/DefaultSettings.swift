@@ -44,7 +44,7 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
                 kAutoCapitalization: "Auto-Capitalization",
                 kPeriodShortcut:  "“.” Shortcut",
                 kKeyboardClicks: "Keyboard Clicks",
-                kSmallLowercase: "Small Lowercase Key Caps"
+                kSmallLowercase: "Allow Lowercase Key Caps"
             ]
         }
     }
