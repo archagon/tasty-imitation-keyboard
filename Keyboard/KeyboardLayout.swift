@@ -530,13 +530,31 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
     
     func layoutCharacterRow(row: [Key], modelToView: [Key:KeyboardKey], keyWidth: CGFloat, gapWidth: CGFloat, frame: CGRect) {
         let keySpace = CGFloat(row.count) * keyWidth + CGFloat(row.count - 1) * gapWidth
-        let sideSpace = (frame.width - keySpace) / CGFloat(2)
+        var actualGapWidth = gapWidth
+        var sideSpace = (frame.width - keySpace) / CGFloat(2)
+        
+        // TODO: port this to the other layout functions
+        // avoiding rounding errors
+        if sideSpace < 0 {
+            sideSpace = 0
+            actualGapWidth = (frame.width - (CGFloat(row.count) * keyWidth)) / CGFloat(row.count - 1)
+        }
         
         var currentOrigin = frame.origin.x + sideSpace
+        
         for (k, key) in enumerate(row) {
             if let view = modelToView[key] {
-                view.frame = CGRectMake(rounded(currentOrigin), frame.origin.y, keyWidth, frame.height)
-                currentOrigin += (keyWidth + gapWidth)
+                let roundedOrigin = rounded(currentOrigin)
+                
+                // avoiding rounding errors
+                if roundedOrigin + keyWidth > frame.origin.x + frame.width {
+                    view.frame = CGRectMake(rounded(frame.origin.x + frame.width - keyWidth), frame.origin.y, keyWidth, frame.height)
+                }
+                else {
+                    view.frame = CGRectMake(rounded(currentOrigin), frame.origin.y, keyWidth, frame.height)
+                }
+                
+                currentOrigin += (keyWidth + actualGapWidth)
             }
             else {
                 assert(false, "view missing for model")
