@@ -4,7 +4,7 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6244"/>
     </dependencies>
     <objects>
-        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="DefaultSettings" customModule="Keyboard" customModuleProvider="target">
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="DefaultSettings" customModule="Colemak" customModuleProvider="target">
             <connections>
                 <outlet property="backButton" destination="x35-jI-wEW" id="8Jf-cz-Pfk"/>
                 <outlet property="effectsView" destination="p1b-aL-nFG" id="qVH-MN-nbd"/>
@@ -19,10 +19,10 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Ibn-Pg-NVs" userLabel="TableView">
-                    <rect key="frame" x="0.0" y="0.0" width="679" height="392"/>
+                    <rect key="frame" x="0.0" y="1" width="679" height="391"/>
                     <subviews>
                         <tableView opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" indicatorStyle="black" style="grouped" separatorStyle="default" allowsSelection="NO" rowHeight="44" sectionHeaderHeight="10" sectionFooterHeight="10" translatesAutoresizingMaskIntoConstraints="NO" id="PIq-gg-rs6">
-                            <rect key="frame" x="0.0" y="0.0" width="679" height="391.5"/>
+                            <rect key="frame" x="0.0" y="0.0" width="679" height="390.5"/>
                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                             <connections>
                                 <outlet property="dataSource" destination="-1" id="pOX-gT-pSA"/>
@@ -84,7 +84,7 @@
                 <constraint firstItem="p1b-aL-nFG" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="Bgl-Q1-iWr"/>
                 <constraint firstAttribute="trailing" secondItem="p1b-aL-nFG" secondAttribute="trailing" id="TNA-r8-0aj"/>
                 <constraint firstItem="Ibn-Pg-NVs" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="agc-9G-vb3"/>
-                <constraint firstItem="Ibn-Pg-NVs" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="kEG-1N-xFK"/>
+                <constraint firstItem="Ibn-Pg-NVs" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="1" id="kEG-1N-xFK"/>
                 <constraint firstAttribute="bottom" secondItem="Ibn-Pg-NVs" secondAttribute="bottom" id="mai-mV-le9"/>
                 <constraint firstAttribute="bottom" secondItem="p1b-aL-nFG" secondAttribute="bottom" id="tK7-Pg-Lkx"/>
                 <constraint firstAttribute="trailing" secondItem="Ibn-Pg-NVs" secondAttribute="trailing" id="ub2-6W-mUN"/>
