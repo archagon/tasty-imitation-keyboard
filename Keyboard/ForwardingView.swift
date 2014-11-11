@@ -163,6 +163,8 @@ class ForwardingView: UIView {
             var view = self.touchToView[touch]
             
             self.handleControl(view, controlEvent: .TouchUpInside)
+            
+            self.touchToView[touch] = nil
         }
     }
 
@@ -173,6 +175,8 @@ class ForwardingView: UIView {
             var view = self.touchToView[touch]
             
             self.handleControl(view, controlEvent: .TouchCancel)
+            
+            self.touchToView[touch] = nil
         }
     }
 }
