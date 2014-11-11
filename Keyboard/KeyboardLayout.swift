@@ -317,6 +317,7 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         Key.KeyType.ModeChange:
             key.color = self.globalColors.specialKey(darkMode, solidColorMode: solidColorMode)
             key.textColor = (darkMode ? self.globalColors.darkModeTextColor : self.globalColors.lightModeTextColor)
+            key.labelInset = 3
         case
         Key.KeyType.Return,
         Key.KeyType.KeyboardChange,

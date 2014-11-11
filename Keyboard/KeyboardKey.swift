@@ -46,7 +46,7 @@ class KeyboardKey: UIControl {
     var text: String {
         didSet {
             self.label.text = text
-            self.label.frame = self.bounds
+            self.label.frame = CGRectMake(self.labelInset, self.labelInset, self.bounds.width - self.labelInset * 2, self.bounds.height - self.labelInset * 2)
             self.redrawText()
         }
     }
@@ -64,6 +64,12 @@ class KeyboardKey: UIControl {
     var downUnderColor: UIColor? { didSet { updateColors() }}
     var downBorderColor: UIColor? { didSet { updateColors() }}
     var downTextColor: UIColor? { didSet { updateColors() }}
+    
+    var labelInset: CGFloat = 0 {
+        didSet {
+            self.label.frame = CGRectMake(self.labelInset, self.labelInset, self.bounds.width - self.labelInset * 2, self.bounds.height - self.labelInset * 2)
+        }
+    }
     
     var popupDirection: Direction?
     
@@ -247,7 +253,7 @@ class KeyboardKey: UIControl {
         CATransaction.setDisableActions(true)
         
         self.background.frame = self.bounds
-        self.label.frame = self.bounds
+        self.label.frame = CGRectMake(self.labelInset, self.labelInset, self.bounds.width - self.labelInset * 2, self.bounds.height - self.labelInset * 2)
         
         if let maskView = self.displayMaskView {
             maskView.frame = boundingBox
