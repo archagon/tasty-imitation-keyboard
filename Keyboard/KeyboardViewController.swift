@@ -23,7 +23,7 @@ let kSmallLowercase = "kSmallLowercase"
 class KeyboardViewController: UIInputViewController {
     
     let backspaceDelay: NSTimeInterval = 0.5
-    let backspaceRepeat: NSTimeInterval = 0.05
+    let backspaceRepeat: NSTimeInterval = 0.07
     
     var keyboard: Keyboard!
     var forwardingView: ForwardingView!
@@ -349,6 +349,8 @@ class KeyboardViewController: UIInputViewController {
                         keyView.addTarget(self, action: Selector("highlightKey:"), forControlEvents: .TouchDown | .TouchDragInside | .TouchDragEnter)
                         keyView.addTarget(self, action: Selector("unHighlightKey:"), forControlEvents: .TouchUpInside | .TouchUpOutside | .TouchDragOutside | .TouchDragExit)
                     }
+                    
+                    keyView.addTarget(self, action: Selector("playKeySound"), forControlEvents: .TouchDown)
                 }
             }
         }
@@ -443,8 +445,6 @@ class KeyboardViewController: UIInputViewController {
     }
     
     func keyPressedHelper(sender: KeyboardKey) {
-        self.playKeySound()
-        
         if let model = self.layout?.keyForView(sender) {
             self.keyPressed(model)
             
@@ -541,8 +541,6 @@ class KeyboardViewController: UIInputViewController {
     func backspaceDown(sender: KeyboardKey) {
         self.cancelBackspaceTimers()
         
-        self.playKeySound()
-        
         if let textDocumentProxy = self.textDocumentProxy as? UIKeyInput {
             textDocumentProxy.deleteBackward()
         }
@@ -561,14 +559,14 @@ class KeyboardViewController: UIInputViewController {
     }
     
     func backspaceRepeatCallback() {
+        self.playKeySound()
+        
         if let textDocumentProxy = self.textDocumentProxy as? UIKeyInput {
             textDocumentProxy.deleteBackward()
         }
     }
     
     func shiftDown(sender: KeyboardKey) {
-        self.playKeySound()
-        
         if self.shiftWasMultitapped {
             self.shiftWasMultitapped = false
             return
@@ -602,9 +600,11 @@ class KeyboardViewController: UIInputViewController {
     // TODO: this should be uppercase, not lowercase
     func updateKeyCaps(lowercase: Bool) {
         if self.layout != nil {
-            let actualUppercase = (NSUserDefaults.standardUserDefaults().boolForKey(kSmallLowercase) ? !lowercase : true)
+            let characterUppercase = (NSUserDefaults.standardUserDefaults().boolForKey(kSmallLowercase) ? !lowercase : true)
             
             for (model, key) in self.layout!.modelToView {
+                let actualUppercase = (model.type == .Character ? characterUppercase : !lowercase)
+                
                 key.text = model.keyCapForCase(actualUppercase)
                 
                 if model.type == Key.KeyType.Shift {
@@ -624,8 +624,6 @@ class KeyboardViewController: UIInputViewController {
     }
     
     func modeChangeTapped(sender: KeyboardKey) {
-        self.playKeySound()
-        
         if let toMode = self.layout?.viewToModel[sender]?.toMode {
             self.currentMode = toMode
         }
@@ -645,8 +643,6 @@ class KeyboardViewController: UIInputViewController {
     }
     
     @IBAction func toggleSettings() {
-        self.playKeySound()
-        
         if let settings = self.settingsView {
             let hidden = settings.hidden
             settings.hidden = !hidden
