@@ -31,7 +31,7 @@ class KeyboardConnector: KeyboardKeyBackground {
     var offset: CGPoint
     
     // TODO: until bug is fixed, make sure start/end and startConnectable/endConnectable are the same object
-    init(blur: Bool, cornerRadius: CGFloat, underOffset: CGFloat, start s: UIView, end e: UIView, startConnectable sC: Connectable, endConnectable eC: Connectable, startDirection: Direction, endDirection: Direction) {
+    init(cornerRadius: CGFloat, underOffset: CGFloat, start s: UIView, end e: UIView, startConnectable sC: Connectable, endConnectable eC: Connectable, startDirection: Direction, endDirection: Direction) {
         start = s
         end = e
         startDir = startDirection
@@ -41,7 +41,7 @@ class KeyboardConnector: KeyboardKeyBackground {
 
         offset = CGPointZero
 
-        super.init(blur: blur, cornerRadius: cornerRadius, underOffset: underOffset)
+        super.init(cornerRadius: cornerRadius, underOffset: underOffset)
     }
     
     required init(coder: NSCoder) {

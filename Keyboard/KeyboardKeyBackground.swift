@@ -40,7 +40,7 @@ class KeyboardKeyBackground: UIView, Connectable {
         }
     }
     
-    init(blur: Bool, cornerRadius: CGFloat, underOffset: CGFloat) {
+    init(cornerRadius: CGFloat, underOffset: CGFloat) {
         attached = nil
         hideDirectionIsOpposite = false
         dirty = false
