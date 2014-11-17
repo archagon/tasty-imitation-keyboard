@@ -95,8 +95,6 @@ class Key: Hashable {
                 return true
             case .Return:
                 return true
-            case .Space:
-                return true
             case .Settings:
                 return true
             default:
