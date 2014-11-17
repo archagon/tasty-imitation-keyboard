@@ -332,16 +332,16 @@ class KeyboardViewController: UIInputViewController {
                         break
                     }
                     
-                    if key.hasOutput {
-                        keyView.addTarget(self, action: "keyPressedHelper:", forControlEvents: .TouchUpInside)
-                    }
-                    
                     if key.isCharacter {
                         if UIDevice.currentDevice().userInterfaceIdiom != UIUserInterfaceIdiom.Pad {
                             keyView.addTarget(self, action: Selector("showPopup:"), forControlEvents: .TouchDown | .TouchDragInside | .TouchDragEnter)
                             keyView.addTarget(keyView, action: Selector("hidePopup"), forControlEvents: .TouchDragExit)
                             keyView.addTarget(self, action: Selector("hidePopupDelay:"), forControlEvents: .TouchUpInside | .TouchUpOutside | .TouchDragOutside)
                         }
+                    }
+                    
+                    if key.hasOutput {
+                        keyView.addTarget(self, action: "keyPressedHelper:", forControlEvents: .TouchUpInside)
                     }
                     
                     if key.type != Key.KeyType.Shift {
@@ -602,9 +602,7 @@ class KeyboardViewController: UIInputViewController {
             let characterUppercase = (NSUserDefaults.standardUserDefaults().boolForKey(kSmallLowercase) ? !lowercase : true)
             
             for (model, key) in self.layout!.modelToView {
-                let actualUppercase = (model.type == .Character ? characterUppercase : !lowercase)
-                
-                key.text = model.keyCapForCase(actualUppercase)
+                self.setKeyCapForKey(lowercase, characterLowercase: !characterUppercase, model: model, view: key)
                 
                 if model.type == Key.KeyType.Shift {
                     switch self.shiftState {
@@ -619,6 +617,15 @@ class KeyboardViewController: UIInputViewController {
                     (key.shape as? ShiftShape)?.withLock = (self.shiftState == .Locked)
                 }
             }
+        }
+    }
+    
+    func setKeyCapForKey(lowercase: Bool, characterLowercase: Bool, model: Key, view: KeyboardKey) {
+        if model.type == .Character {
+            view.text = model.keyCapForCase(!characterLowercase)
+        }
+        else {
+            view.text = model.keyCapForCase(!lowercase)
         }
     }
     
@@ -796,10 +803,3 @@ class KeyboardViewController: UIInputViewController {
         return settingsView
     }
 }
-
-//// does not work; drops CPU to 0% when run on device
-//extension UIInputView: UIInputViewAudioFeedback {
-//    public var enableInputClicksWhenVisible: Bool {
-//        return true
-//    }
-//}
