@@ -533,7 +533,7 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
                     
                     // bottom row with things like space, return, etc.
                 else {
-                    self.layoutSpecialKeysRow(row, modelToView: self.modelToView, gapWidth: lastRowKeyGap, leftSideRatio: lastRowLeftSideRatio, rightSideRatio: lastRowRightSideRatio, micButtonRatio: self.layoutConstants.micButtonPortraitWidthRatioToOtherSpecialButtons, isLandscape: isLandscape, frame: frame)
+                    self.layoutSpecialKeysRow(row, modelToView: self.modelToView, keyWidth: letterKeyWidth, gapWidth: lastRowKeyGap, leftSideRatio: lastRowLeftSideRatio, rightSideRatio: lastRowRightSideRatio, micButtonRatio: self.layoutConstants.micButtonPortraitWidthRatioToOtherSpecialButtons, isLandscape: isLandscape, frame: frame)
                 }
             }
         }
@@ -636,7 +636,7 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         }
     }
     
-    func layoutSpecialKeysRow(row: [Key], modelToView: [Key:KeyboardKey], gapWidth: CGFloat, leftSideRatio: CGFloat, rightSideRatio: CGFloat, micButtonRatio: CGFloat, isLandscape: Bool, frame: CGRect) {
+    func layoutSpecialKeysRow(row: [Key], modelToView: [Key:KeyboardKey], keyWidth: CGFloat, gapWidth: CGFloat, leftSideRatio: CGFloat, rightSideRatio: CGFloat, micButtonRatio: CGFloat, isLandscape: Bool, frame: CGRect) {
         var keysBeforeSpace = 0
         var keysAfterSpace = 0
         var reachedSpace = false
