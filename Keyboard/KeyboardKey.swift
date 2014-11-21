@@ -104,7 +104,7 @@ class KeyboardKey: UIControl {
         
         self.displayView = ShapeView(shapeLayer: false)
         self.underView = ShapeView(shapeLayer: false)
-        self.borderView = ShapeView(shapeLayer: false)
+        self.borderView = ShapeView(shapeLayer: true)
         
         self.shadowLayer = CAShapeLayer()
         self.shadowView = UIView()
