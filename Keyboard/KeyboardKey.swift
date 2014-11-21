@@ -102,9 +102,9 @@ class KeyboardKey: UIControl {
     init(vibrancy optionalVibrancy: VibrancyType?) {
         self.vibrancy = optionalVibrancy
         
-        self.displayView = ShapeView()
-        self.borderView = ShapeView()
-        self.underView = ShapeView()
+        self.displayView = ShapeView(shapeLayer: false)
+        self.underView = ShapeView(shapeLayer: false)
+        self.borderView = ShapeView(shapeLayer: false)
         
         self.shadowLayer = CAShapeLayer()
         self.shadowView = UIView()
@@ -143,6 +143,13 @@ class KeyboardKey: UIControl {
             self.underView.opaque = false
             self.borderView.opaque = false
             
+            self.shadowLayer.shadowOpacity = Float(0.2)
+            self.shadowLayer.shadowRadius = 4
+            self.shadowLayer.shadowOffset = CGSizeMake(0, 3)
+            
+            self.borderView.lineWidth = CGFloat(0.5)
+            self.borderView.fillColor = UIColor.clearColor()
+            
             self.label.textAlignment = NSTextAlignment.Center
             self.label.baselineAdjustment = UIBaselineAdjustment.AlignCenters
             self.label.font = self.label.font.fontWithSize(22)
@@ -150,12 +157,6 @@ class KeyboardKey: UIControl {
             self.label.minimumScaleFactor = CGFloat(0.1)
             self.label.userInteractionEnabled = false
             self.label.numberOfLines = 1
-            
-            self.shadowLayer.shadowOpacity = Float(0.2)
-            self.shadowLayer.shadowRadius = 4
-            self.shadowLayer.shadowOffset = CGSizeMake(0, 3)
-            
-            self.borderView.lineWidth = CGFloat(0.5)
         }()
     }
     
@@ -259,6 +260,10 @@ class KeyboardKey: UIControl {
         self.underView.curve = underPath
         self.displayView.curve = testPath
         self.borderView.curve = edgePath
+        
+        if let borderLayer = self.borderView.layer as? CAShapeLayer {
+            borderLayer.strokeColor = UIColor.greenColor().CGColor
+        }
         
         CATransaction.commit()
     }
@@ -450,24 +455,14 @@ class KeyboardKey: UIControl {
     }
 }
 
-let useShapeLayer = false
 class ShapeView: UIView {
-
-    override class func layerClass() -> AnyClass {
-        if useShapeLayer {
-            return CAShapeLayer.self
-        }
-        else {
-            return super.layerClass()
-        }
-    }
+    
+    let shapeLayer: CAShapeLayer?
 
     var curve: UIBezierPath? {
         didSet {
-            if useShapeLayer {
-                if let layer = self.layer as? CAShapeLayer {
-                    layer.path = curve?.CGPath
-                }
+            if let layer = self.shapeLayer {
+                layer.path = curve?.CGPath
             }
             else {
                 self.setNeedsDisplay()
@@ -477,10 +472,8 @@ class ShapeView: UIView {
     
     var fillColor: UIColor? {
         didSet {
-            if useShapeLayer {
-                if let layer = self.layer as? CAShapeLayer {
-                    layer.fillColor = fillColor?.CGColor
-                }
+            if let layer = self.shapeLayer {
+                layer.fillColor = fillColor?.CGColor
             }
             else {
                 self.setNeedsDisplay()
@@ -490,10 +483,8 @@ class ShapeView: UIView {
 
     var strokeColor: UIColor? {
         didSet {
-            if useShapeLayer {
-                if let layer = self.layer as? CAShapeLayer {
-                    layer.fillColor = strokeColor?.CGColor
-                }
+            if let layer = self.shapeLayer {
+                layer.strokeColor = strokeColor?.CGColor
             }
             else {
                 self.setNeedsDisplay()
@@ -503,11 +494,9 @@ class ShapeView: UIView {
     
     var lineWidth: CGFloat? {
         didSet {
-            if useShapeLayer {
-                if let layer = self.layer as? CAShapeLayer {
-                    if let lineWidth = self.lineWidth {
-                        layer.lineWidth = lineWidth
-                    }
+            if let layer = self.shapeLayer {
+                if let lineWidth = self.lineWidth {
+                    layer.lineWidth = lineWidth
                 }
             }
             else {
@@ -516,14 +505,17 @@ class ShapeView: UIView {
         }
     }
     
-    convenience override init() {
-        self.init(frame: CGRectZero)
+    convenience init(shapeLayer: Bool) {
+        self.init(frame: CGRectZero, shapeLayer: shapeLayer)
     }
     
-    override init(frame: CGRect) {
+    init(frame: CGRect, shapeLayer: Bool) {
         super.init(frame: frame)
         
-        if useShapeLayer {
+        if shapeLayer {
+            var shapeLayer = CAShapeLayer()
+            self.layer.addSublayer(shapeLayer)
+            self.shapeLayer = shapeLayer
             self.layer.shouldRasterize = true
         }
     }
@@ -533,7 +525,7 @@ class ShapeView: UIView {
     }
     
     override func drawRect(rect: CGRect) {
-        if !useShapeLayer {
+        if self.shapeLayer == nil {
             if let curve = self.curve {
                 if let lineWidth = self.lineWidth {
                     curve.lineWidth = lineWidth
