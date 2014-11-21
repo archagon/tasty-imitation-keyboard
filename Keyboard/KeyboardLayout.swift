@@ -278,20 +278,8 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
             CATransaction.begin()
             CATransaction.setDisableActions(true)
             
-            for (h, page) in enumerate(keyboard.pages) {
-                let numRows = page.rows.count
-                
-                for i in 0..<numRows {
-                    let numKeys = page.rows[i].count
-                    
-                    for j in 0..<numKeys {
-                        var key = page.rows[i][j]
-                        
-                        if let keyView = views[key] {
-                            self.setAppearanceForKey(keyView, model: key, darkMode: self.darkMode, solidColorMode: self.solidColorMode)
-                        }
-                    }
-                }
+            for (key, view) in views {
+                self.setAppearanceForKey(view, model: key, darkMode: self.darkMode, solidColorMode: self.solidColorMode)
             }
             
             CATransaction.commit()
@@ -435,14 +423,15 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         self.modelToView?.removeAll(keepCapacity: true)
         self.viewToModel?.removeAll(keepCapacity: true)
         
-        for key in self.keyPool {
-            key.hidden = true
+        self.keyPool.map {
+            $0.hidden = true
         }
         
         var index: Int = 0
         for row in self.model.pages[pageNum].rows {
             for key in row {
                 var keyView = self.keyPool[index]
+                keyView.text = "?"
                 keyView.hidden = false
                 self.modelToView?[key] = keyView
                 self.viewToModel?[keyView] = key

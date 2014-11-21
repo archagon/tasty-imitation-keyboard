@@ -294,9 +294,7 @@ class KeyboardViewController: UIInputViewController {
             for rowKeys in page.rows { // TODO: quick hack
                 for key in rowKeys {
                     if let keyView = self.layout?.viewForKey(key) {
-                        for target in keyView.allTargets() {
-                            keyView.removeTarget(target, action: nil, forControlEvents: UIControlEvents.AllEvents)
-                        }
+                        keyView.removeTarget(nil, action: nil, forControlEvents: UIControlEvents.AllEvents)
                         
                         switch key.type {
                         case Key.KeyType.KeyboardChange:
@@ -335,6 +333,8 @@ class KeyboardViewController: UIInputViewController {
                         }
                         
                         keyView.addTarget(self, action: Selector("playKeySound"), forControlEvents: .TouchDown)
+                        
+                        keyView.text = key.keyCapForCase(self.shiftState.uppercase())
                     }
                 }
             }
@@ -635,6 +635,7 @@ class KeyboardViewController: UIInputViewController {
 //            }
 //        }
         self.layout?.layoutTemp(mode)
+        self.setupKeys()
     }
     
     @IBAction func toggleSettings() {
