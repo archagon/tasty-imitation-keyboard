@@ -252,24 +252,6 @@ class KeyboardViewController: UIInputViewController {
             self.view.insertSubview(aBanner, belowSubview: self.forwardingView)
             self.bannerView = aBanner
         }
-        
-        if var aSettings = self.createSettings() {
-            aSettings.hidden = true
-            self.view.addSubview(aSettings)
-            self.settingsView = aSettings
-            
-            aSettings.setTranslatesAutoresizingMaskIntoConstraints(false)
-            
-            let widthConstraint = NSLayoutConstraint(item: aSettings, attribute: NSLayoutAttribute.Width, relatedBy: NSLayoutRelation.Equal, toItem: self.view, attribute: NSLayoutAttribute.Width, multiplier: 1, constant: 0)
-            let heightConstraint = NSLayoutConstraint(item: aSettings, attribute: NSLayoutAttribute.Height, relatedBy: NSLayoutRelation.Equal, toItem: self.view, attribute: NSLayoutAttribute.Height, multiplier: 1, constant: 0)
-            let centerXConstraint = NSLayoutConstraint(item: aSettings, attribute: NSLayoutAttribute.CenterX, relatedBy: NSLayoutRelation.Equal, toItem: self.view, attribute: NSLayoutAttribute.CenterX, multiplier: 1, constant: 0)
-            let centerYConstraint = NSLayoutConstraint(item: aSettings, attribute: NSLayoutAttribute.CenterY, relatedBy: NSLayoutRelation.Equal, toItem: self.view, attribute: NSLayoutAttribute.CenterY, multiplier: 1, constant: 0)
-            
-            self.view.addConstraint(widthConstraint)
-            self.view.addConstraint(heightConstraint)
-            self.view.addConstraint(centerXConstraint)
-            self.view.addConstraint(centerYConstraint)
-        }
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -649,6 +631,27 @@ class KeyboardViewController: UIInputViewController {
     }
     
     @IBAction func toggleSettings() {
+        // lazy load settings
+        if self.settingsView == nil {
+            if var aSettings = self.createSettings() {
+                aSettings.hidden = true
+                self.view.addSubview(aSettings)
+                self.settingsView = aSettings
+                
+                aSettings.setTranslatesAutoresizingMaskIntoConstraints(false)
+                
+                let widthConstraint = NSLayoutConstraint(item: aSettings, attribute: NSLayoutAttribute.Width, relatedBy: NSLayoutRelation.Equal, toItem: self.view, attribute: NSLayoutAttribute.Width, multiplier: 1, constant: 0)
+                let heightConstraint = NSLayoutConstraint(item: aSettings, attribute: NSLayoutAttribute.Height, relatedBy: NSLayoutRelation.Equal, toItem: self.view, attribute: NSLayoutAttribute.Height, multiplier: 1, constant: 0)
+                let centerXConstraint = NSLayoutConstraint(item: aSettings, attribute: NSLayoutAttribute.CenterX, relatedBy: NSLayoutRelation.Equal, toItem: self.view, attribute: NSLayoutAttribute.CenterX, multiplier: 1, constant: 0)
+                let centerYConstraint = NSLayoutConstraint(item: aSettings, attribute: NSLayoutAttribute.CenterY, relatedBy: NSLayoutRelation.Equal, toItem: self.view, attribute: NSLayoutAttribute.CenterY, multiplier: 1, constant: 0)
+                
+                self.view.addConstraint(widthConstraint)
+                self.view.addConstraint(heightConstraint)
+                self.view.addConstraint(centerXConstraint)
+                self.view.addConstraint(centerYConstraint)
+            }
+        }
+        
         if let settings = self.settingsView {
             let hidden = settings.hidden
             settings.hidden = !hidden
