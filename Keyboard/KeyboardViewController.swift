@@ -634,6 +634,8 @@ class KeyboardViewController: UIInputViewController {
         // lazy load settings
         if self.settingsView == nil {
             if var aSettings = self.createSettings() {
+                aSettings.darkMode = self.darkMode()
+                
                 aSettings.hidden = true
                 self.view.addSubview(aSettings)
                 self.settingsView = aSettings
