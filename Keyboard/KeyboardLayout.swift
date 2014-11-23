@@ -253,8 +253,8 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
     
     var model: Keyboard
     var superview: UIView
-    var modelToView: [Key:KeyboardKey]? = [:]
-    var viewToModel: [KeyboardKey:Key]? = [:]
+    var modelToView: [Key:KeyboardKey] = [:]
+    var viewToModel: [KeyboardKey:Key] = [:]
     
     var keyPool: [KeyboardKey] = []
     var sizeToKeyMap: [CGSize:[KeyboardKey]] = [:]
@@ -282,29 +282,68 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
     }
     
     func viewForKey(model: Key) -> KeyboardKey? {
-        return self.modelToView?[model]
+        return self.modelToView[model]
     }
     
     func keyForView(key: KeyboardKey) -> Key? {
-        return self.viewToModel?[key]
+        return self.viewToModel[key]
     }
     
-    func updateKeyAppearance(keyboard: Keyboard, views optionalViews: [Key:KeyboardKey]?) {
-        if let views = optionalViews {
-            for (key, view) in views {
-                self.setAppearanceForKey(view, model: key, darkMode: self.darkMode, solidColorMode: self.solidColorMode)
-            }
+    func updateKeyAppearance() {
+        for (key, view) in self.modelToView {
+            self.setAppearanceForKey(view, model: key, darkMode: self.darkMode, solidColorMode: self.solidColorMode)
         }
     }
     
-    func updateKeyCaps(uppercase: Bool, characterUppercase: Bool) {
-        if let modelToView = self.modelToView {
-            for (model, key) in modelToView {
-                if model.type == .Character {
-                    key.text = model.keyCapForCase(characterUppercase)
+    func updateKeyCaps(uppercase: Bool, characterUppercase: Bool, shiftState: ShiftState) {
+        for (model, key) in self.modelToView {
+            if model.type == .Character {
+                key.text = model.keyCapForCase(characterUppercase)
+            }
+            else {
+                key.text = model.keyCapForCase(uppercase)
+            }
+            
+            // shapes
+            switch model.type {
+            case Key.KeyType.Shift:
+                if key.shape == nil {
+                    let shiftShape = ShiftShape()
+                    key.shape = shiftShape
                 }
-                else {
-                    key.text = model.keyCapForCase(uppercase)
+                
+                switch shiftState {
+                case .Disabled:
+                    key.highlighted = false
+                case .Enabled:
+                    key.highlighted = true
+                case .Locked:
+                    key.highlighted = true
+                }
+                
+                (key.shape as? ShiftShape)?.withLock = (shiftState == .Locked)
+            case Key.KeyType.Backspace:
+                if key.shape == nil {
+                    let backspaceShape = BackspaceShape()
+                    key.shape = backspaceShape
+                }
+            case Key.KeyType.KeyboardChange:
+                if key.shape == nil {
+                    let globeShape = GlobeShape()
+                    key.shape = globeShape
+                }
+            default:
+                break
+            }
+            
+            // images
+            if model.type == Key.KeyType.Settings {
+                if let imageKey = key as? ImageKey {
+                    if imageKey.image == nil {
+                        var gearImage = UIImage(named: "gear")
+                        var settingsImageView = UIImageView(image: gearImage)
+                        imageKey.image = settingsImageView
+                    }
                 }
             }
         }
@@ -385,38 +424,6 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
             key.label.font = key.label.font.fontWithSize(16)
         default:
             break
-        }
-        
-        // shapes
-        switch model.type {
-        case Key.KeyType.Shift:
-            if key.shape == nil {
-                let shiftShape = ShiftShape()
-                key.shape = shiftShape
-            }
-        case Key.KeyType.Backspace:
-            if key.shape == nil {
-                let backspaceShape = BackspaceShape()
-                key.shape = backspaceShape
-            }
-        case Key.KeyType.KeyboardChange:
-            if key.shape == nil {
-                let globeShape = GlobeShape()
-                key.shape = globeShape
-            }
-        default:
-            break
-        }
-        
-        // images
-        if model.type == Key.KeyType.Settings {
-            if let imageKey = key as? ImageKey {
-                if imageKey.image == nil {
-                    var gearImage = UIImage(named: "gear")
-                    var settingsImageView = UIImageView(image: gearImage)
-                    imageKey.image = settingsImageView
-                }
-            }
         }
     }
     
@@ -512,13 +519,13 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
     // LAYOUT FUNCTIONS //
     //////////////////////
     
-    func layoutKeys(pageNum: Int, uppercase: Bool, characterUppercase: Bool) {
+    func layoutKeys(pageNum: Int, uppercase: Bool, characterUppercase: Bool, shiftState: ShiftState) {
         if var keyMap = self.generateKeyFrames(self.model, bounds: self.superview.bounds, page: pageNum) {
             CATransaction.begin()
             CATransaction.setDisableActions(true)
             
-            self.modelToView?.removeAll(keepCapacity: true)
-            self.viewToModel?.removeAll(keepCapacity: true)
+            self.modelToView.removeAll(keepCapacity: true)
+            self.viewToModel.removeAll(keepCapacity: true)
             
             self.resetKeyPool()
             
@@ -529,8 +536,8 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
             let setupKey = { (view: KeyboardKey, model: Key, frame: CGRect) -> Void in
                 view.hidden = false
                 view.frame = frame
-                self.modelToView?[model] = view
-                self.viewToModel?[view] = model
+                self.modelToView[model] = view
+                self.viewToModel[view] = model
             }
             
             var foundCachedKeys = [Key]()
@@ -553,8 +560,8 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
                 setupKey(keyView, key, frame)
             }
             
-            self.updateKeyCaps(uppercase, characterUppercase: characterUppercase)
-            self.updateKeyAppearance(self.model, views: self.modelToView)
+            self.updateKeyAppearance()
+            self.updateKeyCaps(uppercase, characterUppercase: characterUppercase, shiftState: shiftState)
             
             CATransaction.commit()
         }

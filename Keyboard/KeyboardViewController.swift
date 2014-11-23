@@ -57,22 +57,6 @@ class KeyboardViewController: UIInputViewController {
     var autoPeriodState: AutoPeriodState = .NoSpace
     var lastCharCountInBeforeContext: Int = 0
     
-    enum ShiftState {
-        case Disabled
-        case Enabled
-        case Locked
-        
-        func uppercase() -> Bool {
-            switch self {
-            case Disabled:
-                return false
-            case Enabled:
-                return true
-            case Locked:
-                return true
-            }
-        }
-    }
     var shiftState: ShiftState {
         didSet {
             switch shiftState {
@@ -238,7 +222,7 @@ class KeyboardViewController: UIInputViewController {
             let characterUppercase = (NSUserDefaults.standardUserDefaults().boolForKey(kSmallLowercase) ? uppercase : true)
             
             self.forwardingView.frame = orientationSavvyBounds
-            self.layout?.layoutKeys(0, uppercase: uppercase, characterUppercase: characterUppercase)
+            self.layout?.layoutKeys(0, uppercase: uppercase, characterUppercase: characterUppercase, shiftState: self.shiftState)
             self.lastLayoutBounds = orientationSavvyBounds
             self.setupKeys()
         }
@@ -418,7 +402,7 @@ class KeyboardViewController: UIInputViewController {
     func updateAppearances(appearanceIsDark: Bool) {
         self.layout?.solidColorMode = self.solidColorMode()
         self.layout?.darkMode = appearanceIsDark
-        self.layout?.updateKeyAppearanceTemp()
+        self.layout?.updateKeyAppearance()
         
         self.bannerView?.darkMode = appearanceIsDark
         self.settingsView?.darkMode = appearanceIsDark
@@ -586,32 +570,12 @@ class KeyboardViewController: UIInputViewController {
     }
     
     func updateKeyCaps(uppercase: Bool) {
-        if self.layout != nil {
-            let characterUppercase = (NSUserDefaults.standardUserDefaults().boolForKey(kSmallLowercase) ? uppercase : true)
-            self.layout?.updateKeyCaps(uppercase, characterUppercase: characterUppercase)
-
-            // TODO: move
-            if let modelToView = self.layout?.modelToView {
-                for (model, key) in modelToView {
-                    if model.type == Key.KeyType.Shift {
-                        switch self.shiftState {
-                        case .Disabled:
-                            key.highlighted = false
-                        case .Enabled:
-                            key.highlighted = true
-                        case .Locked:
-                            key.highlighted = true
-                        }
-                        
-                        (key.shape as? ShiftShape)?.withLock = (self.shiftState == .Locked)
-                    }
-                }
-            }
-        }
+        let characterUppercase = (NSUserDefaults.standardUserDefaults().boolForKey(kSmallLowercase) ? uppercase : true)
+        self.layout?.updateKeyCaps(uppercase, characterUppercase: characterUppercase, shiftState: self.shiftState)
     }
     
     func modeChangeTapped(sender: KeyboardKey) {
-        if let toMode = self.layout?.viewToModel?[sender]?.toMode {
+        if let toMode = self.layout?.viewToModel[sender]?.toMode {
             self.currentMode = toMode
         }
     }
@@ -619,7 +583,7 @@ class KeyboardViewController: UIInputViewController {
     func setMode(mode: Int) {
         let uppercase = self.shiftState.uppercase()
         let characterUppercase = (NSUserDefaults.standardUserDefaults().boolForKey(kSmallLowercase) ? uppercase : true)
-        self.layout?.layoutKeys(mode, uppercase: uppercase, characterUppercase: characterUppercase)
+        self.layout?.layoutKeys(mode, uppercase: uppercase, characterUppercase: characterUppercase, shiftState: self.shiftState)
         
         self.setupKeys()
     }
