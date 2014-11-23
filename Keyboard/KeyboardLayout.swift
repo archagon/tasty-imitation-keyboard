@@ -291,14 +291,22 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
     
     func updateKeyAppearance(keyboard: Keyboard, views optionalViews: [Key:KeyboardKey]?) {
         if let views = optionalViews {
-            CATransaction.begin()
-            CATransaction.setDisableActions(true)
-            
             for (key, view) in views {
                 self.setAppearanceForKey(view, model: key, darkMode: self.darkMode, solidColorMode: self.solidColorMode)
             }
-            
-            CATransaction.commit()
+        }
+    }
+    
+    func updateKeyCaps(uppercase: Bool, characterUppercase: Bool) {
+        if let modelToView = self.modelToView {
+            for (model, key) in modelToView {
+                if model.type == .Character {
+                    key.text = model.keyCapForCase(characterUppercase)
+                }
+                else {
+                    key.text = model.keyCapForCase(uppercase)
+                }
+            }
         }
     }
     
@@ -306,6 +314,15 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         if model.type == Key.KeyType.Other {
             self.setAppearanceForOtherKey(key, model: model, darkMode: darkMode, solidColorMode: solidColorMode)
         }
+        
+        // reset
+        key.shape = nil
+        if let imageKey = key as? ImageKey { // TODO:
+            imageKey.image = nil
+        }
+        key.hidePopup()
+        key.highlighted = false
+        key.label.font = key.label.font.fontWithSize(22)
         
         switch model.type {
         case
@@ -434,9 +451,13 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         }
     }
     
+    func createNewKey() -> KeyboardKey {
+        return ImageKey(vibrancy: nil)
+    }
+    
     func generateKey() -> KeyboardKey {
-        let createKey = { () -> KeyboardKey in
-            var keyView = KeyboardKey(vibrancy: nil)
+        let createAndSetupNewKey = { () -> KeyboardKey in
+            var keyView = self.createNewKey()
             
             keyView.enabled = true
             keyView.delegate = self
@@ -463,11 +484,11 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
                 return key
             }
             else {
-                return createKey()
+                return createAndSetupNewKey()
             }
         }
         else {
-            return createKey()
+            return createAndSetupNewKey()
         }
     }
     
@@ -491,9 +512,8 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
     // LAYOUT FUNCTIONS //
     //////////////////////
     
-    // TODO: temp
-    func layoutTemp(pageNum: Int) {
-        if var keyMap = self.layoutKeys(self.model, bounds: self.superview.bounds, page: pageNum) {
+    func layoutKeys(pageNum: Int, uppercase: Bool, characterUppercase: Bool) {
+        if var keyMap = self.generateKeyFrames(self.model, bounds: self.superview.bounds, page: pageNum) {
             CATransaction.begin()
             CATransaction.setDisableActions(true)
             
@@ -502,15 +522,11 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
             
             self.resetKeyPool()
             
-            // TODO: move elsewhere
             for keyView in self.keyPool {
-                keyView.hidePopup()
                 keyView.hidden = true
-                keyView.highlighted = false
             }
             
             let setupKey = { (view: KeyboardKey, model: Key, frame: CGRect) -> Void in
-//                view.text = "?"
                 view.hidden = false
                 view.frame = frame
                 self.modelToView?[model] = view
@@ -537,21 +553,18 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
                 setupKey(keyView, key, frame)
             }
             
-            self.updateKeyAppearanceTemp()
+            self.updateKeyCaps(uppercase, characterUppercase: characterUppercase)
+            self.updateKeyAppearance(self.model, views: self.modelToView)
             
             CATransaction.commit()
         }
-    }
-
-    func updateKeyAppearanceTemp() {
-        self.updateKeyAppearance(self.model, views: self.modelToView)
     }
     
     func rounded(measurement: CGFloat) -> CGFloat {
         return round(measurement * UIScreen.mainScreen().scale) / UIScreen.mainScreen().scale
     }
     
-    func layoutKeys(model: Keyboard, bounds: CGRect, page pageToLayout: Int) -> [Key:CGRect]? {
+    func generateKeyFrames(model: Keyboard, bounds: CGRect, page pageToLayout: Int) -> [Key:CGRect]? {
         if bounds.height == 0 || bounds.width == 0 {
             return nil
         }
