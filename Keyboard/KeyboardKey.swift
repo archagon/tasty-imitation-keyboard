@@ -83,6 +83,9 @@ class KeyboardKey: UIControl {
     var popupLabel: UILabel?
     var shape: Shape? {
         didSet {
+            if oldValue != nil && shape == nil {
+                oldValue?.removeFromSuperview()
+            }
             self.redrawShape()
             updateColors()
         }
