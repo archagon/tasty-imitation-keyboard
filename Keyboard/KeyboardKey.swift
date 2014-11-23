@@ -177,7 +177,7 @@ class KeyboardKey: UIControl {
         if self.bounds.width == 0 || self.bounds.height == 0 {
             return
         }
-        if oldBounds != nil && CGRectEqualToRect(boundingBox, oldBounds!) {
+        if oldBounds != nil && CGSizeEqualToSize(boundingBox.size, oldBounds!.size) {
             return
         }
         oldBounds = boundingBox
