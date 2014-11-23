@@ -55,9 +55,11 @@ class CatboardBanner: ExtraView {
     func updateAppearance() {
         if self.catSwitch.on {
             self.catLabel.text = "😺"
+            self.catLabel.alpha = 1
         }
         else {
             self.catLabel.text = "🐱"
+            self.catLabel.alpha = 0.5
         }
         
         self.catLabel.sizeToFit()

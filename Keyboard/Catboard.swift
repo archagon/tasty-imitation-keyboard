@@ -17,10 +17,10 @@ let kCatTypeEnabled = "kCatTypeEnabled"
 
 class Catboard: KeyboardViewController {
     
-    var runningKeystrokes: Int = 0
+    let takeDebugScreenshot: Bool = false
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
-        NSUserDefaults.standardUserDefaults().registerDefaults([kCatTypeEnabled: false])
+        NSUserDefaults.standardUserDefaults().registerDefaults([kCatTypeEnabled: true])
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
     }
 
@@ -75,8 +75,6 @@ class Catboard: KeyboardViewController {
             }
         }
     }
-    
-    let takeDebugScreenshot: Bool = false
     
     override func setupKeys() {
         super.setupKeys()
