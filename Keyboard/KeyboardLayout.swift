@@ -289,14 +289,84 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         return self.viewToModel[key]
     }
     
-    func updateKeyAppearance() {
-        for (key, view) in self.modelToView {
-            self.setAppearanceForKey(view, model: key, darkMode: self.darkMode, solidColorMode: self.solidColorMode)
+    //////////////////////////////////////////////
+    // CALL THESE FOR LAYOUT/APPEARANCE CHANGES //
+    //////////////////////////////////////////////
+    
+    func layoutKeys(pageNum: Int, uppercase: Bool, characterUppercase: Bool, shiftState: ShiftState) {
+        if var keyMap = self.generateKeyFrames(self.model, bounds: self.superview.bounds, page: pageNum) {
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            
+            self.modelToView.removeAll(keepCapacity: true)
+            self.viewToModel.removeAll(keepCapacity: true)
+            
+            self.resetKeyPool()
+            
+            // reset state
+            for keyView in self.keyPool {
+                keyView.hidePopup()
+                keyView.highlighted = false
+                keyView.hidden = true
+            }
+            
+            let setupKey = { (view: KeyboardKey, model: Key, frame: CGRect) -> Void in
+                view.hidden = false
+                view.frame = frame
+                self.modelToView[model] = view
+                self.viewToModel[view] = model
+            }
+            
+            var foundCachedKeys = [Key]()
+            
+            // pass 1: reuse any keys that match the required size
+            for (key, frame) in keyMap {
+                if let keyView = self.pooledKey(frame) {
+                    foundCachedKeys.append(key)
+                    setupKey(keyView, key, frame)
+                }
+            }
+            
+            foundCachedKeys.map {
+                keyMap.removeValueForKey($0)
+            }
+            
+            // pass 2: fill in the blanks
+            for (key, frame) in keyMap {
+                var keyView = self.generateKey()
+                setupKey(keyView, key, frame)
+            }
+            
+            self.updateKeyAppearance()
+            self.updateKeyCaps(uppercase, characterUppercase: characterUppercase, shiftState: shiftState)
+            
+            CATransaction.commit()
         }
     }
     
+    func updateKeyAppearance() {
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        
+        for (key, view) in self.modelToView {
+            self.setAppearanceForKey(view, model: key, darkMode: self.darkMode, solidColorMode: self.solidColorMode)
+        }
+        
+        CATransaction.commit()
+    }
+    
     func updateKeyCaps(uppercase: Bool, characterUppercase: Bool, shiftState: ShiftState) {
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        
         for (model, key) in self.modelToView {
+            // reset
+            key.shape = nil
+            if let imageKey = key as? ImageKey { // TODO:
+                imageKey.image = nil
+            }
+            key.label.font = key.label.font.fontWithSize(22)
+            
             if model.type == .Character {
                 key.text = model.keyCapForCase(characterUppercase)
             }
@@ -346,22 +416,31 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
                     }
                 }
             }
+            
+            // font sizing
+            switch model.type {
+            case
+            Key.KeyType.ModeChange,
+            Key.KeyType.Space,
+            Key.KeyType.Return:
+                key.label.adjustsFontSizeToFitWidth = true
+                key.label.font = key.label.font.fontWithSize(16)
+            default:
+                break
+            }
         }
+        
+        CATransaction.commit()
     }
+    
+    ///////////////
+    // END CALLS //
+    ///////////////
     
     func setAppearanceForKey(key: KeyboardKey, model: Key, darkMode: Bool, solidColorMode: Bool) {
         if model.type == Key.KeyType.Other {
             self.setAppearanceForOtherKey(key, model: model, darkMode: darkMode, solidColorMode: solidColorMode)
         }
-        
-        // reset
-        key.shape = nil
-        if let imageKey = key as? ImageKey { // TODO:
-            imageKey.image = nil
-        }
-        key.hidePopup()
-        key.highlighted = false
-        key.label.font = key.label.font.fontWithSize(22)
         
         switch model.type {
         case
@@ -411,20 +490,6 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         
         key.underColor = (self.darkMode ? self.globalColors.darkModeUnderColor : self.globalColors.lightModeUnderColor)
         key.borderColor = (self.darkMode ? self.globalColors.darkModeBorderColor : self.globalColors.lightModeBorderColor)
-        
-        // TODO: remove these to another method, since they shouldn't be called multiple times
-        
-        // font sizing
-        switch model.type {
-        case
-        Key.KeyType.ModeChange,
-        Key.KeyType.Space,
-        Key.KeyType.Return:
-            key.label.adjustsFontSizeToFitWidth = true
-            key.label.font = key.label.font.fontWithSize(16)
-        default:
-            break
-        }
     }
     
     func setAppearanceForOtherKey(key: KeyboardKey, model: Key, darkMode: Bool, solidColorMode: Bool) { /* override this to handle special keys */ }
@@ -518,54 +583,6 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
     //////////////////////
     // LAYOUT FUNCTIONS //
     //////////////////////
-    
-    func layoutKeys(pageNum: Int, uppercase: Bool, characterUppercase: Bool, shiftState: ShiftState) {
-        if var keyMap = self.generateKeyFrames(self.model, bounds: self.superview.bounds, page: pageNum) {
-            CATransaction.begin()
-            CATransaction.setDisableActions(true)
-            
-            self.modelToView.removeAll(keepCapacity: true)
-            self.viewToModel.removeAll(keepCapacity: true)
-            
-            self.resetKeyPool()
-            
-            for keyView in self.keyPool {
-                keyView.hidden = true
-            }
-            
-            let setupKey = { (view: KeyboardKey, model: Key, frame: CGRect) -> Void in
-                view.hidden = false
-                view.frame = frame
-                self.modelToView[model] = view
-                self.viewToModel[view] = model
-            }
-            
-            var foundCachedKeys = [Key]()
-            
-            // pass 1: get cached keys
-            for (key, frame) in keyMap {
-                if let keyView = self.pooledKey(frame) {
-                    foundCachedKeys.append(key)
-                    setupKey(keyView, key, frame)
-                }
-            }
-            
-            foundCachedKeys.map {
-                keyMap.removeValueForKey($0)
-            }
-            
-            // pass 2: fill in the blanks
-            for (key, frame) in keyMap {
-                var keyView = self.generateKey()
-                setupKey(keyView, key, frame)
-            }
-            
-            self.updateKeyAppearance()
-            self.updateKeyCaps(uppercase, characterUppercase: characterUppercase, shiftState: shiftState)
-            
-            CATransaction.commit()
-        }
-    }
     
     func rounded(measurement: CGFloat) -> CGFloat {
         return round(measurement * UIScreen.mainScreen().scale) / UIScreen.mainScreen().scale

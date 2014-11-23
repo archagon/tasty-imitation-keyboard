@@ -222,7 +222,7 @@ class KeyboardViewController: UIInputViewController {
             let characterUppercase = (NSUserDefaults.standardUserDefaults().boolForKey(kSmallLowercase) ? uppercase : true)
             
             self.forwardingView.frame = orientationSavvyBounds
-            self.layout?.layoutKeys(0, uppercase: uppercase, characterUppercase: characterUppercase, shiftState: self.shiftState)
+            self.layout?.layoutKeys(self.currentMode, uppercase: uppercase, characterUppercase: characterUppercase, shiftState: self.shiftState)
             self.lastLayoutBounds = orientationSavvyBounds
             self.setupKeys()
         }
