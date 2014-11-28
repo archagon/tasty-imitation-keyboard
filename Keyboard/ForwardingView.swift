@@ -38,7 +38,7 @@ class ForwardingView: UIView {
     override func drawRect(rect: CGRect) {}
     
     override func hitTest(point: CGPoint, withEvent event: UIEvent!) -> UIView? {
-        if self.hidden || self.alpha == 0 {
+        if self.hidden || self.alpha == 0 || !self.userInteractionEnabled {
             return nil
         }
         else {
