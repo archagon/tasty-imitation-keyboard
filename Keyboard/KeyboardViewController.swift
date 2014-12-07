@@ -422,13 +422,13 @@ class KeyboardViewController: UIInputViewController {
 
             // auto exit from special char subkeyboard
             if model.type == Key.KeyType.Space || model.type == Key.KeyType.Return {
-                self.setMode(0)
+                self.currentMode = 0
             }
             else if model.lowercaseOutput == "'" {
-                self.setMode(0)
+                self.currentMode = 0
             }
             else if model.type == Key.KeyType.Character {
-                self.setMode(0)
+                self.currentMode = 0
             }
             
             // auto period on double space
