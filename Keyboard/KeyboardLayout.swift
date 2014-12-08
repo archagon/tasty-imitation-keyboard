@@ -391,17 +391,6 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
                         let shiftShape = self.getShape(ShiftShape)
                         key.shape = shiftShape
                     }
-                    
-                    switch shiftState {
-                    case .Disabled:
-                        key.highlighted = false
-                    case .Enabled:
-                        key.highlighted = true
-                    case .Locked:
-                        key.highlighted = true
-                    }
-                    
-                    (key.shape as? ShiftShape)?.withLock = (shiftState == .Locked)
                 case Key.KeyType.Backspace:
                     if key.shape == nil {
                         let backspaceShape = self.getShape(BackspaceShape)
@@ -428,6 +417,24 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
                 }
             }
             
+            if model.type == Key.KeyType.Shift {
+                if key.shape == nil {
+                    let shiftShape = self.getShape(ShiftShape)
+                    key.shape = shiftShape
+                }
+                
+                switch shiftState {
+                case .Disabled:
+                    key.highlighted = false
+                case .Enabled:
+                    key.highlighted = true
+                case .Locked:
+                    key.highlighted = true
+                }
+                
+                (key.shape as? ShiftShape)?.withLock = (shiftState == .Locked)
+            }
+                
             if model.type == .Character {
                 key.text = model.keyCapForCase(characterUppercase)
             }
