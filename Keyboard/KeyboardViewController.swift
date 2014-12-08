@@ -571,7 +571,7 @@ class KeyboardViewController: UIInputViewController {
     
     func updateKeyCaps(uppercase: Bool) {
         let characterUppercase = (NSUserDefaults.standardUserDefaults().boolForKey(kSmallLowercase) ? uppercase : true)
-        self.layout?.updateKeyCaps(uppercase, characterUppercase: characterUppercase, shiftState: self.shiftState)
+        self.layout?.updateKeyCaps(false, uppercase: uppercase, characterUppercase: characterUppercase, shiftState: self.shiftState)
     }
     
     func modeChangeTapped(sender: KeyboardKey) {

@@ -258,6 +258,7 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
     
     var keyPool: [KeyboardKey] = []
     var sizeToKeyMap: [CGSize:[KeyboardKey]] = [:]
+    var shapePool: [String:Shape] = [:]
     
     var darkMode: Bool
     var solidColorMode: Bool
@@ -338,7 +339,7 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
             }
             
             self.updateKeyAppearance()
-            self.updateKeyCaps(uppercase, characterUppercase: characterUppercase, shiftState: shiftState)
+            self.updateKeyCaps(true, uppercase: uppercase, characterUppercase: characterUppercase, shiftState: shiftState)
             
             CATransaction.commit()
         }
@@ -355,78 +356,83 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         CATransaction.commit()
     }
     
-    func updateKeyCaps(uppercase: Bool, characterUppercase: Bool, shiftState: ShiftState) {
+    // on fullReset, we update the keys with shapes, images, etc. as if from scratch; otherwise, just update the text
+    func updateKeyCaps(fullReset: Bool, uppercase: Bool, characterUppercase: Bool, shiftState: ShiftState) {
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         
-        for (model, key) in self.modelToView {
-            // reset
-            key.shape = nil
-            if let imageKey = key as? ImageKey { // TODO:
-                imageKey.image = nil
+        if fullReset {
+            for (_, key) in self.modelToView {
+                key.shape = nil
+                
+                if let imageKey = key as? ImageKey { // TODO:
+                    imageKey.image = nil
+                }
             }
-            key.label.font = key.label.font.fontWithSize(22)
+        }
+        
+        for (model, key) in self.modelToView {
+            if fullReset {
+                switch model.type {
+                case
+                Key.KeyType.ModeChange,
+                Key.KeyType.Space,
+                Key.KeyType.Return:
+                    key.label.adjustsFontSizeToFitWidth = true
+                    key.label.font = key.label.font.fontWithSize(16)
+                default:
+                    key.label.font = key.label.font.fontWithSize(22)
+                }
+                
+                // shapes
+                switch model.type {
+                case Key.KeyType.Shift:
+                    if key.shape == nil {
+                        let shiftShape = self.getShape(ShiftShape)
+                        key.shape = shiftShape
+                    }
+                    
+                    switch shiftState {
+                    case .Disabled:
+                        key.highlighted = false
+                    case .Enabled:
+                        key.highlighted = true
+                    case .Locked:
+                        key.highlighted = true
+                    }
+                    
+                    (key.shape as? ShiftShape)?.withLock = (shiftState == .Locked)
+                case Key.KeyType.Backspace:
+                    if key.shape == nil {
+                        let backspaceShape = self.getShape(BackspaceShape)
+                        key.shape = backspaceShape
+                    }
+                case Key.KeyType.KeyboardChange:
+                    if key.shape == nil {
+                        let globeShape = self.getShape(GlobeShape)
+                        key.shape = globeShape
+                    }
+                default:
+                    break
+                }
+                
+                // images
+                if model.type == Key.KeyType.Settings {
+                    if let imageKey = key as? ImageKey {
+                        if imageKey.image == nil {
+                            var gearImage = UIImage(named: "gear")
+                            var settingsImageView = UIImageView(image: gearImage)
+                            imageKey.image = settingsImageView
+                        }
+                    }
+                }
+            }
             
             if model.type == .Character {
                 key.text = model.keyCapForCase(characterUppercase)
             }
             else {
                 key.text = model.keyCapForCase(uppercase)
-            }
-            
-            // shapes
-            switch model.type {
-            case Key.KeyType.Shift:
-                if key.shape == nil {
-                    let shiftShape = ShiftShape()
-                    key.shape = shiftShape
-                }
-                
-                switch shiftState {
-                case .Disabled:
-                    key.highlighted = false
-                case .Enabled:
-                    key.highlighted = true
-                case .Locked:
-                    key.highlighted = true
-                }
-                
-                (key.shape as? ShiftShape)?.withLock = (shiftState == .Locked)
-            case Key.KeyType.Backspace:
-                if key.shape == nil {
-                    let backspaceShape = BackspaceShape()
-                    key.shape = backspaceShape
-                }
-            case Key.KeyType.KeyboardChange:
-                if key.shape == nil {
-                    let globeShape = GlobeShape()
-                    key.shape = globeShape
-                }
-            default:
-                break
-            }
-            
-            // images
-            if model.type == Key.KeyType.Settings {
-                if let imageKey = key as? ImageKey {
-                    if imageKey.image == nil {
-                        var gearImage = UIImage(named: "gear")
-                        var settingsImageView = UIImageView(image: gearImage)
-                        imageKey.image = settingsImageView
-                    }
-                }
-            }
-            
-            // font sizing
-            switch model.type {
-            case
-            Key.KeyType.ModeChange,
-            Key.KeyType.Space,
-            Key.KeyType.Return:
-                key.label.adjustsFontSizeToFitWidth = true
-                key.label.font = key.label.font.fontWithSize(16)
-            default:
-                break
             }
         }
         
@@ -577,6 +583,20 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
                 keyArray.append(key)
                 self.sizeToKeyMap[key.frame.size] = keyArray
             }
+        }
+    }
+    
+    // TODO: no support for more than one of the same shape
+    func getShape(shapeClass: Shape.Type) -> Shape {
+        let className = NSStringFromClass(shapeClass)
+        
+        if let shape = self.shapePool[className] {
+            return shape
+        }
+        else {
+            var shape = shapeClass(frame: CGRectZero)
+            self.shapePool[className] = shape
+            return shape
         }
     }
     

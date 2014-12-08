@@ -54,7 +54,7 @@ class Shape: UIView {
         self.init(frame: CGRectZero)
     }
     
-    override init(frame: CGRect) {
+    override required init(frame: CGRect) {
         super.init(frame: frame)
         
         self.opaque = false
