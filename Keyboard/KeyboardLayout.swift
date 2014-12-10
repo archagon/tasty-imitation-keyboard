@@ -253,8 +253,8 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
     var layoutConstants: LayoutConstants.Type
     var globalColors: GlobalColors.Type
     
-    var model: Keyboard
-    var superview: UIView
+    unowned var model: Keyboard
+    unowned var superview: UIView
     var modelToView: [Key:KeyboardKey] = [:]
     var viewToModel: [KeyboardKey:Key] = [:]
     

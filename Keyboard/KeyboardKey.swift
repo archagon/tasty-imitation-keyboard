@@ -12,7 +12,7 @@ import UIKit
 // TODO: refactor
 
 // popup constraints have to be setup with the topmost view in mind; hence these callbacks
-protocol KeyboardKeyProtocol {
+protocol KeyboardKeyProtocol: class {
     func frameForPopup(key: KeyboardKey, direction: Direction) -> CGRect
     func willShowPopup(key: KeyboardKey, direction: Direction) //may be called multiple times during layout
     func willHidePopup(key: KeyboardKey)
@@ -26,7 +26,7 @@ enum VibrancyType {
 
 class KeyboardKey: UIControl {
     
-    var delegate: KeyboardKeyProtocol?
+    weak var delegate: KeyboardKeyProtocol?
     
     var vibrancy: VibrancyType?
     
@@ -571,5 +571,3 @@ class ShapeView: UIView {
 //        }
 //    }
 }
-
-//var layerCache[CGSize:CALayer] = [:]

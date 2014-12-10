@@ -94,8 +94,7 @@ class Shape: UIView {
     func drawCall(color: UIColor) { /* override me! */ }
     
     class OverflowCanvas: UIView {
-        // TODO: retain cycle? does swift even have those?
-        var shape: Shape
+        unowned var shape: Shape
         
         init(shape: Shape) {
             self.shape = shape
