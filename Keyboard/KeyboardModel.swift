@@ -10,6 +10,23 @@ import Foundation
 
 var counter = 0
 
+enum ShiftState {
+    case Disabled
+    case Enabled
+    case Locked
+    
+    func uppercase() -> Bool {
+        switch self {
+        case Disabled:
+            return false
+        case Enabled:
+            return true
+        case Locked:
+            return true
+        }
+    }
+}
+
 class Keyboard {
     var pages: [Page]
     

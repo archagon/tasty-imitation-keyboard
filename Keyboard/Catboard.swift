@@ -13,13 +13,29 @@ This is the demo keyboard. If you're implementing your own keyboard, simply foll
 set the name of your KeyboardViewController subclass in the Info.plist file.
 */
 
+let kCatTypeEnabled = "kCatTypeEnabled"
+
 class Catboard: KeyboardViewController {
     
-    var runningKeystrokes: Int = 0
+    let takeDebugScreenshot: Bool = false
+    
+    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
+        NSUserDefaults.standardUserDefaults().registerDefaults([kCatTypeEnabled: true])
+        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
+    }
+
+    required init(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func keyPressed(key: Key) {
         if let textDocumentProxy = self.textDocumentProxy as? UITextDocumentProxy {
             let keyOutput = key.outputForCase(self.shiftState.uppercase())
+            
+            if !NSUserDefaults.standardUserDefaults().boolForKey(kCatTypeEnabled) {
+                textDocumentProxy.insertText(keyOutput)
+                return
+            }
             
             if key.type == .Character || key.type == .SpecialCharacter {
                 let context = textDocumentProxy.documentContextBeforeInput
@@ -60,8 +76,6 @@ class Catboard: KeyboardViewController {
         }
     }
     
-    let takeDebugScreenshot: Bool = false
-    
     override func setupKeys() {
         super.setupKeys()
         
@@ -80,6 +94,10 @@ class Catboard: KeyboardViewController {
                 }
             }
         }
+    }
+    
+    override func createBanner() -> ExtraView? {
+        return CatboardBanner(globalColors: self.dynamicType.globalColors, darkMode: false, solidColorMode: self.solidColorMode())
     }
     
     func takeScreenshotDelay() {

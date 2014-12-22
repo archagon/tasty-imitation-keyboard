@@ -54,7 +54,7 @@ class Shape: UIView {
         self.init(frame: CGRectZero)
     }
     
-    override init(frame: CGRect) {
+    override required init(frame: CGRect) {
         super.init(frame: frame)
         
         self.opaque = false
@@ -94,8 +94,7 @@ class Shape: UIView {
     func drawCall(color: UIColor) { /* override me! */ }
     
     class OverflowCanvas: UIView {
-        // TODO: retain cycle? does swift even have those?
-        var shape: Shape
+        unowned var shape: Shape
         
         init(shape: Shape) {
             self.shape = shape

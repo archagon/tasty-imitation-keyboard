@@ -15,23 +15,20 @@ with something (or leave it blank if you like.)
 
 class CatboardBanner: ExtraView {
     
-    var label: UILabel = UILabel()
-    
-    var catChangeTimer: NSTimer?
-    var marqueeTimer: NSTimer?
-    var marqueeOffset: CGFloat = 0
+    var catSwitch: UISwitch = UISwitch()
+    var catLabel: UILabel = UILabel()
     
     required init(globalColors: GlobalColors.Type?, darkMode: Bool, solidColorMode: Bool) {
         super.init(globalColors: globalColors, darkMode: darkMode, solidColorMode: solidColorMode)
         
-        self.addSubview(self.label)
+        self.addSubview(self.catSwitch)
+        self.addSubview(self.catLabel)
         
-        self.label.font = UIFont(name: "ChalkboardSE-Regular", size: 22)
-        self.updateText()
-        self.label.sizeToFit()
+        self.catSwitch.on = NSUserDefaults.standardUserDefaults().boolForKey(kCatTypeEnabled)
+        self.catSwitch.transform = CGAffineTransformMakeScale(0.75, 0.75)
+        self.catSwitch.addTarget(self, action: Selector("respondToSwitch"), forControlEvents: UIControlEvents.ValueChanged)
         
-        self.startCatChangeTimer()
-        self.startMarqueeTimer()
+        self.updateAppearance()
     }
 
     required init(coder aDecoder: NSCoder) {
@@ -44,31 +41,27 @@ class CatboardBanner: ExtraView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        self.label.center.y = self.center.y
+
+        self.catSwitch.center = self.center
+        self.catLabel.center = self.center
+        self.catLabel.frame.origin = CGPointMake(self.catSwitch.frame.origin.x + self.catSwitch.frame.width + 8, self.catLabel.frame.origin.y)
     }
     
-    func startCatChangeTimer() {
-        self.catChangeTimer?.invalidate()
-        self.catChangeTimer = NSTimer.scheduledTimerWithTimeInterval(0.5, target: self, selector: "updateText", userInfo: nil, repeats: true)
+    func respondToSwitch() {
+        NSUserDefaults.standardUserDefaults().setBool(self.catSwitch.on, forKey: kCatTypeEnabled)
+        self.updateAppearance()
     }
     
-    func startMarqueeTimer() {
-        self.marqueeTimer?.invalidate()
-        self.marqueeTimer = NSTimer.scheduledTimerWithTimeInterval(1/60.0, target: self, selector: "updateMarquee", userInfo: nil, repeats: true)
-    }
-    
-    func updateText() {
-        self.label.text = "\(randomCat()) WELCOME TO CATBOARD \(randomCat()) WELCOME TO CATBOARD \(randomCat()) WELCOME TO CATBOARD \(randomCat())"
-    }
-    
-    func updateMarquee() {
-        self.marqueeOffset -= 1
-        
-        let manualOffset: CGFloat = 295
-        if self.marqueeOffset <= -manualOffset {
-            self.marqueeOffset += manualOffset
+    func updateAppearance() {
+        if self.catSwitch.on {
+            self.catLabel.text = "😺"
+            self.catLabel.alpha = 1
+        }
+        else {
+            self.catLabel.text = "🐱"
+            self.catLabel.alpha = 0.5
         }
         
-        self.label.transform = CGAffineTransformMakeTranslation(self.marqueeOffset, 0)
+        self.catLabel.sizeToFit()
     }
 }
