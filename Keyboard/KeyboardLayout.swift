@@ -420,6 +420,7 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
     
     func updateKeyCap(key: KeyboardKey, model: Key, fullReset: Bool, uppercase: Bool, characterUppercase: Bool, shiftState: ShiftState) {
         if fullReset {
+            // font size
             switch model.type {
             case
             Key.KeyType.ModeChange,
@@ -429,6 +430,15 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
                 key.label.font = key.label.font.fontWithSize(16)
             default:
                 key.label.font = key.label.font.fontWithSize(22)
+            }
+            
+            // label inset
+            switch model.type {
+            case
+            Key.KeyType.ModeChange:
+                key.labelInset = 3
+            default:
+                key.labelInset = 0
             }
             
             // shapes
@@ -532,7 +542,6 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         Key.KeyType.ModeChange:
             key.color = self.globalColors.specialKey(darkMode, solidColorMode: solidColorMode)
             key.textColor = (darkMode ? self.globalColors.darkModeTextColor : self.globalColors.lightModeTextColor)
-            key.labelInset = 3
         case
         Key.KeyType.Return,
         Key.KeyType.KeyboardChange,

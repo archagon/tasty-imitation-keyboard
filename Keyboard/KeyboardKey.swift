@@ -55,7 +55,9 @@ class KeyboardKey: UIControl {
     
     var labelInset: CGFloat = 0 {
         didSet {
-            self.label.frame = CGRectMake(self.labelInset, self.labelInset, self.bounds.width - self.labelInset * 2, self.bounds.height - self.labelInset * 2)
+            if oldValue != labelInset {
+                self.label.frame = CGRectMake(self.labelInset, self.labelInset, self.bounds.width - self.labelInset * 2, self.bounds.height - self.labelInset * 2)
+            }
         }
     }
     
