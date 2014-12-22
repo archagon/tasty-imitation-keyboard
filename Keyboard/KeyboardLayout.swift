@@ -412,78 +412,82 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         }
         
         for (model, key) in self.modelToView {
-            if fullReset {
-                switch model.type {
-                case
-                Key.KeyType.ModeChange,
-                Key.KeyType.Space,
-                Key.KeyType.Return:
-                    key.label.adjustsFontSizeToFitWidth = true
-                    key.label.font = key.label.font.fontWithSize(16)
-                default:
-                    key.label.font = key.label.font.fontWithSize(22)
-                }
-                
-                // shapes
-                switch model.type {
-                case Key.KeyType.Shift:
-                    if key.shape == nil {
-                        let shiftShape = self.getShape(ShiftShape)
-                        key.shape = shiftShape
-                    }
-                case Key.KeyType.Backspace:
-                    if key.shape == nil {
-                        let backspaceShape = self.getShape(BackspaceShape)
-                        key.shape = backspaceShape
-                    }
-                case Key.KeyType.KeyboardChange:
-                    if key.shape == nil {
-                        let globeShape = self.getShape(GlobeShape)
-                        key.shape = globeShape
-                    }
-                default:
-                    break
-                }
-                
-                // images
-                if model.type == Key.KeyType.Settings {
-                    if let imageKey = key as? ImageKey {
-                        if imageKey.image == nil {
-                            var gearImage = UIImage(named: "gear")
-                            var settingsImageView = UIImageView(image: gearImage)
-                            imageKey.image = settingsImageView
-                        }
-                    }
-                }
+            self.updateKeyCap(key, model: model, fullReset: fullReset, uppercase: uppercase, characterUppercase: characterUppercase, shiftState: shiftState)
+        }
+        
+        CATransaction.commit()
+    }
+    
+    func updateKeyCap(key: KeyboardKey, model: Key, fullReset: Bool, uppercase: Bool, characterUppercase: Bool, shiftState: ShiftState) {
+        if fullReset {
+            switch model.type {
+            case
+            Key.KeyType.ModeChange,
+            Key.KeyType.Space,
+            Key.KeyType.Return:
+                key.label.adjustsFontSizeToFitWidth = true
+                key.label.font = key.label.font.fontWithSize(16)
+            default:
+                key.label.font = key.label.font.fontWithSize(22)
             }
             
-            if model.type == Key.KeyType.Shift {
+            // shapes
+            switch model.type {
+            case Key.KeyType.Shift:
                 if key.shape == nil {
                     let shiftShape = self.getShape(ShiftShape)
                     key.shape = shiftShape
                 }
-                
-                switch shiftState {
-                case .Disabled:
-                    key.highlighted = false
-                case .Enabled:
-                    key.highlighted = true
-                case .Locked:
-                    key.highlighted = true
+            case Key.KeyType.Backspace:
+                if key.shape == nil {
+                    let backspaceShape = self.getShape(BackspaceShape)
+                    key.shape = backspaceShape
                 }
-                
-                (key.shape as? ShiftShape)?.withLock = (shiftState == .Locked)
+            case Key.KeyType.KeyboardChange:
+                if key.shape == nil {
+                    let globeShape = self.getShape(GlobeShape)
+                    key.shape = globeShape
+                }
+            default:
+                break
             }
-                
-            if model.type == .Character {
-                key.text = model.keyCapForCase(characterUppercase)
-            }
-            else {
-                key.text = model.keyCapForCase(uppercase)
+            
+            // images
+            if model.type == Key.KeyType.Settings {
+                if let imageKey = key as? ImageKey {
+                    if imageKey.image == nil {
+                        var gearImage = UIImage(named: "gear")
+                        var settingsImageView = UIImageView(image: gearImage)
+                        imageKey.image = settingsImageView
+                    }
+                }
             }
         }
         
-        CATransaction.commit()
+        if model.type == Key.KeyType.Shift {
+            if key.shape == nil {
+                let shiftShape = self.getShape(ShiftShape)
+                key.shape = shiftShape
+            }
+            
+            switch shiftState {
+            case .Disabled:
+                key.highlighted = false
+            case .Enabled:
+                key.highlighted = true
+            case .Locked:
+                key.highlighted = true
+            }
+            
+            (key.shape as? ShiftShape)?.withLock = (shiftState == .Locked)
+        }
+        
+        if model.type == .Character {
+            key.text = model.keyCapForCase(characterUppercase)
+        }
+        else {
+            key.text = model.keyCapForCase(uppercase)
+        }
     }
     
     ///////////////
