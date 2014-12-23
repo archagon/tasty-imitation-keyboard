@@ -10,13 +10,9 @@ import UIKit
 
 class ForwardingView: UIView {
     
-    var activeTouches: [Int]
-    var multiTapTimers: [Int: NSTimer]
     var touchToView: [UITouch:UIView]
     
     override init(frame: CGRect) {
-        self.activeTouches = []
-        self.multiTapTimers = [:]
         self.touchToView = [:]
         
         super.init(frame: frame)
