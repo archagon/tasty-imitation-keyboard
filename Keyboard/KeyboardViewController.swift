@@ -179,7 +179,7 @@ class KeyboardViewController: UIInputViewController {
             self.setupKludge()
             
             self.updateKeyCaps(self.shiftState.uppercase())
-            self.setCapsIfNeeded()
+            var capsWasSet = self.setCapsIfNeeded()
             
             self.updateAppearances(self.darkMode())
             self.addInputTraitsObservers()
@@ -462,11 +462,13 @@ class KeyboardViewController: UIInputViewController {
             // TODO: reset context
         }
         
-        if self.shiftState == ShiftState.Enabled {
-            self.shiftState = ShiftState.Disabled
-        }
+        var capsWasChanged = self.setCapsIfNeeded()
         
-        self.setCapsIfNeeded()
+        if !capsWasChanged {
+            if self.shiftState == ShiftState.Enabled {
+                self.shiftState = ShiftState.Disabled
+            }
+        }
     }
     
     func handleAutoPeriod(key: Key) {
@@ -684,7 +686,7 @@ class KeyboardViewController: UIInputViewController {
     }
     
     // TODO: make this work if cursor position is shifted
-    func setCapsIfNeeded() {
+    func setCapsIfNeeded() -> Bool {
         if self.shouldAutoCapitalize() {
             switch self.shiftState {
             case .Disabled:
@@ -694,7 +696,11 @@ class KeyboardViewController: UIInputViewController {
             case .Locked:
                 self.shiftState = .Locked
             }
+            
+            return true
         }
+        
+        return false
     }
     
     func characterIsPunctuation(character: Character) -> Bool {
