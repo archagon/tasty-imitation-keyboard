@@ -70,7 +70,9 @@ class KeyboardViewController: UIInputViewController {
         }
     }
     
+    // state tracking during shift tap
     var shiftWasMultitapped: Bool = false
+    var shiftStartingState: ShiftState?
     
     var keyboardHeight: CGFloat {
         get {
@@ -310,10 +312,11 @@ class KeyboardViewController: UIInputViewController {
                             keyView.addTarget(self, action: "backspaceDown:", forControlEvents: .TouchDown)
                             keyView.addTarget(self, action: "backspaceUp:", forControlEvents: cancelEvents)
                         case Key.KeyType.Shift:
-                            keyView.addTarget(self, action: Selector("shiftDown:"), forControlEvents: .TouchUpInside)
+                            keyView.addTarget(self, action: Selector("shiftDown:"), forControlEvents: .TouchDown)
+                            keyView.addTarget(self, action: Selector("shiftUp:"), forControlEvents: .TouchUpInside)
                             keyView.addTarget(self, action: Selector("shiftDoubleTapped:"), forControlEvents: .TouchDownRepeat)
                         case Key.KeyType.ModeChange:
-                            keyView.addTarget(self, action: Selector("modeChangeTapped:"), forControlEvents: .TouchUpInside)
+                            keyView.addTarget(self, action: Selector("modeChangeTapped:"), forControlEvents: .TouchDown)
                         case Key.KeyType.Settings:
                             keyView.addTarget(self, action: Selector("toggleSettings"), forControlEvents: .TouchUpInside)
                         default:
@@ -332,7 +335,7 @@ class KeyboardViewController: UIInputViewController {
                             keyView.addTarget(self, action: "keyPressedHelper:", forControlEvents: .TouchUpInside)
                         }
                         
-                        if key.type != Key.KeyType.Shift {
+                        if key.type != Key.KeyType.Shift && key.type != Key.KeyType.ModeChange {
                             keyView.addTarget(self, action: Selector("highlightKey:"), forControlEvents: .TouchDown | .TouchDragInside | .TouchDragEnter)
                             keyView.addTarget(self, action: Selector("unHighlightKey:"), forControlEvents: .TouchUpInside | .TouchUpOutside | .TouchDragOutside | .TouchDragExit | .TouchCancel)
                         }
@@ -555,21 +558,54 @@ class KeyboardViewController: UIInputViewController {
     }
     
     func shiftDown(sender: KeyboardKey) {
+        self.shiftStartingState = self.shiftState
+        
+        if let shiftStartingState = self.shiftStartingState {
+            if shiftStartingState.uppercase() {
+                // handled by shiftUp
+                return
+            }
+            else {
+                switch self.shiftState {
+                case .Disabled:
+                    self.shiftState = .Enabled
+                case .Enabled:
+                    self.shiftState = .Disabled
+                case .Locked:
+                    self.shiftState = .Disabled
+                }
+                
+                (sender.shape as? ShiftShape)?.withLock = false
+            }
+        }
+    }
+    
+    func shiftUp(sender: KeyboardKey) {
         if self.shiftWasMultitapped {
             self.shiftWasMultitapped = false
             return
         }
         
-        switch self.shiftState {
-        case .Disabled:
-            self.shiftState = .Enabled
-        case .Enabled:
-            self.shiftState = .Disabled
-        case .Locked:
-            self.shiftState = .Disabled
+        if let shiftStartingState = self.shiftStartingState {
+            if !shiftStartingState.uppercase() {
+                // handled by shiftDown
+                return
+            }
+            else {
+                switch self.shiftState {
+                case .Disabled:
+                    self.shiftState = .Enabled
+                case .Enabled:
+                    self.shiftState = .Disabled
+                case .Locked:
+                    self.shiftState = .Disabled
+                }
+                
+                (sender.shape as? ShiftShape)?.withLock = false
+            }
         }
         
-        (sender.shape as? ShiftShape)?.withLock = false
+        self.shiftStartingState = nil
     }
     
     func shiftDoubleTapped(sender: KeyboardKey) {
