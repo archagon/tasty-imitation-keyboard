@@ -303,7 +303,7 @@ class KeyboardViewController: UIInputViewController {
                         
                         switch key.type {
                         case Key.KeyType.KeyboardChange:
-                            keyView.addTarget(self, action: "advanceToNextInputMode", forControlEvents: .TouchUpInside)
+                            keyView.addTarget(self, action: "advanceTapped:", forControlEvents: .TouchUpInside)
                         case Key.KeyType.Backspace:
                             let cancelEvents: UIControlEvents = UIControlEvents.TouchUpInside|UIControlEvents.TouchUpInside|UIControlEvents.TouchDragExit|UIControlEvents.TouchUpOutside|UIControlEvents.TouchCancel|UIControlEvents.TouchDragOutside
                             
@@ -602,6 +602,10 @@ class KeyboardViewController: UIInputViewController {
         self.layout?.layoutKeys(mode, uppercase: uppercase, characterUppercase: characterUppercase, shiftState: self.shiftState)
         
         self.setupKeys()
+    }
+    
+    func advanceTapped(sender: KeyboardKey) {
+        self.advanceToNextInputMode()
     }
     
     @IBAction func toggleSettings() {
