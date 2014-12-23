@@ -515,16 +515,20 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         Key.KeyType.SpecialCharacter,
         Key.KeyType.Period:
             key.color = self.self.globalColors.regularKey(darkMode, solidColorMode: solidColorMode)
-            key.popupColor = self.globalColors.popup(darkMode, solidColorMode: solidColorMode)
-            key.textColor = (darkMode ? self.globalColors.darkModeTextColor : self.globalColors.lightModeTextColor)
             if UIDevice.currentDevice().userInterfaceIdiom == UIUserInterfaceIdiom.Pad {
                 key.downColor = self.globalColors.specialKey(darkMode, solidColorMode: solidColorMode)
             }
+            else {
+                key.downColor = nil
+            }
+            key.textColor = (darkMode ? self.globalColors.darkModeTextColor : self.globalColors.lightModeTextColor)
+            key.downTextColor = nil
         case
         Key.KeyType.Space:
             key.color = self.globalColors.regularKey(darkMode, solidColorMode: solidColorMode)
             key.downColor = self.globalColors.specialKey(darkMode, solidColorMode: solidColorMode)
             key.textColor = (darkMode ? self.globalColors.darkModeTextColor : self.globalColors.lightModeTextColor)
+            key.downTextColor = nil
         case
         Key.KeyType.Shift:
             key.color = self.globalColors.specialKey(darkMode, solidColorMode: solidColorMode)
@@ -541,7 +545,9 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         case
         Key.KeyType.ModeChange:
             key.color = self.globalColors.specialKey(darkMode, solidColorMode: solidColorMode)
+            key.downColor = nil
             key.textColor = (darkMode ? self.globalColors.darkModeTextColor : self.globalColors.lightModeTextColor)
+            key.downTextColor = nil
         case
         Key.KeyType.Return,
         Key.KeyType.KeyboardChange,
@@ -550,10 +556,12 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
             // TODO: actually a bit different
             key.downColor = self.globalColors.regularKey(darkMode, solidColorMode: solidColorMode)
             key.textColor = (darkMode ? self.globalColors.darkModeTextColor : self.globalColors.lightModeTextColor)
+            key.downTextColor = nil
         default:
             break
         }
         
+        key.popupColor = self.globalColors.popup(darkMode, solidColorMode: solidColorMode)
         key.underColor = (self.darkMode ? self.globalColors.darkModeUnderColor : self.globalColors.lightModeUnderColor)
         key.borderColor = (self.darkMode ? self.globalColors.darkModeBorderColor : self.globalColors.lightModeBorderColor)
     }
