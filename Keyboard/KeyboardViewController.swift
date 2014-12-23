@@ -252,6 +252,8 @@ class KeyboardViewController: UIInputViewController {
     
     override func willRotateToInterfaceOrientation(toInterfaceOrientation: UIInterfaceOrientation, duration: NSTimeInterval) {
         self.forwardingView.resetTrackedViews()
+        self.shiftStartingState = nil
+        self.shiftWasMultitapped = false
         
         // optimization: ensures smooth animation
         if let keyPool = self.layout?.keyPool {
@@ -586,6 +588,7 @@ class KeyboardViewController: UIInputViewController {
     
     func shiftUp(sender: KeyboardKey) {
         if self.shiftWasMultitapped {
+            self.shiftStartingState = nil
             self.shiftWasMultitapped = false
             return
         }
@@ -593,6 +596,7 @@ class KeyboardViewController: UIInputViewController {
         if let shiftStartingState = self.shiftStartingState {
             if !shiftStartingState.uppercase() {
                 // handled by shiftDown
+                self.shiftStartingState = nil
                 return
             }
             else {
@@ -606,10 +610,10 @@ class KeyboardViewController: UIInputViewController {
                 }
                 
                 (sender.shape as? ShiftShape)?.withLock = false
+                
+                self.shiftStartingState = nil
             }
         }
-        
-        self.shiftStartingState = nil
     }
     
     func shiftDoubleTapped(sender: KeyboardKey) {
@@ -638,6 +642,8 @@ class KeyboardViewController: UIInputViewController {
     
     func setMode(mode: Int) {
         self.forwardingView.resetTrackedViews()
+        self.shiftStartingState = nil
+        self.shiftWasMultitapped = false
         
         let uppercase = self.shiftState.uppercase()
         let characterUppercase = (NSUserDefaults.standardUserDefaults().boolForKey(kSmallLowercase) ? uppercase : true)
@@ -648,6 +654,8 @@ class KeyboardViewController: UIInputViewController {
     
     func advanceTapped(sender: KeyboardKey) {
         self.forwardingView.resetTrackedViews()
+        self.shiftStartingState = nil
+        self.shiftWasMultitapped = false
         
         self.advanceToNextInputMode()
     }

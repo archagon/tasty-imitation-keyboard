@@ -185,6 +185,9 @@ class ForwardingView: UIView {
                 if !viewChangedOwnership {
                     self.handleControl(newView, controlEvent: .TouchDragEnter)
                 }
+                else {
+                    self.handleControl(newView, controlEvent: .TouchDragInside)
+                }
             }
             else {
                 self.handleControl(oldView, controlEvent: .TouchDragInside)
