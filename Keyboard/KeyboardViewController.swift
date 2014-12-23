@@ -251,6 +251,8 @@ class KeyboardViewController: UIInputViewController {
     }
     
     override func willRotateToInterfaceOrientation(toInterfaceOrientation: UIInterfaceOrientation, duration: NSTimeInterval) {
+        self.forwardingView.resetTrackedViews()
+        
         // optimization: ensures smooth animation
         if let keyPool = self.layout?.keyPool {
             for view in keyPool {
@@ -633,6 +635,8 @@ class KeyboardViewController: UIInputViewController {
     }
     
     func setMode(mode: Int) {
+        self.forwardingView.resetTrackedViews()
+        
         let uppercase = self.shiftState.uppercase()
         let characterUppercase = (NSUserDefaults.standardUserDefaults().boolForKey(kSmallLowercase) ? uppercase : true)
         self.layout?.layoutKeys(mode, uppercase: uppercase, characterUppercase: characterUppercase, shiftState: self.shiftState)
@@ -641,6 +645,8 @@ class KeyboardViewController: UIInputViewController {
     }
     
     func advanceTapped(sender: KeyboardKey) {
+        self.forwardingView.resetTrackedViews()
+        
         self.advanceToNextInputMode()
     }
     

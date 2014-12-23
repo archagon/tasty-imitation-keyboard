@@ -116,6 +116,14 @@ class ForwardingView: UIView {
         return CGFloat(sqrt(a + b));
     }
     
+    // reset tracked views without cancelling current touch
+    func resetTrackedViews() {
+        for view in self.touchToView.values {
+            self.handleControl(view, controlEvent: .TouchCancel)
+        }
+        self.touchToView.removeAll(keepCapacity: true)
+    }
+    
     override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {
         for obj in touches {
             let touch = obj as UITouch
