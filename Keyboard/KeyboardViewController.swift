@@ -249,7 +249,23 @@ class KeyboardViewController: UIInputViewController {
     }
     
     override func willRotateToInterfaceOrientation(toInterfaceOrientation: UIInterfaceOrientation, duration: NSTimeInterval) {
+        // optimization: ensures smooth animation
+        if let keyPool = self.layout?.keyPool {
+            for view in keyPool {
+                view.shouldRasterize = true
+            }
+        }
+        
         self.keyboardHeight = self.heightForOrientation(toInterfaceOrientation, withTopBanner: true)
+    }
+    
+    override func didRotateFromInterfaceOrientation(fromInterfaceOrientation: UIInterfaceOrientation) {
+        // optimization: ensures quick mode and shift transitions
+        if let keyPool = self.layout?.keyPool {
+            for view in keyPool {
+                view.shouldRasterize = false
+            }
+        }
     }
     
     func heightForOrientation(orientation: UIInterfaceOrientation, withTopBanner: Bool) -> CGFloat {
