@@ -30,28 +30,31 @@ func defaultKeyboard() -> Keyboard {
         defaultKeyboard.addKey(keyModel, row: 2, page: 0)
     }
     
-    var keyModel2 = Key(.Backspace)
-    defaultKeyboard.addKey(keyModel2, row: 2, page: 0)
+    var backspace = Key(.Backspace)
+    defaultKeyboard.addKey(backspace, row: 2, page: 0)
     
     var keyModeChangeNumbers = Key(.ModeChange)
     keyModeChangeNumbers.uppercaseKeyCap = "123"
     keyModeChangeNumbers.toMode = 1
     defaultKeyboard.addKey(keyModeChangeNumbers, row: 3, page: 0)
     
-    var keyModel4 = Key(.KeyboardChange)
-    defaultKeyboard.addKey(keyModel4, row: 3, page: 0)
+    var keyboardChange = Key(.KeyboardChange)
+    defaultKeyboard.addKey(keyboardChange, row: 3, page: 0)
     
-    var keyModel5 = Key(.Space)
-    keyModel5.uppercaseKeyCap = "space"
-    keyModel5.uppercaseOutput = " "
-    keyModel5.lowercaseOutput = " "
-    defaultKeyboard.addKey(keyModel5, row: 3, page: 0)
+    var settings = Key(.Settings)
+    defaultKeyboard.addKey(settings, row: 3, page: 0)
     
-    var keyModel6 = Key(.Return)
-    keyModel6.uppercaseKeyCap = "return"
-    keyModel6.uppercaseOutput = "\n"
-    keyModel6.lowercaseOutput = "\n"
-    defaultKeyboard.addKey(keyModel6, row: 3, page: 0)
+    var space = Key(.Space)
+    space.uppercaseKeyCap = "space"
+    space.uppercaseOutput = " "
+    space.lowercaseOutput = " "
+    defaultKeyboard.addKey(space, row: 3, page: 0)
+    
+    var returnKey = Key(.Return)
+    returnKey.uppercaseKeyCap = "return"
+    returnKey.uppercaseOutput = "\n"
+    returnKey.lowercaseOutput = "\n"
+    defaultKeyboard.addKey(returnKey, row: 3, page: 0)
     
     for key in ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"] {
         var keyModel = Key(.SpecialCharacter)
@@ -76,18 +79,20 @@ func defaultKeyboard() -> Keyboard {
         defaultKeyboard.addKey(keyModel, row: 2, page: 1)
     }
     
-    defaultKeyboard.addKey(Key(keyModel2), row: 2, page: 1)
+    defaultKeyboard.addKey(Key(backspace), row: 2, page: 1)
     
     var keyModeChangeLetters = Key(.ModeChange)
     keyModeChangeLetters.uppercaseKeyCap = "ABC"
     keyModeChangeLetters.toMode = 0
     defaultKeyboard.addKey(keyModeChangeLetters, row: 3, page: 1)
     
-    defaultKeyboard.addKey(Key(keyModel4), row: 3, page: 1)
+    defaultKeyboard.addKey(Key(keyboardChange), row: 3, page: 1)
     
-    defaultKeyboard.addKey(Key(keyModel5), row: 3, page: 1)
+    defaultKeyboard.addKey(Key(settings), row: 3, page: 1)
     
-    defaultKeyboard.addKey(Key(keyModel6), row: 3, page: 1)
+    defaultKeyboard.addKey(Key(space), row: 3, page: 1)
+    
+    defaultKeyboard.addKey(Key(returnKey), row: 3, page: 1)
     
     for key in ["[", "]", "{", "}", "#", "%", "^", "*", "+", "="] {
         var keyModel = Key(.SpecialCharacter)
@@ -95,7 +100,7 @@ func defaultKeyboard() -> Keyboard {
         defaultKeyboard.addKey(keyModel, row: 0, page: 2)
     }
     
-    for key in ["_", "\\", "|", "~", "<", ">", "€", "£", "Y", "•"] {
+    for key in ["_", "\\", "|", "~", "<", ">", "€", "£", "¥", "•"] {
         var keyModel = Key(.SpecialCharacter)
         keyModel.setLetter(key)
         defaultKeyboard.addKey(keyModel, row: 1, page: 2)
@@ -109,15 +114,17 @@ func defaultKeyboard() -> Keyboard {
         defaultKeyboard.addKey(keyModel, row: 2, page: 2)
     }
     
-    defaultKeyboard.addKey(Key(keyModel2), row: 2, page: 2)
+    defaultKeyboard.addKey(Key(backspace), row: 2, page: 2)
     
     defaultKeyboard.addKey(Key(keyModeChangeLetters), row: 3, page: 2)
     
-    defaultKeyboard.addKey(Key(keyModel4), row: 3, page: 2)
+    defaultKeyboard.addKey(Key(keyboardChange), row: 3, page: 2)
     
-    defaultKeyboard.addKey(Key(keyModel5), row: 3, page: 2)
+    defaultKeyboard.addKey(Key(settings), row: 3, page: 2)
     
-    defaultKeyboard.addKey(Key(keyModel6), row: 3, page: 2)
+    defaultKeyboard.addKey(Key(space), row: 3, page: 2)
+    
+    defaultKeyboard.addKey(Key(returnKey), row: 3, page: 2)
     
     return defaultKeyboard
 }

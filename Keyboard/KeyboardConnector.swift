@@ -8,7 +8,7 @@
 
 import UIKit
 
-protocol Connectable {
+protocol Connectable: class {
     func attachmentPoints(direction: Direction) -> (CGPoint, CGPoint)
     func attachmentDirection() -> Direction?
     func attach(direction: Direction?) // call with nil to detach
@@ -23,15 +23,15 @@ class KeyboardConnector: KeyboardKeyBackground {
     var startDir: Direction
     var endDir: Direction
 
-    var startConnectable: Connectable
-    var endConnectable: Connectable
+    weak var startConnectable: Connectable?
+    weak var endConnectable: Connectable?
     var convertedStartPoints: (CGPoint, CGPoint)!
     var convertedEndPoints: (CGPoint, CGPoint)!
     
     var offset: CGPoint
     
     // TODO: until bug is fixed, make sure start/end and startConnectable/endConnectable are the same object
-    init(blur: Bool, cornerRadius: CGFloat, underOffset: CGFloat, start s: UIView, end e: UIView, startConnectable sC: Connectable, endConnectable eC: Connectable, startDirection: Direction, endDirection: Direction) {
+    init(cornerRadius: CGFloat, underOffset: CGFloat, start s: UIView, end e: UIView, startConnectable sC: Connectable, endConnectable eC: Connectable, startDirection: Direction, endDirection: Direction) {
         start = s
         end = e
         startDir = startDirection
@@ -41,7 +41,7 @@ class KeyboardConnector: KeyboardKeyBackground {
 
         offset = CGPointZero
 
-        super.init(blur: blur, cornerRadius: cornerRadius, underOffset: underOffset)
+        super.init(cornerRadius: cornerRadius, underOffset: underOffset)
     }
     
     required init(coder: NSCoder) {
@@ -59,9 +59,13 @@ class KeyboardConnector: KeyboardKeyBackground {
     }
 
     func generateConvertedPoints() {
+        if self.startConnectable == nil || self.endConnectable == nil {
+            return
+        }
+        
         if let superview = self.superview {
-            let startPoints = self.startConnectable.attachmentPoints(self.startDir)
-            let endPoints = self.endConnectable.attachmentPoints(self.endDir)
+            let startPoints = self.startConnectable!.attachmentPoints(self.startDir)
+            let endPoints = self.endConnectable!.attachmentPoints(self.endDir)
 
             self.convertedStartPoints = (
                 superview.convertPoint(startPoints.0, fromView: self.start),
@@ -89,12 +93,16 @@ class KeyboardConnector: KeyboardKeyBackground {
     }
     
     override func generatePointsForDrawing(bounds: CGRect) {
+        if self.startConnectable == nil || self.endConnectable == nil {
+            return
+        }
+        
         //////////////////
         // prepare data //
         //////////////////
 
-        let startPoints = self.startConnectable.attachmentPoints(self.startDir)
-        let endPoints = self.endConnectable.attachmentPoints(self.endDir)
+        let startPoints = self.startConnectable!.attachmentPoints(self.startDir)
+        let endPoints = self.endConnectable!.attachmentPoints(self.endDir)
 
         var myConvertedStartPoints = (
             self.convertPoint(startPoints.0, fromView: self.start),

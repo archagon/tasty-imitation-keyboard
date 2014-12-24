@@ -2,15 +2,21 @@
 
 I'm working on a 3rd party keyboard for iOS8 and I want it to look and feel as close as possible to Apple's keyboard. Unfortunately, it's not possible to access the keyboard view through code, so this is my attempt to imitate it by hand. (I'm sure there are ways to get even more accuracy via reverse engineering, but that's too much work for me!) In the end, I hope to produce a coherent and robust baseline for creating custom 3rd party keybards — at least, until Apple decides to fully open up their keyboard API.
 
+This keyboard is currently optimized for iPhone. iPad should work, but it'll look like a giant iPhone keyboard.
+
 ## Recent Screenshots
 
-<img width="320px" src="./Screenshot-Portrait.png"></img>
-<img width="568px" src="./Screenshot-Landscape.png"></img>
+<img style="border: gray 1px solid;" width="320px" src="./Screenshot-Portrait.png"></img>
+<img style="border: gray 1px solid;" width="568px" src="./Screenshot-Landscape.png"></img>
+<img style="border: gray 1px solid;" width="320px" src="./Settings-Portrait.png"></img>
 
 ## Fantastic Features
 
 * No bitmaps! Everything is rendered using CoreGraphics.
 * Dynamic layouts! All the keys are laid out programmatically, meaning that the keyboard is much easier to extend and will automatically work on devices of all sizes.
+* Auto-capitalization, period shortcut, keyboard clicks.
+* An extensible settings screen.
+* Dark mode and solid color mode.
 * This keyboard is an iOS8 extension.
 
 ## Current State
@@ -49,4 +55,4 @@ Finally, keep in mind that I am not a framework maintainer nor intend to become 
 
 ## License
 
-This project is licensed under the 3-clause ("New") BSD license. (Go Bears!)
+This project is licensed under the 3-clause ("New") BSD license. Go Bears!

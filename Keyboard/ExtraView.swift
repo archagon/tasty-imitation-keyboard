@@ -1,5 +1,5 @@
 //
-//  BannerView.swift
+//  ExtraView.swift
 //  TastyImitationKeyboard
 //
 //  Created by Alexei Baboulevitch on 10/5/14.
@@ -8,14 +8,13 @@
 
 import UIKit
 
-// this banner sits in the empty space on top of the keyboard
-class BannerView: UIView {
+class ExtraView: UIView {
     
-    var globalColors: GlobalColors.Type
+    var globalColors: GlobalColors.Type?
     var darkMode: Bool
     var solidColorMode: Bool
     
-    required init(globalColors: GlobalColors.Type, darkMode: Bool, solidColorMode: Bool) {
+    required init(globalColors: GlobalColors.Type?, darkMode: Bool, solidColorMode: Bool) {
         self.globalColors = globalColors
         self.darkMode = darkMode
         self.solidColorMode = solidColorMode
@@ -24,6 +23,10 @@ class BannerView: UIView {
     }
     
     required init(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        self.globalColors = nil
+        self.darkMode = false
+        self.solidColorMode = false
+        
+        super.init(coder: aDecoder)
     }
 }

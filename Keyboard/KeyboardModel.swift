@@ -10,6 +10,23 @@ import Foundation
 
 var counter = 0
 
+enum ShiftState {
+    case Disabled
+    case Enabled
+    case Locked
+    
+    func uppercase() -> Bool {
+        switch self {
+        case Disabled:
+            return false
+        case Enabled:
+            return true
+        case Locked:
+            return true
+        }
+    }
+}
+
 class Keyboard {
     var pages: [Page]
     
@@ -57,6 +74,7 @@ class Key: Hashable {
         case Period
         case Space
         case Return
+        case Settings
         case Other
     }
     
@@ -94,7 +112,7 @@ class Key: Hashable {
                 return true
             case .Return:
                 return true
-            case .Space:
+            case .Settings:
                 return true
             default:
                 return false

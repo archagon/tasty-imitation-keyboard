@@ -8,27 +8,6 @@
 
 import UIKit
 
-//var geoHash: [KeyboardKeyBackground:(UIBezierPath, UIBezierPath, [UIBezierPath])] = [:]
-
-//func ==(lhs: KeyboardKeyBackground, rhs: KeyboardKeyBackground) -> Bool {
-//    if !CGRectEqualToRect(lhs.bounds, rhs.bounds) {
-//        return false
-//    }
-//    else if lhs.cornerRadius != rhs.cornerRadius {
-//        return false
-//    }
-//    else if lhs.underOffset != rhs.underOffset {
-//        return false
-//    }
-//    else if lhs.attached != rhs.attached {
-//        return false
-//    }
-//    else if lhs.hideDirectionIsOpposite != rhs.hideDirectionIsOpposite {
-//        return false
-//    }
-//    return true
-//}
-
 // This class does not actually draw its contents; rather, it generates bezier curves for others to use.
 // (You can still move it around, resize it, and add subviews to it. It just won't display the curve assigned to it.)
 class KeyboardKeyBackground: UIView, Connectable {
@@ -47,12 +26,6 @@ class KeyboardKeyBackground: UIView, Connectable {
     var arcStartingAngles: [CGFloat]
     
     var dirty: Bool
-    
-//    override var hashValue: Int {
-//        get {
-//            return Int(self.bounds.width) ^ Int(self.bounds.height) ^ Int(self.underOffset) ^ Int(self.cornerRadius) ^ (self.attached != nil ? self.attached!.rawValue : -1) ^ Int(self.hideDirectionIsOpposite)
-//        }
-//    }
 
     var attached: Direction? {
         didSet {
@@ -67,7 +40,7 @@ class KeyboardKeyBackground: UIView, Connectable {
         }
     }
     
-    init(blur: Bool, cornerRadius: CGFloat, underOffset: CGFloat) {
+    init(cornerRadius: CGFloat, underOffset: CGFloat) {
         attached = nil
         hideDirectionIsOpposite = false
         dirty = false
@@ -125,16 +98,6 @@ class KeyboardKeyBackground: UIView, Connectable {
     let floatPiDivNeg2 = -CGFloat(M_PI/2.0)
     
     func generatePointsForDrawing(bounds: CGRect) {
-//        if geoHash[self] != nil {
-//            let values = geoHash[self]!
-//            
-//            self.fillPath = values.0
-//            self.edgePaths = values.2
-//            self.underPath = values.1
-//            
-//            return
-//        }
-        
         let segmentWidth = bounds.width
         let segmentHeight = bounds.height - CGFloat(underOffset)
         
@@ -302,8 +265,6 @@ class KeyboardKeyBackground: UIView, Connectable {
         self.fillPath = fillPath
         self.edgePaths = edgePaths
         self.underPath = underPath
-        
-//        geoHash[self] = (fillPath, underPath, edgePaths)
     }
     
     func attachmentPoints(direction: Direction) -> (CGPoint, CGPoint) {
