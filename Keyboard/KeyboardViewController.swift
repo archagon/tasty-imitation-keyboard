@@ -584,32 +584,30 @@ class KeyboardViewController: UIInputViewController {
     
     func shiftUp(sender: KeyboardKey) {
         if self.shiftWasMultitapped {
-            self.shiftStartingState = nil
-            self.shiftWasMultitapped = false
-            return
+            // do nothing
         }
-        
-        if let shiftStartingState = self.shiftStartingState {
-            if !shiftStartingState.uppercase() {
-                // handled by shiftDown
-                self.shiftStartingState = nil
-                return
-            }
-            else {
-                switch self.shiftState {
-                case .Disabled:
-                    self.shiftState = .Enabled
-                case .Enabled:
-                    self.shiftState = .Disabled
-                case .Locked:
-                    self.shiftState = .Disabled
+        else {
+            if let shiftStartingState = self.shiftStartingState {
+                if !shiftStartingState.uppercase() {
+                    // handled by shiftDown
                 }
-                
-                (sender.shape as? ShiftShape)?.withLock = false
-                
-                self.shiftStartingState = nil
+                else {
+                    switch self.shiftState {
+                    case .Disabled:
+                        self.shiftState = .Enabled
+                    case .Enabled:
+                        self.shiftState = .Disabled
+                    case .Locked:
+                        self.shiftState = .Disabled
+                    }
+                    
+                    (sender.shape as? ShiftShape)?.withLock = false
+                }
             }
         }
+
+        self.shiftStartingState = nil
+        self.shiftWasMultitapped = false
     }
     
     func shiftDoubleTapped(sender: KeyboardKey) {
