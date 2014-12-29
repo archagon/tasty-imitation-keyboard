@@ -464,13 +464,7 @@ class KeyboardViewController: UIInputViewController {
             // TODO: reset context
         }
         
-        var capsWasChanged = self.setCapsIfNeeded()
-        
-        if !capsWasChanged {
-            if self.shiftState == ShiftState.Enabled {
-                self.shiftState = ShiftState.Disabled
-            }
-        }
+        self.setCapsIfNeeded()
     }
     
     func handleAutoPeriod(key: Key) {
@@ -541,6 +535,7 @@ class KeyboardViewController: UIInputViewController {
         if let textDocumentProxy = self.textDocumentProxy as? UIKeyInput {
             textDocumentProxy.deleteBackward()
         }
+        self.setCapsIfNeeded()
         
         // trigger for subsequent deletes
         self.backspaceDelayTimer = NSTimer.scheduledTimerWithTimeInterval(backspaceDelay - backspaceRepeat, target: self, selector: Selector("backspaceDelayCallback"), userInfo: nil, repeats: false)
@@ -561,6 +556,7 @@ class KeyboardViewController: UIInputViewController {
         if let textDocumentProxy = self.textDocumentProxy as? UIKeyInput {
             textDocumentProxy.deleteBackward()
         }
+        self.setCapsIfNeeded()
     }
     
     func shiftDown(sender: KeyboardKey) {
@@ -693,7 +689,6 @@ class KeyboardViewController: UIInputViewController {
         }
     }
     
-    // TODO: make this work if cursor position is shifted
     func setCapsIfNeeded() -> Bool {
         if self.shouldAutoCapitalize() {
             switch self.shiftState {
@@ -707,8 +702,18 @@ class KeyboardViewController: UIInputViewController {
             
             return true
         }
-        
-        return false
+        else {
+            switch self.shiftState {
+            case .Disabled:
+                self.shiftState = .Disabled
+            case .Enabled:
+                self.shiftState = .Disabled
+            case .Locked:
+                self.shiftState = .Locked
+            }
+            
+            return false
+        }
     }
     
     func characterIsPunctuation(character: Character) -> Bool {
