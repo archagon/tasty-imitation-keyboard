@@ -492,6 +492,10 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
             (key.shape as? ShiftShape)?.withLock = (shiftState == .Locked)
         }
         
+        self.updateKeyCapText(key, model: model, uppercase: uppercase, characterUppercase: characterUppercase)
+    }
+    
+    func updateKeyCapText(key: KeyboardKey, model: Key, uppercase: Bool, characterUppercase: Bool) {
         if model.type == .Character {
             key.text = model.keyCapForCase(characterUppercase)
         }
