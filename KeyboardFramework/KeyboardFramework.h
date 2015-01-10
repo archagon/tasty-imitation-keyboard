@@ -3,7 +3,7 @@
 //  KeyboardFramework
 //
 //  Created by Alexei Baboulevitch on 10/23/14.
-//  Copyright (c) 2014 Apple. All rights reserved.
+//  Copyright (c) 2014 Alexei Baboulevitch ("Archagon"). All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
