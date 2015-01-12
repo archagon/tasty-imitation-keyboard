@@ -202,6 +202,10 @@ class KeyboardViewController: UIInputViewController {
         return darkMode
     }
     
+    func returnKeyType() -> UIReturnKeyType? {
+        return (self.textDocumentProxy as UITextDocumentProxy).returnKeyType
+    }
+    
     func solidColorMode() -> Bool {
         return UIAccessibilityIsReduceTransparencyEnabled()
     }
@@ -224,7 +228,7 @@ class KeyboardViewController: UIInputViewController {
             let characterUppercase = (NSUserDefaults.standardUserDefaults().boolForKey(kSmallLowercase) ? uppercase : true)
             
             self.forwardingView.frame = orientationSavvyBounds
-            self.layout?.layoutKeys(self.currentMode, uppercase: uppercase, characterUppercase: characterUppercase, shiftState: self.shiftState)
+            self.layout?.layoutKeys(self.currentMode, uppercase: uppercase, characterUppercase: characterUppercase, shiftState: self.shiftState, returnKeyType: returnKeyType()!)
             self.lastLayoutBounds = orientationSavvyBounds
             self.setupKeys()
         }
@@ -625,7 +629,7 @@ class KeyboardViewController: UIInputViewController {
     
     func updateKeyCaps(uppercase: Bool) {
         let characterUppercase = (NSUserDefaults.standardUserDefaults().boolForKey(kSmallLowercase) ? uppercase : true)
-        self.layout?.updateKeyCaps(false, uppercase: uppercase, characterUppercase: characterUppercase, shiftState: self.shiftState)
+        self.layout?.updateKeyCaps(false, uppercase: uppercase, characterUppercase: characterUppercase, shiftState: self.shiftState, returnKeyType: returnKeyType()!)
     }
     
     func modeChangeTapped(sender: KeyboardKey) {
@@ -641,7 +645,7 @@ class KeyboardViewController: UIInputViewController {
         
         let uppercase = self.shiftState.uppercase()
         let characterUppercase = (NSUserDefaults.standardUserDefaults().boolForKey(kSmallLowercase) ? uppercase : true)
-        self.layout?.layoutKeys(mode, uppercase: uppercase, characterUppercase: characterUppercase, shiftState: self.shiftState)
+        self.layout?.layoutKeys(mode, uppercase: uppercase, characterUppercase: characterUppercase, shiftState: self.shiftState, returnKeyType: returnKeyType()!)
         
         self.setupKeys()
     }
