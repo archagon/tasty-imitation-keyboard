@@ -40,7 +40,7 @@ class Catboard: KeyboardViewController {
             if key.type == .Character || key.type == .SpecialCharacter {
                 let context = textDocumentProxy.documentContextBeforeInput
                 if context != nil {
-                    if countElements(context) < 2 {
+                    if count(context) < 2 {
                         textDocumentProxy.insertText(keyOutput)
                         return
                     }
@@ -129,7 +129,7 @@ class Catboard: KeyboardViewController {
 func randomCat() -> String {
     let cats = "🐱😺😸😹😽😻😿😾😼🙀"
     
-    let numCats = countElements(cats)
+    let numCats = count(cats)
     let randomCat = arc4random() % UInt32(numCats)
     
     let index = advance(cats.startIndex, Int(randomCat))

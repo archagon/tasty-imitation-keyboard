@@ -63,7 +63,7 @@ class HostingAppViewController: UIViewController {
                 if let startTime = self.startTime {
                     if let firstHeightTime = self.firstHeightTime {
                         let formatString = NSString(format: "First: %.2f, Total: %.2f", (firstHeightTime - startTime), (firstHeightTime - startTime))
-                        self.stats?.text = formatString
+                        self.stats?.text = formatString as String
                     }
                 }
             }
@@ -76,7 +76,7 @@ class HostingAppViewController: UIViewController {
                     if let firstHeightTime = self.firstHeightTime {
                         if let secondHeightTime = self.secondHeightTime {
                             let formatString = NSString(format: "First: %.2f, Second: %.2f, Total: %.2f", (firstHeightTime - startTime), (secondHeightTime - firstHeightTime), (secondHeightTime - startTime))
-                            self.stats?.text = formatString
+                            self.stats?.text = formatString as String
                         }
                     }
                 }

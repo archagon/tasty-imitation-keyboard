@@ -50,7 +50,7 @@ class Shape: UIView {
     // in case shapes draw out of bounds, we still want them to show
     var overflowCanvas: OverflowCanvas!
     
-    convenience override init() {
+    convenience init() {
         self.init(frame: CGRectZero)
     }
     

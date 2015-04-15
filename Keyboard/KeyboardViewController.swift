@@ -89,7 +89,7 @@ class KeyboardViewController: UIInputViewController {
     }
     
     // TODO: why does the app crash if this isn't here?
-    convenience override init() {
+    convenience init() {
         self.init(nibName: nil, bundle: nil)
     }
     
@@ -126,7 +126,7 @@ class KeyboardViewController: UIInputViewController {
     }
     
     func defaultsChanged(notification: NSNotification) {
-        let defaults = notification.object as NSUserDefaults
+        let defaults = notification.object as? NSUserDefaults
         self.updateKeyCaps(self.shiftState.uppercase())
     }
     
@@ -481,7 +481,7 @@ class KeyboardViewController: UIInputViewController {
             let charactersAreInCorrectState = { () -> Bool in
                 let previousContext = (self.textDocumentProxy as? UITextDocumentProxy)?.documentContextBeforeInput
                 
-                if previousContext == nil || countElements(previousContext!) < 3 {
+                if previousContext == nil || count(previousContext!) < 3 {
                     return false
                 }
                 
@@ -762,7 +762,7 @@ class KeyboardViewController: UIInputViewController {
                 
                 case .Sentences:
                     if let beforeContext = documentProxy?.documentContextBeforeInput {
-                        let offset = min(3, countElements(beforeContext))
+                        let offset = min(3, count(beforeContext))
                         var index = beforeContext.endIndex
                         
                         for (var i = 0; i < offset; i += 1) {
