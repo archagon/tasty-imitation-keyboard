@@ -23,9 +23,9 @@ class LayoutConstants: NSObject {
     class var topEdgeLandscape: CGFloat { get { return 6 }}
     
     // keyboard area shrinks in size in landscape on 6 and 6+
-    class var keyboardShrunkSizeArray: [CGFloat] { get { return [522, 524] }}
+    class var keyboardShrunkSizeArray: [CGFloat] { get { return [660, 524] }}
     class var keyboardShrunkSizeWidthThreshholds: [CGFloat] { get { return [700] }}
-    class var keyboardShrunkSizeBaseWidthThreshhold: CGFloat { get { return 600 }}
+    class var keyboardShrunkSizeBaseWidthThreshhold: CGFloat { get { return 740 }}
     
     // row gaps are weird on 6 in portrait
     class var rowGapPortraitArray: [CGFloat] { get { return [15, 11, 10] }}
@@ -39,7 +39,7 @@ class LayoutConstants: NSObject {
     class var keyGapPortraitSmall: CGFloat { get { return 5 }}
     class var keyGapPortraitNormalThreshhold: CGFloat { get { return 350 }}
     class var keyGapPortraitUncompressThreshhold: CGFloat { get { return 350 }}
-    class var keyGapLandscapeNormal: CGFloat { get { return 6 }}
+    class var keyGapLandscapeNormal: CGFloat { get { return 10 }}
     class var keyGapLandscapeSmall: CGFloat { get { return 5 }}
     // TODO: 5.5 row gap on 5L
     // TODO: wider row gap on 6L
@@ -267,7 +267,8 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
     var solidColorMode: Bool
     var initialized: Bool
     
-    required init(model: Keyboard, superview: UIView, layoutConstants: LayoutConstants.Type, globalColors: GlobalColors.Type, darkMode: Bool, solidColorMode: Bool) {
+    required init(model: Keyboard, superview: UIView, layoutConstants: LayoutConstants.Type, globalColors: GlobalColors.Type, darkMode: Bool, solidColorMode: Bool)
+    {
         self.layoutConstants = layoutConstants
         self.globalColors = globalColors
         
@@ -280,7 +281,8 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
     }
     
     // TODO: remove this method
-    func initialize() {
+    func initialize()
+    {
         assert(!self.initialized, "already initialized")
         self.initialized = true
     }
@@ -320,6 +322,8 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
                 for (_, key) in row.enumerate() {
                     if let keyView = self.modelToView[key] {
                         keyView.hidePopup()
+                        
+                        //keyView.hideLongPress()
                         keyView.highlighted = false
                         keyView.hidden = (p != pageNum)
                     }
@@ -530,25 +534,37 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         case
         Key.KeyType.Space:
             key.color = self.globalColors.regularKey(darkMode, solidColorMode: solidColorMode)
-            key.downColor = self.globalColors.specialKey(darkMode, solidColorMode: solidColorMode)
+            //key.downColor = self.globalColors.specialKey(darkMode, solidColorMode: solidColorMode)
+            
+            key.downColor = UIColor(red:0.68, green:0.71, blue:0.74, alpha:1)
+            
             key.textColor = (darkMode ? self.globalColors.darkModeTextColor : self.globalColors.lightModeTextColor)
             key.downTextColor = nil
         case
         Key.KeyType.Shift:
-            key.color = self.globalColors.specialKey(darkMode, solidColorMode: solidColorMode)
+           // key.color = self.globalColors.specialKey(darkMode, solidColorMode: solidColorMode)
+            
+            key.color = UIColor(red:0.68, green:0.71, blue:0.74, alpha:1)
+            
             key.downColor = (darkMode ? self.globalColors.darkModeShiftKeyDown : self.globalColors.lightModeRegularKey)
             key.textColor = self.globalColors.darkModeTextColor
             key.downTextColor = self.globalColors.lightModeTextColor
         case
         Key.KeyType.Backspace:
-            key.color = self.globalColors.specialKey(darkMode, solidColorMode: solidColorMode)
+            //key.color = self.globalColors.specialKey(darkMode, solidColorMode: solidColorMode)
+            
+            key.color = UIColor(red:0.68, green:0.71, blue:0.74, alpha:1)
+            
             // TODO: actually a bit different
             key.downColor = self.globalColors.regularKey(darkMode, solidColorMode: solidColorMode)
             key.textColor = self.globalColors.darkModeTextColor
             key.downTextColor = (darkMode ? nil : self.globalColors.lightModeTextColor)
         case
         Key.KeyType.ModeChange:
-            key.color = self.globalColors.specialKey(darkMode, solidColorMode: solidColorMode)
+            //key.color = self.globalColors.specialKey(darkMode, solidColorMode: solidColorMode)
+            
+            key.color = UIColor(red:0.68, green:0.71, blue:0.74, alpha:1)
+            
             key.downColor = nil
             key.textColor = (darkMode ? self.globalColors.darkModeTextColor : self.globalColors.lightModeTextColor)
             key.downTextColor = nil
@@ -556,7 +572,10 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         Key.KeyType.Return,
         Key.KeyType.KeyboardChange,
         Key.KeyType.Settings:
-            key.color = self.globalColors.specialKey(darkMode, solidColorMode: solidColorMode)
+            //key.color = self.globalColors.specialKey(darkMode, solidColorMode: solidColorMode)
+            
+            key.color = UIColor(red:0.68, green:0.71, blue:0.74, alpha:1)
+            
             // TODO: actually a bit different
             key.downColor = self.globalColors.regularKey(darkMode, solidColorMode: solidColorMode)
             key.textColor = (darkMode ? self.globalColors.darkModeTextColor : self.globalColors.lightModeTextColor)
@@ -951,10 +970,14 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
             }
         }
         
-        assert(keysBeforeSpace <= 3, "invalid number of keys before space (only max 3 currently supported)")
-        assert(keysAfterSpace == 1, "invalid number of keys after space (only default 1 currently supported)")
-        
+//        assert(keysBeforeSpace <= 3, "invalid number of keys before space (only max 3 currently supported)")
+//        assert(keysAfterSpace == 1, "invalid number of keys after space (only default 1 currently supported)")
+		
         let hasButtonInMicButtonPosition = (keysBeforeSpace == 3)
+		
+		let hasButtonInDotButtonPosition = (keysAfterSpace == 2)
+		
+		let hasButtonInAtButtonPosition = (keysAfterSpace == 3)
         
         var leftSideAreaWidth = frame.width * leftSideRatio
         let rightSideAreaWidth = frame.width * rightSideRatio
@@ -964,20 +987,36 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         rightButtonWidth = rounded(rightButtonWidth)
         
         let micButtonWidth = (isLandscape ? leftButtonWidth : leftButtonWidth * micButtonRatio)
-        
+		
+		let dotButtonWidth = (isLandscape ? rightButtonWidth : leftButtonWidth * micButtonRatio)
+		
+		let atButtonWidth = (isLandscape ? rightButtonWidth : leftButtonWidth * micButtonRatio)
+		
         // special case for mic button
         if hasButtonInMicButtonPosition {
             leftSideAreaWidth = leftSideAreaWidth + gapWidth + micButtonWidth
         }
         
         var spaceWidth = frame.width - leftSideAreaWidth - rightSideAreaWidth - gapWidth * CGFloat(2)
+		
         spaceWidth = rounded(spaceWidth)
-        
+		
+		if hasButtonInDotButtonPosition
+		{
+			spaceWidth -= 20
+		}
+		
+		if hasButtonInAtButtonPosition
+		{
+			spaceWidth -= 40
+		}
+		
         var currentOrigin = frame.origin.x
         var beforeSpace: Bool = true
         for (k, key) in row.enumerate() {
             if key.type == Key.KeyType.Space {
-                frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, spaceWidth, frame.height))
+				
+                frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, spaceWidth , frame.height))
                 currentOrigin += (spaceWidth + gapWidth)
                 beforeSpace = false
             }
@@ -987,13 +1026,240 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
                     currentOrigin += (micButtonWidth + gapWidth)
                 }
                 else {
+					
                     frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, leftButtonWidth, frame.height))
                     currentOrigin += (leftButtonWidth + gapWidth)
+                    
                 }
             }
-            else {
-                frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, rightButtonWidth, frame.height))
-                currentOrigin += (rightButtonWidth + gapWidth)
+            else
+			{
+				if hasButtonInDotButtonPosition && k == 4
+				{
+					frames.append(CGRectMake(rounded(currentOrigin),
+                        frame.origin.y,
+                        dotButtonWidth,
+                        frame.height))
+                    
+					currentOrigin += (dotButtonWidth + gapWidth)
+				}
+                else if hasButtonInDotButtonPosition && k == 5
+                {
+                    
+                    if(isLandscape == true)
+                    {
+                        if(UIScreen.mainScreen().bounds.width == 736 && rightButtonWidth >= 67) // 6plus original
+                        {
+                            frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, rightButtonWidth * 1.29, frame.height))
+                            currentOrigin += (rightButtonWidth + gapWidth)
+                        }
+                        else if UIDevice.currentDevice().userInterfaceIdiom == UIUserInterfaceIdiom.Pad
+                        {
+                            if(rightButtonWidth == 70)
+                            {
+                                frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, rightButtonWidth * 1.3, frame.height))
+
+                            }
+                            else // rightButtonWidth = 94 (ipad landscape)
+                            {
+                                frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, rightButtonWidth * 1.22, frame.height))
+                            }
+                            
+                            currentOrigin += (rightButtonWidth + gapWidth)
+                        }
+                        else if(UIScreen.mainScreen().bounds.width == 736 && rightButtonWidth >= 41) //6plus without splash
+                        {
+                            frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, rightButtonWidth * 1.5, frame.height))
+                            currentOrigin += (rightButtonWidth + gapWidth)
+                        }
+                        else if(UIScreen.mainScreen().bounds.width == 667 && rightButtonWidth == 41) //6 without splash
+                        {
+                            frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, rightButtonWidth * 1.47, frame.height))
+                            currentOrigin += (rightButtonWidth + gapWidth)
+                        }
+                        else if(UIScreen.mainScreen().bounds.width == 667 && rightButtonWidth >= 59) //6 original
+                        {
+                            frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, rightButtonWidth * 1.32, frame.height))
+                            currentOrigin += (rightButtonWidth + gapWidth)
+                        }
+                        else if(UIScreen.mainScreen().bounds.width == 480 && rightButtonWidth >= 41) //6 original
+                        {
+                            frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, rightButtonWidth * 1.48, frame.height))
+                            currentOrigin += (rightButtonWidth + gapWidth)
+                        }
+                        else
+                        {
+                            frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, rightButtonWidth * 1.4, frame.height))
+                            currentOrigin += (rightButtonWidth + gapWidth)
+                        }
+                    }
+                    else
+                    {
+                        if(UIScreen.mainScreen().bounds.width == 414 && rightButtonWidth >= 45)
+                        {
+                            frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, rightButtonWidth * 1.65, frame.height))
+                            currentOrigin += (rightButtonWidth + gapWidth)
+                        }
+                        else if(UIScreen.mainScreen().bounds.width == 414 && rightButtonWidth >= 28)
+                        {
+                            frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, rightButtonWidth * 1.8, frame.height))
+                            currentOrigin += (rightButtonWidth + gapWidth)
+                        }
+                        else if(UIScreen.mainScreen().bounds.width == 375 && rightButtonWidth >= 41)
+                        {
+                            frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, rightButtonWidth * 1.7, frame.height))
+                            currentOrigin += (rightButtonWidth + gapWidth)
+                        }
+                        else if(UIScreen.mainScreen().bounds.width == 375 && rightButtonWidth >= 25)
+                        {
+                            frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, rightButtonWidth * 1.8, frame.height))
+                            currentOrigin += (rightButtonWidth + gapWidth)
+                        }
+                        else
+                        {
+                            frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, rightButtonWidth * 1.82, frame.height))
+                            currentOrigin += (rightButtonWidth + gapWidth)
+                        }
+
+                    }
+                    
+                }
+				else if hasButtonInAtButtonPosition
+				{
+					if k == 4
+					{
+						frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, atButtonWidth, frame.height))
+						currentOrigin += (atButtonWidth + gapWidth)
+					}
+					else if k == 5
+					{
+						frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, dotButtonWidth, frame.height))
+						currentOrigin += (dotButtonWidth + gapWidth)
+					}
+                    else if k == 6
+                    {
+                        // intro button constarints for iPhone 6 and 6plus
+                        
+                        if(isLandscape)
+                        {
+                            if(UIScreen.mainScreen().bounds.width == 736 && rightButtonWidth == 43)
+                            {
+                                frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, rightButtonWidth * 1.9, frame.height))
+                                currentOrigin += (rightButtonWidth + gapWidth)
+                            }
+                            else if UIDevice.currentDevice().userInterfaceIdiom == UIUserInterfaceIdiom.Pad
+                            {
+                                if(rightButtonWidth == 45)
+                                {
+                                    frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, rightButtonWidth * 1.88, frame.height))
+                                }
+                                else // ipad landscape
+                                {
+                                    frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, rightButtonWidth * 1.68, frame.height))
+                                }
+                                
+                            }
+                            else if(UIScreen.mainScreen().bounds.width == 736 && rightButtonWidth >= 21)
+                            {
+                                frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, rightButtonWidth * 2.6, frame.height))
+                                currentOrigin += (rightButtonWidth + gapWidth)
+                            }
+                            else if(UIScreen.mainScreen().bounds.width == 667 && rightButtonWidth == 37)
+                            {
+                                frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, rightButtonWidth * 2.1, frame.height))
+                                currentOrigin += (rightButtonWidth + gapWidth)
+                            }
+                            else if(UIScreen.mainScreen().bounds.width == 667 && rightButtonWidth >= 24)
+                            {
+                                frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, rightButtonWidth * 2.65, frame.height))
+                                currentOrigin += (rightButtonWidth + gapWidth)
+                            }
+                            else if(UIScreen.mainScreen().bounds.width == 480 && rightButtonWidth >= 24)
+                            {
+                                frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, rightButtonWidth * 2.67, frame.height))
+                                currentOrigin += (rightButtonWidth + gapWidth)
+                            }
+
+                            else
+                            {
+                                frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, rightButtonWidth*2.3, frame.height))
+                                currentOrigin += (rightButtonWidth + gapWidth)
+                            }
+
+                        }
+                        else
+                        {
+                            if(UIScreen.mainScreen().bounds.width == 414 && rightButtonWidth == 21)
+                            {
+                                frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, rightButtonWidth * 2.4, frame.height))
+                                currentOrigin += (rightButtonWidth + gapWidth)
+                            }
+                            else if(UIScreen.mainScreen().bounds.width == 414 && rightButtonWidth >= 28)
+                            {
+                                frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, rightButtonWidth * 2.0, frame.height))
+                                currentOrigin += (rightButtonWidth + gapWidth)
+                            }
+                            else if(UIScreen.mainScreen().bounds.width == 375 && rightButtonWidth == 21)
+                            {
+                                frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, rightButtonWidth * 2.4, frame.height))
+                                currentOrigin += (rightButtonWidth + gapWidth)
+                            }
+                            else if(UIScreen.mainScreen().bounds.width == 375 && rightButtonWidth >= 25)
+                            {
+                                frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, rightButtonWidth * 2.1, frame.height))
+                                currentOrigin += (rightButtonWidth + gapWidth)
+                            }
+                            else
+                            {
+                                frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, rightButtonWidth*2.4, frame.height))
+                                currentOrigin += (rightButtonWidth + gapWidth)
+                            }
+
+                        }
+                        
+           
+                    }
+					else
+					{
+						var widthTotal = UIScreen.mainScreen().bounds.width
+						
+						var widthOfSpace = widthTotal - rounded(currentOrigin) - (gapWidth/2)
+						
+						frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, widthOfSpace, frame.height))
+						currentOrigin += (rightButtonWidth + gapWidth)
+                        
+                    }
+					
+				}
+				else
+				{
+					if hasButtonInDotButtonPosition
+					{
+						var widthTotal = UIScreen.mainScreen().bounds.width
+						
+						var widthOfSpace = widthTotal - rounded(currentOrigin) - (gapWidth/2)
+						
+						frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, widthOfSpace, frame.height))
+						currentOrigin += (rightButtonWidth + gapWidth)
+					}
+					else if hasButtonInAtButtonPosition
+					{
+						var widthTotal = UIScreen.mainScreen().bounds.width
+						
+						var widthOfSpace = widthTotal - rounded(currentOrigin) - (gapWidth/2)
+						
+						frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, widthOfSpace, frame.height))
+						currentOrigin += (rightButtonWidth + gapWidth)
+					}
+					else
+					{
+						frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, rightButtonWidth, frame.height))
+						currentOrigin += (rightButtonWidth + gapWidth)
+					}
+					
+				}
+				
+				
             }
         }
 
