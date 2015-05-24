@@ -8,29 +8,29 @@
 
 import UIKit
 
-class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
+public class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
     
-    @IBOutlet var tableView: UITableView?
-    @IBOutlet var effectsView: UIVisualEffectView?
-    @IBOutlet var backButton: UIButton?
-    @IBOutlet var settingsLabel: UILabel?
-    @IBOutlet var pixelLine: UIView?
+    @IBOutlet public var tableView: UITableView?
+    @IBOutlet public var effectsView: UIVisualEffectView?
+    @IBOutlet public var backButton: UIButton?
+    @IBOutlet public var settingsLabel: UILabel?
+    @IBOutlet public var pixelLine: UIView?
     
-    override var darkMode: Bool {
+    override public var darkMode: Bool {
         didSet {
             self.updateAppearance(darkMode)
         }
     }
     
-    let cellBackgroundColorDark = UIColor.whiteColor().colorWithAlphaComponent(CGFloat(0.25))
-    let cellBackgroundColorLight = UIColor.whiteColor().colorWithAlphaComponent(CGFloat(1))
-    let cellLabelColorDark = UIColor.whiteColor()
-    let cellLabelColorLight = UIColor.blackColor()
-    let cellLongLabelColorDark = UIColor.lightGrayColor()
-    let cellLongLabelColorLight = UIColor.grayColor()
+    public let cellBackgroundColorDark = UIColor.whiteColor().colorWithAlphaComponent(CGFloat(0.25))
+    public let cellBackgroundColorLight = UIColor.whiteColor().colorWithAlphaComponent(CGFloat(1))
+    public let cellLabelColorDark = UIColor.whiteColor()
+    public let cellLabelColorLight = UIColor.blackColor()
+    public let cellLongLabelColorDark = UIColor.lightGrayColor()
+    public let cellLongLabelColorLight = UIColor.grayColor()
     
     // TODO: these probably don't belong here, and also need to be localized
-    var settingsList: [(String, [String])] {
+    public var settingsList: [(String, [String])] {
         get {
             return [
                 ("General Settings", [kAutoCapitalization, kPeriodShortcut, kKeyboardClicks]),
@@ -38,7 +38,7 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
             ]
         }
     }
-    var settingsNames: [String:String] {
+    public var settingsNames: [String:String] {
         get {
             return [
                 kAutoCapitalization: "Auto-Capitalization",
@@ -48,7 +48,7 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
             ]
         }
     }
-    var settingsNotes: [String: String] {
+    public var settingsNotes: [String: String] {
         get {
             return [
                 kKeyboardClicks: "Please note that keyboard clicks will work only if “Allow Full Access” is enabled in the keyboard settings. Unfortunately, this is a limitation of the operating system.",
@@ -57,16 +57,16 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
         }
     }
     
-    required init(globalColors: GlobalColors.Type?, darkMode: Bool, solidColorMode: Bool) {
+    required public init(globalColors: GlobalColors.Type?, darkMode: Bool, solidColorMode: Bool) {
         super.init(globalColors: globalColors, darkMode: darkMode, solidColorMode: solidColorMode)
         self.loadNib()
     }
 
-    required init(coder aDecoder: NSCoder) {
+    required public init(coder aDecoder: NSCoder) {
         fatalError("loading from nib not supported")
     }
     
-    func loadNib() {
+    public func loadNib() {
         let assets = NSBundle(forClass: self.dynamicType).loadNibNamed("DefaultSettings", owner: self, options: nil)
         
         if assets.count > 0 {
@@ -96,19 +96,19 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
         self.updateAppearance(self.darkMode)
     }
     
-    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    public func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return self.settingsList.count
     }
     
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    public func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return self.settingsList[section].1.count
     }
     
-    func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+    public func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return 35
     }
     
-    func tableView(tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+    public func tableView(tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         if section == self.settingsList.count - 1 {
             return 50
         }
@@ -117,11 +117,11 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
         }
     }
     
-    func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+    public func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         return self.settingsList[section].0
     }
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+    public func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         if var cell = tableView.dequeueReusableCellWithIdentifier("cell") as? DefaultSettingsTableViewCell {
             let key = self.settingsList[indexPath.section].1[indexPath.row]
             
@@ -147,7 +147,7 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
         }
     }
     
-    func updateAppearance(dark: Bool) {
+    public func updateAppearance(dark: Bool) {
         if dark {
             self.effectsView?.effect
             let blueColor = UIColor(red: 135/CGFloat(255), green: 206/CGFloat(255), blue: 250/CGFloat(255), alpha: 1)
@@ -187,7 +187,7 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
         }
     }
     
-    func toggleSetting(sender: UISwitch) {
+    public func toggleSetting(sender: UISwitch) {
         if let cell = sender.superview as? UITableViewCell {
             if let indexPath = self.tableView?.indexPathForCell(cell) {
                 let key = self.settingsList[indexPath.section].1[indexPath.row]
@@ -197,15 +197,15 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
     }
 }
 
-class DefaultSettingsTableViewCell: UITableViewCell {
+public class DefaultSettingsTableViewCell: UITableViewCell {
     
-    var sw: UISwitch
-    var label: UILabel
-    var longLabel: UITextView
-    var constraintsSetForLongLabel: Bool
-    var cellConstraints: [NSLayoutConstraint]
+    public var sw: UISwitch
+    public var label: UILabel
+    public var longLabel: UITextView
+    public var constraintsSetForLongLabel: Bool
+    public var cellConstraints: [NSLayoutConstraint]
     
-    override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
+    override public init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         self.sw = UISwitch()
         self.label = UILabel()
         self.longLabel = UITextView()
@@ -235,11 +235,11 @@ class DefaultSettingsTableViewCell: UITableViewCell {
         self.addConstraints()
     }
 
-    required init(coder aDecoder: NSCoder) {
+    required public init(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func addConstraints() {
+    public func addConstraints() {
         let margin: CGFloat = 8
         let sideMargin = margin * 2
         
@@ -289,7 +289,7 @@ class DefaultSettingsTableViewCell: UITableViewCell {
     }
     
     // XXX: not in updateConstraints because it doesn't play nice with UITableViewAutomaticDimension for some reason
-    func changeConstraints() {
+    public func changeConstraints() {
         let hasLongText = self.longLabel.text != nil && !self.longLabel.text.isEmpty
         if hasLongText != self.constraintsSetForLongLabel {
             self.removeConstraints(self.cellConstraints)

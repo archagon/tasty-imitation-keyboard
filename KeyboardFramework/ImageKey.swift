@@ -8,9 +8,9 @@
 
 import UIKit
 
-class ImageKey: KeyboardKey {
+public class ImageKey: KeyboardKey {
     
-    var image: UIImageView? {
+    public var image: UIImageView? {
         willSet {
             var anImage = image
             anImage?.removeFromSuperview()
@@ -25,7 +25,7 @@ class ImageKey: KeyboardKey {
         }
     }
     
-    override func updateColors() {
+    override public func updateColors() {
         super.updateColors()
         
         let switchColors = self.highlighted || self.selected
@@ -43,12 +43,12 @@ class ImageKey: KeyboardKey {
         }
     }
     
-    override func refreshShapes() {
+    override public func refreshShapes() {
         super.refreshShapes()
         self.redrawImage()
     }
     
-    func redrawImage() {
+    public func redrawImage() {
         if let image = self.image {
             let imageSize = CGSizeMake(20, 20)
             let imageOrigin = CGPointMake(
