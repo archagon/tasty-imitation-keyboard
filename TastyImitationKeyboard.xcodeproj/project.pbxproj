@@ -114,7 +114,7 @@
 		4E3B5A931A0654A8003366F6 /* KeyboardInputTraits.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyboardInputTraits.swift; sourceTree = "<group>"; };
 		4E52A6D11A06A61F006A08CE /* ImageKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = ImageKey.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		4E52A6D31A06A626006A08CE /* ExtraView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = ExtraView.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
-		4E52A6D51A06BADA006A08CE /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Media.xcassets; sourceTree = "<group>"; };
+		4E52A6D51A06BADA006A08CE /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Media.xcassets; path = Media.xcassets; sourceTree = "<group>"; };
 		4E52A6D71A06C16C006A08CE /* DefaultSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = DefaultSettings.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		4E52A6D91A06C198006A08CE /* DefaultSettings.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DefaultSettings.xib; sourceTree = "<group>"; };
 		4E5B67A1196E03B700114361 /* KeyboardModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = KeyboardModel.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -129,7 +129,7 @@
 		4E807DBC19461DC700D875D1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4E807DC81946209600D875D1 /* KeyboardKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = KeyboardKey.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		4E8EF38119F95D74009CBF5D /* KeyboardFramework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = KeyboardFramework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		4E8EF38419F95D75009CBF5D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4E8EF38419F95D75009CBF5D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = KeyboardFramework/Info.plist; sourceTree = SOURCE_ROOT; };
 		4E8EF38519F95D75009CBF5D /* KeyboardFramework.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KeyboardFramework.h; sourceTree = "<group>"; };
 		4EC2A46919DF811E00F789E1 /* KeyboardViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = KeyboardViewController.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		4EC2A46A19DF811E00F789E1 /* KeyboardLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = KeyboardLayout.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -209,15 +209,6 @@
 			name = Controller;
 			sourceTree = "<group>";
 		};
-		4E6AEE5319D2489C00931E8F /* Demo */ = {
-			isa = PBXGroup;
-			children = (
-				4E6AEE4B19D246D700931E8F /* Catboard.swift */,
-				4EEFD78819E0DC6B004D4974 /* CatboardBanner.swift */,
-			);
-			name = Demo;
-			sourceTree = "<group>";
-		};
 		4E7CDF901A079E3E0015BB90 /* KeyboardSound */ = {
 			isa = PBXGroup;
 			children = (
@@ -280,13 +271,9 @@
 		4E807DBA19461DC700D875D1 /* Keyboard */ = {
 			isa = PBXGroup;
 			children = (
-				4E6AEE5219D2488B00931E8F /* Controller */,
-				4E6AEE5019D2486900931E8F /* Model */,
-				4E6AEE4F19D2484B00931E8F /* Views */,
-				4EE7599519F759F300B4E6ED /* Utility */,
-				4E6AEE5319D2489C00931E8F /* Demo */,
+				4E6AEE4B19D246D700931E8F /* Catboard.swift */,
+				4EEFD78819E0DC6B004D4974 /* CatboardBanner.swift */,
 				4E807DBB19461DC700D875D1 /* Supporting Files */,
-				4E52A6D51A06BADA006A08CE /* Media.xcassets */,
 			);
 			path = Keyboard;
 			sourceTree = "<group>";
@@ -303,7 +290,12 @@
 			isa = PBXGroup;
 			children = (
 				4E8EF38519F95D75009CBF5D /* KeyboardFramework.h */,
+				4E6AEE5219D2488B00931E8F /* Controller */,
+				4E6AEE5019D2486900931E8F /* Model */,
+				4E6AEE4F19D2484B00931E8F /* Views */,
+				4EE7599519F759F300B4E6ED /* Utility */,
 				4E8EF38319F95D75009CBF5D /* Supporting Files */,
+				4E52A6D51A06BADA006A08CE /* Media.xcassets */,
 			);
 			path = KeyboardFramework;
 			sourceTree = "<group>";
@@ -314,7 +306,8 @@
 				4E8EF38419F95D75009CBF5D /* Info.plist */,
 			);
 			name = "Supporting Files";
-			sourceTree = "<group>";
+			path = KeyboardFramework;
+			sourceTree = SOURCE_ROOT;
 		};
 		4EE7599519F759F300B4E6ED /* Utility */ = {
 			isa = PBXGroup;
