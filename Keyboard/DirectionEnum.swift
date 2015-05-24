@@ -6,13 +6,13 @@
 //  Copyright (c) 2014 Apple. All rights reserved.
 //
 
-enum Direction: Int, Printable {
+public enum Direction: Int, Printable {
     case Left = 0
     case Down = 3
     case Right = 2
     case Up = 1
     
-    var description: String {
+    public var description: String {
     get {
         switch self {
         case Left:
@@ -27,7 +27,7 @@ enum Direction: Int, Printable {
     }
     }
     
-    func clockwise() -> Direction {
+    public func clockwise() -> Direction {
         switch self {
         case Left:
             return Up
@@ -40,7 +40,7 @@ enum Direction: Int, Printable {
         }
     }
     
-    func counterclockwise() -> Direction {
+    public func counterclockwise() -> Direction {
         switch self {
         case Left:
             return Down
@@ -53,7 +53,7 @@ enum Direction: Int, Printable {
         }
     }
     
-    func opposite() -> Direction {
+    public func opposite() -> Direction {
         switch self {
         case Left:
             return Right
@@ -66,7 +66,7 @@ enum Direction: Int, Printable {
         }
     }
     
-    func horizontal() -> Bool {
+    public func horizontal() -> Bool {
         switch self {
         case
         Left,

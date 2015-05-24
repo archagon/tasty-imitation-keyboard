@@ -10,12 +10,12 @@ import Foundation
 
 var counter = 0
 
-enum ShiftState {
+public enum ShiftState {
     case Disabled
     case Enabled
     case Locked
     
-    func uppercase() -> Bool {
+    public func uppercase() -> Bool {
         switch self {
         case Disabled:
             return false
@@ -27,14 +27,14 @@ enum ShiftState {
     }
 }
 
-class Keyboard {
-    var pages: [Page]
+public class Keyboard {
+    public var pages: [Page]
     
-    init() {
+    public init() {
         self.pages = []
     }
     
-    func addKey(key: Key, row: Int, page: Int) {
+    public func addKey(key: Key, row: Int, page: Int) {
         if self.pages.count <= page {
             for i in self.pages.count...page {
                 self.pages.append(Page())
@@ -45,14 +45,14 @@ class Keyboard {
     }
 }
 
-class Page {
-    var rows: [[Key]]
+public class Page {
+    public var rows: [[Key]]
     
-    init() {
+    public init() {
         self.rows = []
     }
     
-    func addKey(key: Key, row: Int) {
+    public func addKey(key: Key, row: Int) {
         if self.rows.count <= row {
             for i in self.rows.count...row {
                 self.rows.append([])
@@ -63,8 +63,8 @@ class Page {
     }
 }
 
-class Key: Hashable {
-    enum KeyType {
+public class Key: Hashable {
+    public enum KeyType {
         case Character
         case SpecialCharacter
         case Shift
@@ -78,14 +78,14 @@ class Key: Hashable {
         case Other
     }
     
-    var type: KeyType
-    var uppercaseKeyCap: String?
-    var lowercaseKeyCap: String?
-    var uppercaseOutput: String?
-    var lowercaseOutput: String?
-    var toMode: Int? //if the key is a mode button, this indicates which page it links to
+    public var type: KeyType
+    public var uppercaseKeyCap: String?
+    public var lowercaseKeyCap: String?
+    public var uppercaseOutput: String?
+    public var lowercaseOutput: String?
+    public var toMode: Int? //if the key is a mode button, this indicates which page it links to
     
-    var isCharacter: Bool {
+    public var isCharacter: Bool {
         get {
             switch self.type {
             case
@@ -99,7 +99,7 @@ class Key: Hashable {
         }
     }
     
-    var isSpecial: Bool {
+    public var isSpecial: Bool {
         get {
             switch self.type {
             case .Shift:
@@ -120,22 +120,22 @@ class Key: Hashable {
         }
     }
     
-    var hasOutput: Bool {
+    public var hasOutput: Bool {
         get {
             return (self.uppercaseOutput != nil) || (self.lowercaseOutput != nil)
         }
     }
     
     // TODO: this is kind of a hack
-    var hashValue: Int
+    public var hashValue: Int
     
-    init(_ type: KeyType) {
+    public init(_ type: KeyType) {
         self.type = type
         self.hashValue = counter
         counter += 1
     }
     
-    convenience init(_ key: Key) {
+    public convenience init(_ key: Key) {
         self.init(key.type)
         
         self.uppercaseKeyCap = key.uppercaseKeyCap
@@ -145,14 +145,14 @@ class Key: Hashable {
         self.toMode = key.toMode
     }
     
-    func setLetter(letter: String) {
+    public func setLetter(letter: String) {
         self.lowercaseOutput = (letter as NSString).lowercaseString
         self.uppercaseOutput = (letter as NSString).uppercaseString
         self.lowercaseKeyCap = self.lowercaseOutput
         self.uppercaseKeyCap = self.uppercaseOutput
     }
     
-    func outputForCase(uppercase: Bool) -> String {
+    public func outputForCase(uppercase: Bool) -> String {
         if uppercase {
             if self.uppercaseOutput != nil {
                 return self.uppercaseOutput!
@@ -177,7 +177,7 @@ class Key: Hashable {
         }
     }
     
-    func keyCapForCase(uppercase: Bool) -> String {
+    public func keyCapForCase(uppercase: Bool) -> String {
         if uppercase {
             if self.uppercaseKeyCap != nil {
                 return self.uppercaseKeyCap!
@@ -203,6 +203,6 @@ class Key: Hashable {
     }
 }
 
-func ==(lhs: Key, rhs: Key) -> Bool {
+public func ==(lhs: Key, rhs: Key) -> Bool {
     return lhs.hashValue == rhs.hashValue
 }

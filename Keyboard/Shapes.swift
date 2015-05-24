@@ -14,32 +14,32 @@ import UIKit
 // SHAPE OBJECTS //
 ///////////////////
 
-class BackspaceShape: Shape {
-    override func drawCall(color: UIColor) {
+public class BackspaceShape: Shape {
+    override public func drawCall(color: UIColor) {
         drawBackspace(self.bounds, color)
     }
 }
 
-class ShiftShape: Shape {
-    var withLock: Bool = false {
+public class ShiftShape: Shape {
+    public var withLock: Bool = false {
         didSet {
             self.overflowCanvas.setNeedsDisplay()
         }
     }
     
-    override func drawCall(color: UIColor) {
+    override public func drawCall(color: UIColor) {
         drawShift(self.bounds, color, self.withLock)
     }
 }
 
-class GlobeShape: Shape {
-    override func drawCall(color: UIColor) {
+public class GlobeShape: Shape {
+    override public func drawCall(color: UIColor) {
         drawGlobe(self.bounds, color)
     }
 }
 
-class Shape: UIView {
-    var color: UIColor? {
+public class Shape: UIView {
+    public var color: UIColor? {
         didSet {
             if let color = self.color {
                 self.overflowCanvas.setNeedsDisplay()
@@ -48,13 +48,13 @@ class Shape: UIView {
     }
     
     // in case shapes draw out of bounds, we still want them to show
-    var overflowCanvas: OverflowCanvas!
+    public var overflowCanvas: OverflowCanvas!
     
-    convenience init() {
+    convenience public init() {
         self.init(frame: CGRectZero)
     }
     
-    override required init(frame: CGRect) {
+    override required public init(frame: CGRect) {
         super.init(frame: frame)
         
         self.opaque = false
@@ -64,12 +64,12 @@ class Shape: UIView {
         self.addSubview(self.overflowCanvas)
     }
 
-    required init(coder aDecoder: NSCoder) {
+    required public init(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    var oldBounds: CGRect?
-    override func layoutSubviews() {
+    public var oldBounds: CGRect?
+    override public func layoutSubviews() {
         if self.bounds.width == 0 || self.bounds.height == 0 {
             return
         }
@@ -91,12 +91,12 @@ class Shape: UIView {
         self.overflowCanvas.setNeedsDisplay()
     }
     
-    func drawCall(color: UIColor) { /* override me! */ }
+    public func drawCall(color: UIColor) { /* override me! */ }
     
-    class OverflowCanvas: UIView {
-        unowned var shape: Shape
+    public class OverflowCanvas: UIView {
+        public unowned var shape: Shape
         
-        init(shape: Shape) {
+        public init(shape: Shape) {
             self.shape = shape
             
             super.init(frame: CGRectZero)
@@ -104,11 +104,11 @@ class Shape: UIView {
             self.opaque = false
         }
 
-        required init(coder aDecoder: NSCoder) {
+        required public init(coder aDecoder: NSCoder) {
             fatalError("init(coder:) has not been implemented")
         }
         
-        override func drawRect(rect: CGRect) {
+        override public func drawRect(rect: CGRect) {
             let ctx = UIGraphicsGetCurrentContext()
             let csp = CGColorSpaceCreateDeviceRGB()
             
@@ -141,8 +141,8 @@ func getFactors(fromSize: CGSize, toRect: CGRect) -> (xScalingFactor: CGFloat, y
         }
     }()
     
-    var ySize = { () -> CGFloat in
-        let scaledSize = (fromSize.height / CGFloat(2))
+     var ySize = { () -> CGFloat in
+         let scaledSize = (fromSize.height / CGFloat(2))
         if scaledSize > toRect.height {
             return (toRect.height / scaledSize) / CGFloat(2)
         }
@@ -151,14 +151,14 @@ func getFactors(fromSize: CGSize, toRect: CGRect) -> (xScalingFactor: CGFloat, y
         }
     }()
     
-    let actualSize = min(xSize, ySize)
+     let actualSize = min(xSize, ySize)
     
     return (actualSize, actualSize, actualSize, false, 0)
 }
 
 func centerShape(fromSize: CGSize, toRect: CGRect) {
-    let xOffset = (toRect.width - fromSize.width) / CGFloat(2)
-    let yOffset = (toRect.height - fromSize.height) / CGFloat(2)
+     let xOffset = (toRect.width - fromSize.width) / CGFloat(2)
+     let yOffset = (toRect.height - fromSize.height) / CGFloat(2)
     
     let ctx = UIGraphicsGetCurrentContext()
     CGContextSaveGState(ctx)

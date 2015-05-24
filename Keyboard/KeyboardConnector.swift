@@ -8,7 +8,7 @@
 
 import UIKit
 
-protocol Connectable: class {
+public protocol Connectable: class {
     func attachmentPoints(direction: Direction) -> (CGPoint, CGPoint)
     func attachmentDirection() -> Direction?
     func attach(direction: Direction?) // call with nil to detach
@@ -16,22 +16,22 @@ protocol Connectable: class {
 
 // TODO: Xcode crashes -- as of 2014-10-9, still crashes if implemented
 // <ConnectableView: UIView where ConnectableView: Connectable>
-class KeyboardConnector: KeyboardKeyBackground {
+public class KeyboardConnector: KeyboardKeyBackground {
 
-    var start: UIView
-    var end: UIView
-    var startDir: Direction
-    var endDir: Direction
+    public var start: UIView
+    public var end: UIView
+    public var startDir: Direction
+    public var endDir: Direction
 
-    weak var startConnectable: Connectable?
-    weak var endConnectable: Connectable?
-    var convertedStartPoints: (CGPoint, CGPoint)!
-    var convertedEndPoints: (CGPoint, CGPoint)!
+    public weak var startConnectable: Connectable?
+    public weak var endConnectable: Connectable?
+    public var convertedStartPoints: (CGPoint, CGPoint)!
+    public var convertedEndPoints: (CGPoint, CGPoint)!
     
-    var offset: CGPoint
+    public var offset: CGPoint
     
     // TODO: until bug is fixed, make sure start/end and startConnectable/endConnectable are the same object
-    init(cornerRadius: CGFloat, underOffset: CGFloat, start s: UIView, end e: UIView, startConnectable sC: Connectable, endConnectable eC: Connectable, startDirection: Direction, endDirection: Direction) {
+    public init(cornerRadius: CGFloat, underOffset: CGFloat, start s: UIView, end e: UIView, startConnectable sC: Connectable, endConnectable eC: Connectable, startDirection: Direction, endDirection: Direction) {
         start = s
         end = e
         startDir = startDirection
@@ -44,21 +44,21 @@ class KeyboardConnector: KeyboardKeyBackground {
         super.init(cornerRadius: cornerRadius, underOffset: underOffset)
     }
     
-    required init(coder: NSCoder) {
+    required public init(coder: NSCoder) {
         fatalError("NSCoding not supported")
     }
 
-    override func didMoveToSuperview() {
+    override public func didMoveToSuperview() {
         super.didMoveToSuperview()
         self.setNeedsLayout()
     }
 
-    override func layoutSubviews() {
+    override public func layoutSubviews() {
         self.resizeFrame()
         super.layoutSubviews()
     }
 
-    func generateConvertedPoints() {
+    public func generateConvertedPoints() {
         if self.startConnectable == nil || self.endConnectable == nil {
             return
         }
@@ -76,7 +76,7 @@ class KeyboardConnector: KeyboardKeyBackground {
         }
     }
 
-    func resizeFrame() {
+    public func resizeFrame() {
         generateConvertedPoints()
 
         let buffer: CGFloat = 32
@@ -92,7 +92,7 @@ class KeyboardConnector: KeyboardKeyBackground {
         self.frame = CGRectMake(minX - buffer/2, minY - buffer/2, width + buffer, height + buffer)
     }
     
-    override func generatePointsForDrawing(bounds: CGRect) {
+    override public func generatePointsForDrawing(bounds: CGRect) {
         if self.startConnectable == nil || self.endConnectable == nil {
             return
         }

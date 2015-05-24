@@ -8,11 +8,11 @@
 
 import UIKit
 
-class ForwardingView: UIView {
+public class ForwardingView: UIView {
     
-    var touchToView: [UITouch:UIView]
+    public var touchToView: [UITouch:UIView]
     
-    override init(frame: CGRect) {
+    override public init(frame: CGRect) {
         self.touchToView = [:]
         
         super.init(frame: frame)
@@ -23,7 +23,7 @@ class ForwardingView: UIView {
         self.opaque = false
     }
     
-    required init(coder: NSCoder) {
+    required public init(coder: NSCoder) {
         fatalError("NSCoding not supported")
     }
     
@@ -31,9 +31,9 @@ class ForwardingView: UIView {
     // then some weird optimization happens on UIKit's side where tapping down on a transparent pixel will
     // not actually recognize the touch. Having a manual drawRect fixes this behavior, even though it doesn't
     // actually do anything.
-    override func drawRect(rect: CGRect) {}
+    override public func drawRect(rect: CGRect) {}
     
-    override func hitTest(point: CGPoint, withEvent event: UIEvent!) -> UIView? {
+    override public func hitTest(point: CGPoint, withEvent event: UIEvent!) -> UIView? {
         if self.hidden || self.alpha == 0 || !self.userInteractionEnabled {
             return nil
         }
@@ -42,7 +42,7 @@ class ForwardingView: UIView {
         }
     }
     
-    func handleControl(view: UIView?, controlEvent: UIControlEvents) {
+    public func handleControl(view: UIView?, controlEvent: UIControlEvents) {
         if let control = view as? UIControl {
             let targets = control.allTargets()
             for target in targets {
@@ -59,7 +59,7 @@ class ForwardingView: UIView {
     }
     
     // TODO: there's a bit of "stickiness" to Apple's implementation
-    func findNearestView(position: CGPoint) -> UIView? {
+    public func findNearestView(position: CGPoint) -> UIView? {
         if !self.bounds.contains(position) {
             return nil
         }
@@ -96,7 +96,7 @@ class ForwardingView: UIView {
     }
     
     // http://stackoverflow.com/questions/3552108/finding-closest-object-to-cgpoint b/c I'm lazy
-    func distanceBetween(rect: CGRect, point: CGPoint) -> CGFloat {
+    public func distanceBetween(rect: CGRect, point: CGPoint) -> CGFloat {
         if CGRectContainsPoint(rect, point) {
             return 0
         }
@@ -122,14 +122,14 @@ class ForwardingView: UIView {
     }
     
     // reset tracked views without cancelling current touch
-    func resetTrackedViews() {
+    public func resetTrackedViews() {
         for view in self.touchToView.values {
             self.handleControl(view, controlEvent: .TouchCancel)
         }
         self.touchToView.removeAll(keepCapacity: true)
     }
     
-    func ownView(newTouch: UITouch, viewToOwn: UIView?) -> Bool {
+    public func ownView(newTouch: UITouch, viewToOwn: UIView?) -> Bool {
         var foundView = false
         
         if viewToOwn != nil {
@@ -151,7 +151,7 @@ class ForwardingView: UIView {
         return foundView
     }
     
-    override func touchesBegan(touches: Set<NSObject>, withEvent event: UIEvent) {
+    override public func touchesBegan(touches: Set<NSObject>, withEvent event: UIEvent) {
         for obj in touches {
             if let touch = obj as? UITouch {
                 let position = touch.locationInView(self)
@@ -171,7 +171,7 @@ class ForwardingView: UIView {
         }
     }
     
-    override func touchesMoved(touches: Set<NSObject>, withEvent event: UIEvent) {
+    override public func touchesMoved(touches: Set<NSObject>, withEvent event: UIEvent) {
         for obj in touches {
             if let touch = obj as? UITouch {
                 let position = touch.locationInView(self)
@@ -198,7 +198,7 @@ class ForwardingView: UIView {
         }
     }
     
-    override func touchesEnded(touches: Set<NSObject>, withEvent event: UIEvent) {
+    override public func touchesEnded(touches: Set<NSObject>, withEvent event: UIEvent) {
         for obj in touches {
             if let touch = obj as? UITouch {
                 var view = self.touchToView[touch]
@@ -217,7 +217,7 @@ class ForwardingView: UIView {
         }
     }
 
-    override func touchesCancelled(touches: Set<NSObject>, withEvent event: UIEvent!) {
+    override public func touchesCancelled(touches: Set<NSObject>, withEvent event: UIEvent!) {
         for obj in touches {
             if let touch = obj as? UITouch {
                 var view = self.touchToView[touch]

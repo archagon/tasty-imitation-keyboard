@@ -8,39 +8,39 @@
 
 import UIKit
 
-// This class does not actually draw its contents; rather, it generates bezier curves for others to use.
+// This public class does not actually draw its contents; rather, it generates bezier curves for others to use.
 // (You can still move it around, resize it, and add subviews to it. It just won't display the curve assigned to it.)
-class KeyboardKeyBackground: UIView, Connectable {
+public class KeyboardKeyBackground: UIView, Connectable {
     
-    var fillPath: UIBezierPath?
-    var underPath: UIBezierPath?
-    var edgePaths: [UIBezierPath]?
+    public var fillPath: UIBezierPath?
+    public var underPath: UIBezierPath?
+    public var edgePaths: [UIBezierPath]?
     
     // do not set this manually
-    var cornerRadius: CGFloat
-    var underOffset: CGFloat
+    public var cornerRadius: CGFloat
+    public var underOffset: CGFloat
     
-    var startingPoints: [CGPoint]
-    var segmentPoints: [(CGPoint, CGPoint)]
-    var arcCenters: [CGPoint]
-    var arcStartingAngles: [CGFloat]
+    public var startingPoints: [CGPoint]
+    public var segmentPoints: [(CGPoint, CGPoint)]
+    public var arcCenters: [CGPoint]
+    public var arcStartingAngles: [CGFloat]
     
-    var dirty: Bool
+    public var dirty: Bool
 
-    var attached: Direction? {
+    public var attached: Direction? {
         didSet {
             self.dirty = true
             self.setNeedsLayout()
         }
     }
-    var hideDirectionIsOpposite: Bool {
+    public var hideDirectionIsOpposite: Bool {
         didSet {
             self.dirty = true
             self.setNeedsLayout()
         }
     }
     
-    init(cornerRadius: CGFloat, underOffset: CGFloat) {
+    public init(cornerRadius: CGFloat, underOffset: CGFloat) {
         attached = nil
         hideDirectionIsOpposite = false
         dirty = false
@@ -70,12 +70,12 @@ class KeyboardKeyBackground: UIView, Connectable {
         self.userInteractionEnabled = false
     }
     
-    required init(coder: NSCoder) {
+    required public init(coder: NSCoder) {
         fatalError("NSCoding not supported")
     }
     
-    var oldBounds: CGRect?
-    override func layoutSubviews() {
+    public var oldBounds: CGRect?
+    override public func layoutSubviews() {
         if !self.dirty {
             if self.bounds.width == 0 || self.bounds.height == 0 {
                 return
@@ -93,11 +93,11 @@ class KeyboardKeyBackground: UIView, Connectable {
         self.dirty = false
     }
     
-    let floatPi = CGFloat(M_PI)
-    let floatPiDiv2 = CGFloat(M_PI/2.0)
-    let floatPiDivNeg2 = -CGFloat(M_PI/2.0)
+    public let floatPi = CGFloat(M_PI)
+    public let floatPiDiv2 = CGFloat(M_PI/2.0)
+    public let floatPiDivNeg2 = -CGFloat(M_PI/2.0)
     
-    func generatePointsForDrawing(bounds: CGRect) {
+    public func generatePointsForDrawing(bounds: CGRect) {
         let segmentWidth = bounds.width
         let segmentHeight = bounds.height - CGFloat(underOffset)
         
@@ -267,7 +267,7 @@ class KeyboardKeyBackground: UIView, Connectable {
         self.underPath = underPath
     }
     
-    func attachmentPoints(direction: Direction) -> (CGPoint, CGPoint) {
+    public func attachmentPoints(direction: Direction) -> (CGPoint, CGPoint) {
         var returnValue = (
             self.segmentPoints[direction.clockwise().rawValue].0,
             self.segmentPoints[direction.counterclockwise().rawValue].1)
@@ -275,11 +275,11 @@ class KeyboardKeyBackground: UIView, Connectable {
         return returnValue
     }
     
-    func attachmentDirection() -> Direction? {
+    public func attachmentDirection() -> Direction? {
         return self.attached
     }
     
-    func attach(direction: Direction?) {
+    public func attach(direction: Direction?) {
         self.attached = direction
     }
 }
