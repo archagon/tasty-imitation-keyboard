@@ -16,7 +16,7 @@ import UIKit
 
 class BackspaceShape: Shape {
     override func drawCall(color: UIColor) {
-        drawBackspace(self.bounds, color)
+        drawBackspace(self.bounds, color: color)
     }
 }
 
@@ -28,13 +28,13 @@ class ShiftShape: Shape {
     }
     
     override func drawCall(color: UIColor) {
-        drawShift(self.bounds, color, self.withLock)
+        drawShift(self.bounds, color: color, withRect: self.withLock)
     }
 }
 
 class GlobeShape: Shape {
     override func drawCall(color: UIColor) {
-        drawGlobe(self.bounds, color)
+        drawGlobe(self.bounds, color: color)
     }
 }
 
@@ -171,12 +171,12 @@ func endCenter() {
 }
 
 func drawBackspace(bounds: CGRect, color: UIColor) {
-    let factors = getFactors(CGSizeMake(44, 32), bounds)
+    let factors = getFactors(CGSizeMake(44, 32), toRect: bounds)
     let xScalingFactor = factors.xScalingFactor
     let yScalingFactor = factors.yScalingFactor
     let lineWidthScalingFactor = factors.lineWidthScalingFactor
     
-    centerShape(CGSizeMake(44 * xScalingFactor, 32 * yScalingFactor), bounds)
+    centerShape(CGSizeMake(44 * xScalingFactor, 32 * yScalingFactor), toRect: bounds)
     
     
     //// Color Declarations
@@ -227,12 +227,12 @@ func drawBackspace(bounds: CGRect, color: UIColor) {
 }
 
 func drawShift(bounds: CGRect, color: UIColor, withRect: Bool) {
-    let factors = getFactors(CGSizeMake(38, (withRect ? 34 + 4 : 32)), bounds)
+    let factors = getFactors(CGSizeMake(38, (withRect ? 34 + 4 : 32)), toRect: bounds)
     let xScalingFactor = factors.xScalingFactor
     let yScalingFactor = factors.yScalingFactor
     let lineWidthScalingFactor = factors.lineWidthScalingFactor
     
-    centerShape(CGSizeMake(38 * xScalingFactor, (withRect ? 34 + 4 : 32) * yScalingFactor), bounds)
+    centerShape(CGSizeMake(38 * xScalingFactor, (withRect ? 34 + 4 : 32) * yScalingFactor), toRect: bounds)
     
     
     //// Color Declarations
@@ -268,12 +268,12 @@ func drawShift(bounds: CGRect, color: UIColor, withRect: Bool) {
 }
 
 func drawGlobe(bounds: CGRect, color: UIColor) {
-    let factors = getFactors(CGSizeMake(41, 40), bounds)
+    let factors = getFactors(CGSizeMake(41, 40), toRect: bounds)
     let xScalingFactor = factors.xScalingFactor
     let yScalingFactor = factors.yScalingFactor
     let lineWidthScalingFactor = factors.lineWidthScalingFactor
     
-    centerShape(CGSizeMake(41 * xScalingFactor, 40 * yScalingFactor), bounds)
+    centerShape(CGSizeMake(41 * xScalingFactor, 40 * yScalingFactor), toRect: bounds)
     
     
     //// Color Declarations
@@ -312,7 +312,8 @@ func drawGlobe(bounds: CGRect, color: UIColor) {
     var bezier3Path = UIBezierPath()
     bezier3Path.moveToPoint(CGPointMake(21.63 * xScalingFactor, 0.42 * yScalingFactor))
     bezier3Path.addCurveToPoint(CGPointMake(21.63 * xScalingFactor, 39.6 * yScalingFactor), controlPoint1: CGPointMake(21.63 * xScalingFactor, 0.42 * yScalingFactor), controlPoint2: CGPointMake(41 * xScalingFactor, 19 * yScalingFactor))
-    bezier3Path.lineCapStyle = kCGLineCapRound;
+    bezier3Path.lineCapStyle = CGLineCap.Round;
+    //bezier3Path.lineCapStyle = kCGLineCapRound;
     
     color.setStroke()
     bezier3Path.lineWidth = 1 * lineWidthScalingFactor
@@ -323,7 +324,7 @@ func drawGlobe(bounds: CGRect, color: UIColor) {
     var bezier4Path = UIBezierPath()
     bezier4Path.moveToPoint(CGPointMake(17.76 * xScalingFactor, 0.74 * yScalingFactor))
     bezier4Path.addCurveToPoint(CGPointMake(18.72 * xScalingFactor, 39.6 * yScalingFactor), controlPoint1: CGPointMake(17.76 * xScalingFactor, 0.74 * yScalingFactor), controlPoint2: CGPointMake(-2.5 * xScalingFactor, 19.04 * yScalingFactor))
-    bezier4Path.lineCapStyle = kCGLineCapRound;
+    bezier4Path.lineCapStyle = CGLineCap.Round;
     
     color.setStroke()
     bezier4Path.lineWidth = 1 * lineWidthScalingFactor
@@ -334,7 +335,7 @@ func drawGlobe(bounds: CGRect, color: UIColor) {
     var bezier5Path = UIBezierPath()
     bezier5Path.moveToPoint(CGPointMake(6 * xScalingFactor, 7 * yScalingFactor))
     bezier5Path.addCurveToPoint(CGPointMake(34 * xScalingFactor, 7 * yScalingFactor), controlPoint1: CGPointMake(6 * xScalingFactor, 7 * yScalingFactor), controlPoint2: CGPointMake(19 * xScalingFactor, 21 * yScalingFactor))
-    bezier5Path.lineCapStyle = kCGLineCapRound;
+    bezier5Path.lineCapStyle = CGLineCap.Round;
     
     color.setStroke()
     bezier5Path.lineWidth = 1 * lineWidthScalingFactor
@@ -345,7 +346,7 @@ func drawGlobe(bounds: CGRect, color: UIColor) {
     var bezier6Path = UIBezierPath()
     bezier6Path.moveToPoint(CGPointMake(6 * xScalingFactor, 33 * yScalingFactor))
     bezier6Path.addCurveToPoint(CGPointMake(34 * xScalingFactor, 33 * yScalingFactor), controlPoint1: CGPointMake(6 * xScalingFactor, 33 * yScalingFactor), controlPoint2: CGPointMake(19 * xScalingFactor, 22 * yScalingFactor))
-    bezier6Path.lineCapStyle = kCGLineCapRound;
+    bezier6Path.lineCapStyle = CGLineCap.Round;
     
     color.setStroke()
     bezier6Path.lineWidth = 1 * lineWidthScalingFactor
