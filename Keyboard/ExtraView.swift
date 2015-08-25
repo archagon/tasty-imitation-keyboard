@@ -11,7 +11,14 @@ import UIKit
 class ExtraView: UIView {
     
     var globalColors: GlobalColors.Type?
-    var darkMode: Bool
+    var darkMode: Bool {
+        didSet {
+            if oldValue != darkMode {
+                updateAppearance()
+            }
+        }
+    }
+    
     var solidColorMode: Bool
     
     required init(globalColors: GlobalColors.Type?, darkMode: Bool, solidColorMode: Bool) {
@@ -28,5 +35,9 @@ class ExtraView: UIView {
         self.solidColorMode = false
         
         super.init(coder: aDecoder)
+    }
+    
+    func updateAppearance() {
+        
     }
 }
