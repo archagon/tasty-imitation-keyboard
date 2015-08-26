@@ -16,12 +16,6 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
     @IBOutlet var settingsLabel: UILabel?
     @IBOutlet var pixelLine: UIView?
     
-    override var darkMode: Bool {
-        didSet {
-            self.updateAppearance(darkMode)
-        }
-    }
-    
     let cellBackgroundColorDark = UIColor.whiteColor().colorWithAlphaComponent(CGFloat(0.25))
     let cellBackgroundColorLight = UIColor.whiteColor().colorWithAlphaComponent(CGFloat(1))
     let cellLabelColorDark = UIColor.whiteColor()
@@ -93,7 +87,7 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
         // XXX: this is here b/c a totally transparent background does not support scrolling in blank areas
         self.tableView?.backgroundColor = UIColor.whiteColor().colorWithAlphaComponent(0.01)
         
-        self.updateAppearance(self.darkMode)
+        self.updateAppearance()
     }
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
@@ -147,8 +141,10 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
         }
     }
     
-    func updateAppearance(dark: Bool) {
-        if dark {
+    override func updateAppearance() {
+        super.updateAppearance()
+        
+        if darkMode {
             self.effectsView?.effect
             let blueColor = UIColor(red: 135/CGFloat(255), green: 206/CGFloat(255), blue: 250/CGFloat(255), alpha: 1)
             self.pixelLine?.backgroundColor = blueColor.colorWithAlphaComponent(CGFloat(0.5))
