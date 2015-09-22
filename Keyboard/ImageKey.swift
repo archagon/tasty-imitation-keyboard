@@ -12,11 +12,11 @@ class ImageKey: KeyboardKey {
     
     var image: UIImageView? {
         willSet {
-            var anImage = image
+            let anImage = image
             anImage?.removeFromSuperview()
         }
         didSet {
-            if var imageView = image {
+            if let imageView = image {
                 self.addSubview(imageView)
                 imageView.contentMode = UIViewContentMode.ScaleAspectFit
                 self.redrawImage()

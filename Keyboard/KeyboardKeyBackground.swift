@@ -55,7 +55,7 @@ class KeyboardKeyBackground: UIView, Connectable {
         arcCenters.reserveCapacity(4)
         arcStartingAngles.reserveCapacity(4)
         
-        for i in 0..<4 {
+        for _ in 0..<4 {
             startingPoints.append(CGPointZero)
             segmentPoints.append((CGPointZero, CGPointZero))
             arcCenters.append(CGPointZero)
@@ -70,7 +70,7 @@ class KeyboardKeyBackground: UIView, Connectable {
         self.userInteractionEnabled = false
     }
     
-    required init(coder: NSCoder) {
+    required init?(coder: NSCoder) {
         fatalError("NSCoding not supported")
     }
     
@@ -141,16 +141,16 @@ class KeyboardKeyBackground: UIView, Connectable {
                 floatYCorner = cornerRadius
             }
             
-            var p0 = CGPointMake(
+            let p0 = CGPointMake(
                 currentPoint.x + (floatXCorner),
                 currentPoint.y + underOffset + (floatYCorner))
-            var p1 = CGPointMake(
+            let p1 = CGPointMake(
                 nextPoint.x - (floatXCorner),
                 nextPoint.y + underOffset - (floatYCorner))
             
             self.segmentPoints[i] = (p0, p1)
             
-            var c = CGPointMake(
+            let c = CGPointMake(
                 p0.x - (floatYCorner),
                 p0.y + (floatXCorner))
 
@@ -164,7 +164,7 @@ class KeyboardKeyBackground: UIView, Connectable {
         // by simply using CGPathAddPath, since it closes all the subpaths, so we have to
         // duplicate the code a little bit.
         
-        var fillPath = UIBezierPath()
+        let fillPath = UIBezierPath()
         var edgePaths: [UIBezierPath] = []
         var prevPoint: CGPoint?
         
@@ -230,8 +230,8 @@ class KeyboardKeyBackground: UIView, Connectable {
         fillPath.closePath()
         fillPath.applyTransform(CGAffineTransformMakeTranslation(0, -self.underOffset))
         
-        var underPath = { () -> UIBezierPath in
-            var underPath = UIBezierPath()
+        let underPath = { () -> UIBezierPath in
+            let underPath = UIBezierPath()
             
             underPath.moveToPoint(self.segmentPoints[2].1)
             
@@ -268,7 +268,7 @@ class KeyboardKeyBackground: UIView, Connectable {
     }
     
     func attachmentPoints(direction: Direction) -> (CGPoint, CGPoint) {
-        var returnValue = (
+        let returnValue = (
             self.segmentPoints[direction.clockwise().rawValue].0,
             self.segmentPoints[direction.counterclockwise().rawValue].1)
         
