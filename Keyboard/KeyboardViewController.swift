@@ -311,7 +311,7 @@ class KeyboardViewController: UIInputViewController {
                         case Key.KeyType.KeyboardChange:
                             keyView.addTarget(self, action: "advanceTapped:", forControlEvents: .TouchUpInside)
                         case Key.KeyType.Backspace:
-                            let cancelEvents: UIControlEvents = UIControlEvents.TouchUpInside.union(UIControlEvents.TouchUpInside).union(UIControlEvents.TouchDragExit).union(UIControlEvents.TouchUpOutside).union(UIControlEvents.TouchCancel).union(UIControlEvents.TouchDragOutside)
+                            let cancelEvents: UIControlEvents = [.TouchUpInside, .TouchUpInside, .TouchDragExit, .TouchUpOutside, .TouchCancel, .TouchDragOutside]
                             
                             keyView.addTarget(self, action: "backspaceDown:", forControlEvents: .TouchDown)
                             keyView.addTarget(self, action: "backspaceUp:", forControlEvents: cancelEvents)
@@ -329,9 +329,9 @@ class KeyboardViewController: UIInputViewController {
                         
                         if key.isCharacter {
                             if UIDevice.currentDevice().userInterfaceIdiom != UIUserInterfaceIdiom.Pad {
-                                keyView.addTarget(self, action: Selector("showPopup:"), forControlEvents: UIControlEvents.TouchDown.union(UIControlEvents.TouchDragInside.union(UIControlEvents.TouchDragEnter)))
-                                keyView.addTarget(keyView, action: Selector("hidePopup"), forControlEvents: UIControlEvents.TouchDragExit.union(UIControlEvents.TouchCancel))
-                                keyView.addTarget(self, action: Selector("hidePopupDelay:"), forControlEvents: UIControlEvents.TouchUpInside.union(UIControlEvents.TouchUpOutside).union(UIControlEvents.TouchDragOutside))
+                                keyView.addTarget(self, action: Selector("showPopup:"), forControlEvents: [.TouchDown, .TouchDragInside, .TouchDragEnter])
+                                keyView.addTarget(keyView, action: Selector("hidePopup"), forControlEvents: [.TouchDragExit, .TouchCancel])
+                                keyView.addTarget(self, action: Selector("hidePopupDelay:"), forControlEvents: [.TouchUpInside, .TouchUpOutside, .TouchDragOutside])
                             }
                         }
                         
@@ -340,8 +340,8 @@ class KeyboardViewController: UIInputViewController {
                         }
                         
                         if key.type != Key.KeyType.Shift && key.type != Key.KeyType.ModeChange {
-                            keyView.addTarget(self, action: Selector("highlightKey:"), forControlEvents: UIControlEvents.TouchDown.union(UIControlEvents.TouchDragInside).union(UIControlEvents.TouchDragEnter))
-                            keyView.addTarget(self, action: Selector("unHighlightKey:"), forControlEvents: UIControlEvents.TouchUpInside.union(UIControlEvents.TouchUpOutside).union(UIControlEvents.TouchDragOutside).union(UIControlEvents.TouchDragExit).union(UIControlEvents.TouchCancel))
+                            keyView.addTarget(self, action: Selector("highlightKey:"), forControlEvents: [.TouchDown, .TouchDragInside, .TouchDragEnter])
+                            keyView.addTarget(self, action: Selector("unHighlightKey:"), forControlEvents: [.TouchUpInside, .TouchUpOutside, .TouchDragOutside, .TouchDragExit, .TouchCancel])
                         }
                         
                         keyView.addTarget(self, action: Selector("playKeySound"), forControlEvents: .TouchDown)
