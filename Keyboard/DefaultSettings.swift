@@ -224,14 +224,14 @@ class DefaultSettingsTableViewCell: UITableViewCell {
         self.addSubview(self.label)
         self.addSubview(self.longLabel)
         
-        self.addConstraints()
+        self.setupConstraints()
     }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func addConstraints() {
+    func setupConstraints() {
         let margin: CGFloat = 8
         let sideMargin = margin * 2
         
@@ -286,7 +286,7 @@ class DefaultSettingsTableViewCell: UITableViewCell {
         if hasLongText != self.constraintsSetForLongLabel {
             self.removeConstraints(self.cellConstraints)
             self.cellConstraints.removeAll()
-            self.addConstraints()
+            self.setupConstraints()
         }
     }
 }
