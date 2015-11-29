@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 Apple. All rights reserved.
 //
 
-enum Direction: Int, Printable {
+enum Direction: Int, CustomStringConvertible {
     case Left = 0
     case Down = 3
     case Right = 2

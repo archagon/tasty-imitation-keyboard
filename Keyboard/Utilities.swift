@@ -40,7 +40,7 @@ func memoize<T:Hashable, U>(fn : T -> U) -> T -> U {
     var cache = [T:U]()
     return {
         (val : T) -> U in
-        var value = cache[val]
+        let value = cache[val]
         if value != nil {
             return value!
         } else {

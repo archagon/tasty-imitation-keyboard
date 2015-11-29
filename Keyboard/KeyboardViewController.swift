@@ -114,7 +114,7 @@ class KeyboardViewController: UIInputViewController {
         NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("defaultsChanged:"), name: NSUserDefaultsDidChangeNotification, object: nil)
     }
     
-    required init(coder: NSCoder) {
+    required init?(coder: NSCoder) {
         fatalError("NSCoding not supported")
     }
     
@@ -134,9 +134,9 @@ class KeyboardViewController: UIInputViewController {
     var kludge: UIView?
     func setupKludge() {
         if self.kludge == nil {
-            var kludge = UIView()
+            let kludge = UIView()
             self.view.addSubview(kludge)
-            kludge.setTranslatesAutoresizingMaskIntoConstraints(false)
+            kludge.translatesAutoresizingMaskIntoConstraints = false
             kludge.hidden = true
             
             let a = NSLayoutConstraint(item: kludge, attribute: NSLayoutAttribute.Left, relatedBy: NSLayoutRelation.Equal, toItem: self.view, attribute: NSLayoutAttribute.Left, multiplier: 1, constant: 0)
@@ -171,7 +171,7 @@ class KeyboardViewController: UIInputViewController {
     var constraintsAdded: Bool = false
     func setupLayout() {
         if !constraintsAdded {
-            self.layout = self.dynamicType.layoutClass(model: self.keyboard, superview: self.forwardingView, layoutConstants: self.dynamicType.layoutConstants, globalColors: self.dynamicType.globalColors, darkMode: self.darkMode(), solidColorMode: self.solidColorMode())
+            self.layout = self.dynamicType.layoutClass.init(model: self.keyboard, superview: self.forwardingView, layoutConstants: self.dynamicType.layoutConstants, globalColors: self.dynamicType.globalColors, darkMode: self.darkMode(), solidColorMode: self.solidColorMode())
             
             self.layout?.initialize()
             self.setMode(0)
@@ -190,7 +190,7 @@ class KeyboardViewController: UIInputViewController {
     
     // only available after frame becomes non-zero
     func darkMode() -> Bool {
-        var darkMode = { () -> Bool in
+        let darkMode = { () -> Bool in
             if let proxy = self.textDocumentProxy as? UITextDocumentProxy {
                 return proxy.keyboardAppearance == UIKeyboardAppearance.Dark
             }
@@ -238,7 +238,7 @@ class KeyboardViewController: UIInputViewController {
     override func loadView() {
         super.loadView()
         
-        if var aBanner = self.createBanner() {
+        if let aBanner = self.createBanner() {
             aBanner.hidden = true
             self.view.insertSubview(aBanner, belowSubview: self.forwardingView)
             self.bannerView = aBanner
@@ -311,7 +311,7 @@ class KeyboardViewController: UIInputViewController {
                         case Key.KeyType.KeyboardChange:
                             keyView.addTarget(self, action: "advanceTapped:", forControlEvents: .TouchUpInside)
                         case Key.KeyType.Backspace:
-                            let cancelEvents: UIControlEvents = UIControlEvents.TouchUpInside|UIControlEvents.TouchUpInside|UIControlEvents.TouchDragExit|UIControlEvents.TouchUpOutside|UIControlEvents.TouchCancel|UIControlEvents.TouchDragOutside
+                            let cancelEvents: UIControlEvents = [UIControlEvents.TouchUpInside, UIControlEvents.TouchUpInside, UIControlEvents.TouchDragExit, UIControlEvents.TouchUpOutside, UIControlEvents.TouchCancel, UIControlEvents.TouchDragOutside]
                             
                             keyView.addTarget(self, action: "backspaceDown:", forControlEvents: .TouchDown)
                             keyView.addTarget(self, action: "backspaceUp:", forControlEvents: cancelEvents)
@@ -329,9 +329,9 @@ class KeyboardViewController: UIInputViewController {
                         
                         if key.isCharacter {
                             if UIDevice.currentDevice().userInterfaceIdiom != UIUserInterfaceIdiom.Pad {
-                                keyView.addTarget(self, action: Selector("showPopup:"), forControlEvents: .TouchDown | .TouchDragInside | .TouchDragEnter)
-                                keyView.addTarget(keyView, action: Selector("hidePopup"), forControlEvents: .TouchDragExit | .TouchCancel)
-                                keyView.addTarget(self, action: Selector("hidePopupDelay:"), forControlEvents: .TouchUpInside | .TouchUpOutside | .TouchDragOutside)
+                                keyView.addTarget(self, action: Selector("showPopup:"), forControlEvents: [.TouchDown, .TouchDragInside, .TouchDragEnter])
+                                keyView.addTarget(keyView, action: Selector("hidePopup"), forControlEvents: [.TouchDragExit, .TouchCancel])
+                                keyView.addTarget(self, action: Selector("hidePopupDelay:"), forControlEvents: [.TouchUpInside, .TouchUpOutside, .TouchDragOutside])
                             }
                         }
                         
@@ -340,8 +340,8 @@ class KeyboardViewController: UIInputViewController {
                         }
                         
                         if key.type != Key.KeyType.Shift && key.type != Key.KeyType.ModeChange {
-                            keyView.addTarget(self, action: Selector("highlightKey:"), forControlEvents: .TouchDown | .TouchDragInside | .TouchDragEnter)
-                            keyView.addTarget(self, action: Selector("unHighlightKey:"), forControlEvents: .TouchUpInside | .TouchUpOutside | .TouchDragOutside | .TouchDragExit | .TouchCancel)
+                            keyView.addTarget(self, action: Selector("highlightKey:"), forControlEvents: [.TouchDown, .TouchDragInside, .TouchDragEnter])
+                            keyView.addTarget(self, action: Selector("unHighlightKey:"), forControlEvents: [.TouchUpInside, .TouchUpOutside, .TouchDragOutside, .TouchDragExit, .TouchCancel])
                         }
                         
                         keyView.addTarget(self, action: Selector("playKeySound"), forControlEvents: .TouchDown)
@@ -394,7 +394,7 @@ class KeyboardViewController: UIInputViewController {
     }
 
     // TODO: this is currently not working as intended; only called when selection changed -- iOS bug
-    override func textDidChange(textInput: UITextInput) {
+    override func textDidChange(textInput: UITextInput?) {
         self.contextChanged()
     }
     
@@ -481,7 +481,7 @@ class KeyboardViewController: UIInputViewController {
             let charactersAreInCorrectState = { () -> Bool in
                 let previousContext = (self.textDocumentProxy as? UITextDocumentProxy)?.documentContextBeforeInput
                 
-                if previousContext == nil || count(previousContext!) < 3 {
+                if previousContext == nil || (previousContext!).characters.count < 3 {
                     return false
                 }
                 
@@ -657,14 +657,14 @@ class KeyboardViewController: UIInputViewController {
     @IBAction func toggleSettings() {
         // lazy load settings
         if self.settingsView == nil {
-            if var aSettings = self.createSettings() {
+            if let aSettings = self.createSettings() {
                 aSettings.darkMode = self.darkMode()
                 
                 aSettings.hidden = true
                 self.view.addSubview(aSettings)
                 self.settingsView = aSettings
                 
-                aSettings.setTranslatesAutoresizingMaskIntoConstraints(false)
+                aSettings.translatesAutoresizingMaskIntoConstraints = false
                 
                 let widthConstraint = NSLayoutConstraint(item: aSettings, attribute: NSLayoutAttribute.Width, relatedBy: NSLayoutRelation.Equal, toItem: self.view, attribute: NSLayoutAttribute.Width, multiplier: 1, constant: 0)
                 let heightConstraint = NSLayoutConstraint(item: aSettings, attribute: NSLayoutAttribute.Height, relatedBy: NSLayoutRelation.Equal, toItem: self.view, attribute: NSLayoutAttribute.Height, multiplier: 1, constant: 0)
@@ -729,7 +729,7 @@ class KeyboardViewController: UIInputViewController {
     
     func stringIsWhitespace(string: String?) -> Bool {
         if string != nil {
-            for char in string! {
+            for char in (string!).characters {
                 if !characterIsWhitespace(char) {
                     return false
                 }
@@ -745,7 +745,7 @@ class KeyboardViewController: UIInputViewController {
         
         if let traits = self.textDocumentProxy as? UITextInputTraits {
             if let autocapitalization = traits.autocapitalizationType {
-                var documentProxy = self.textDocumentProxy as? UITextDocumentProxy
+                let documentProxy = self.textDocumentProxy as? UITextDocumentProxy
                 var beforeContext = documentProxy?.documentContextBeforeInput
                 
                 switch autocapitalization {
@@ -762,7 +762,7 @@ class KeyboardViewController: UIInputViewController {
                 
                 case .Sentences:
                     if let beforeContext = documentProxy?.documentContextBeforeInput {
-                        let offset = min(3, count(beforeContext))
+                        let offset = min(3, beforeContext.characters.count)
                         var index = beforeContext.endIndex
                         
                         for (var i = 0; i < offset; i += 1) {
@@ -840,7 +840,7 @@ class KeyboardViewController: UIInputViewController {
     // a settings view that replaces the keyboard when the settings button is pressed
     func createSettings() -> ExtraView? {
         // note that dark mode is not yet valid here, so we just put false for clarity
-        var settingsView = DefaultSettings(globalColors: self.dynamicType.globalColors, darkMode: false, solidColorMode: self.solidColorMode())
+        let settingsView = DefaultSettings(globalColors: self.dynamicType.globalColors, darkMode: false, solidColorMode: self.solidColorMode())
         settingsView.backButton?.addTarget(self, action: Selector("toggleSettings"), forControlEvents: UIControlEvents.TouchUpInside)
         return settingsView
     }
