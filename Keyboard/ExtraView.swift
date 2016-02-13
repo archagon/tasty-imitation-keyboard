@@ -22,7 +22,7 @@ class ExtraView: UIView {
         super.init(frame: CGRectZero)
     }
     
-    required init(coder aDecoder: NSCoder) {
+    required init?(coder aDecoder: NSCoder) {
         self.globalColors = nil
         self.darkMode = false
         self.solidColorMode = false

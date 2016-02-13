@@ -147,7 +147,7 @@ class LayoutConstants: NSObject {
         return elements[self.findThreshholdIndex(threshholds, measurement: measurement)]
     }
     class func findThreshholdIndex(threshholds: [CGFloat], measurement: CGFloat) -> Int {
-        for (i, threshhold) in enumerate(reverse(threshholds)) {
+        for (i, threshhold) in threshholds.reverse().enumerate() {
             if measurement >= threshhold {
                 let actualIndex = threshholds.count - i
                 return actualIndex
@@ -315,9 +315,9 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         self.positionKeys(pageNum)
         
         // reset state
-        for (p, page) in enumerate(self.model.pages) {
-            for (_, row) in enumerate(page.rows) {
-                for (_, key) in enumerate(row) {
+        for (p, page) in self.model.pages.enumerate() {
+            for (_, row) in page.rows.enumerate() {
+                for (_, key) in row.enumerate() {
                     if let keyView = self.modelToView[key] {
                         keyView.hidePopup()
                         keyView.highlighted = false
@@ -588,9 +588,9 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
             
             // TODO: O(N^2) in terms of total # of keys since pooledKey is called for each key, but probably doesn't matter
             var foundKey: Bool = false
-            for (pp, page) in enumerate(model.pages) {
-                for (rr, row) in enumerate(page.rows) {
-                    for (kk, key) in enumerate(row) {
+            for (pp, page) in model.pages.enumerate() {
+                for (rr, row) in page.rows.enumerate() {
+                    for (kk, key) in row.enumerate() {
                         if key == aKey {
                             p = pp
                             r = rr
@@ -720,13 +720,13 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
                 return shape
             }
             else {
-                var shape = shapeClass(frame: CGRectZero)
+                var shape = shapeClass.init(frame: CGRectZero)
                 self.shapePool[className] = shape
                 return shape
             }
         }
         else {
-            return shapeClass(frame: CGRectZero)
+            return shapeClass.init(frame: CGRectZero)
         }
     }
     
@@ -770,7 +770,7 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         let lastRowRightSideRatio = (isLandscape ? self.layoutConstants.lastRowLandscapeLastButtonAreaWidthToKeyboardAreaWidth : self.layoutConstants.lastRowPortraitLastButtonAreaWidthToKeyboardAreaWidth)
         let lastRowKeyGap = (isLandscape ? self.layoutConstants.lastRowKeyGapLandscape(bounds.width) : self.layoutConstants.lastRowKeyGapPortrait)
         
-        for (p, page) in enumerate(model.pages) {
+        for (p, page) in model.pages.enumerate() {
             if p != pageToLayout {
                 continue
             }
@@ -779,7 +779,7 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
             
             let mostKeysInRow: Int = {
                 var currentMax: Int = 0
-                for (i, row) in enumerate(page.rows) {
+                for (i, row) in page.rows.enumerate() {
                     currentMax = max(currentMax, row.count)
                 }
                 return currentMax
@@ -803,12 +803,12 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
             
             let processRow = { (row: [Key], frames: [CGRect], inout map: [Key:CGRect]) -> Void in
                 assert(row.count == frames.count, "row and frames don't match")
-                for (k, key) in enumerate(row) {
+                for (k, key) in row.enumerate() {
                     map[key] = frames[k]
                 }
             }
             
-            for (r, row) in enumerate(page.rows) {
+            for (r, row) in page.rows.enumerate() {
                 let rowGapCurrentTotal = (r == page.rows.count - 1 ? rowGapTotal : CGFloat(r) * rowGap)
                 let frame = CGRectMake(rounded(sideEdges), rounded(topEdge + (CGFloat(r) * keyHeight) + rowGapCurrentTotal), rounded(bounds.width - CGFloat(2) * sideEdges), rounded(keyHeight))
                 
@@ -860,7 +860,7 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         
         var currentOrigin = frame.origin.x + sideSpace
         
-        for (k, key) in enumerate(row) {
+        for (k, key) in row.enumerate() {
             let roundedOrigin = rounded(currentOrigin)
             
             // avoiding rounding errors
@@ -907,7 +907,7 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         let specialCharacterGap = sideSpace - specialCharacterWidth
         
         var currentOrigin = frame.origin.x
-        for (k, key) in enumerate(row) {
+        for (k, key) in row.enumerate() {
             if k == 0 {
                 frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, specialCharacterWidth, frame.height))
                 currentOrigin += (specialCharacterWidth + specialCharacterGap)
@@ -937,7 +937,7 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         var keysBeforeSpace = 0
         var keysAfterSpace = 0
         var reachedSpace = false
-        for (k, key) in enumerate(row) {
+        for (k, key) in row.enumerate() {
             if key.type == Key.KeyType.Space {
                 reachedSpace = true
             }
@@ -975,7 +975,7 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         
         var currentOrigin = frame.origin.x
         var beforeSpace: Bool = true
-        for (k, key) in enumerate(row) {
+        for (k, key) in row.enumerate() {
             if key.type == Key.KeyType.Space {
                 frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, spaceWidth, frame.height))
                 currentOrigin += (spaceWidth + gapWidth)
