@@ -29,12 +29,12 @@ extension KeyboardViewController {
     }
     
     func pollTraits() {
-        if let proxy = (self.textDocumentProxy as? UITextInputTraits) {
-            if let layout = self.layout {
-                let appearanceIsDark = (proxy.keyboardAppearance == UIKeyboardAppearance.Dark)
-                if appearanceIsDark != layout.darkMode {
-                    self.updateAppearances(appearanceIsDark)
-                }
+        let proxy = self.textDocumentProxy
+        
+        if let layout = self.layout {
+            let appearanceIsDark = (proxy.keyboardAppearance == UIKeyboardAppearance.Dark)
+            if appearanceIsDark != layout.darkMode {
+                self.updateAppearances(appearanceIsDark)
             }
         }
     }

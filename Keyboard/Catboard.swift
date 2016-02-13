@@ -29,49 +29,49 @@ class Catboard: KeyboardViewController {
     }
     
     override func keyPressed(key: Key) {
-        if let textDocumentProxy = self.textDocumentProxy as? UITextDocumentProxy {
-            let keyOutput = key.outputForCase(self.shiftState.uppercase())
-            
-            if !NSUserDefaults.standardUserDefaults().boolForKey(kCatTypeEnabled) {
+        let textDocumentProxy = self.textDocumentProxy
+        
+        let keyOutput = key.outputForCase(self.shiftState.uppercase())
+        
+        if !NSUserDefaults.standardUserDefaults().boolForKey(kCatTypeEnabled) {
+            textDocumentProxy.insertText(keyOutput)
+            return
+        }
+        
+        if key.type == .Character || key.type == .SpecialCharacter {
+            if let context = textDocumentProxy.documentContextBeforeInput {
+                if context.characters.count < 2 {
+                    textDocumentProxy.insertText(keyOutput)
+                    return
+                }
+                
+                var index = context.endIndex
+                
+                index = index.predecessor()
+                if context[index] != " " {
+                    textDocumentProxy.insertText(keyOutput)
+                    return
+                }
+                
+                index = index.predecessor()
+                if context[index] == " " {
+                    textDocumentProxy.insertText(keyOutput)
+                    return
+                }
+
+                textDocumentProxy.insertText("\(randomCat())")
+                textDocumentProxy.insertText(" ")
                 textDocumentProxy.insertText(keyOutput)
                 return
-            }
-            
-            if key.type == .Character || key.type == .SpecialCharacter {
-                if let context = textDocumentProxy.documentContextBeforeInput {
-                    if context.characters.count < 2 {
-                        textDocumentProxy.insertText(keyOutput)
-                        return
-                    }
-                    
-                    var index = context.endIndex
-                    
-                    index = index.predecessor()
-                    if context[index] != " " {
-                        textDocumentProxy.insertText(keyOutput)
-                        return
-                    }
-                    
-                    index = index.predecessor()
-                    if context[index] == " " {
-                        textDocumentProxy.insertText(keyOutput)
-                        return
-                    }
-
-                    textDocumentProxy.insertText("\(randomCat())")
-                    textDocumentProxy.insertText(" ")
-                    textDocumentProxy.insertText(keyOutput)
-                    return
-                }
-                else {
-                    textDocumentProxy.insertText(keyOutput)
-                    return
-                }
             }
             else {
                 textDocumentProxy.insertText(keyOutput)
                 return
             }
+        }
+        else {
+            textDocumentProxy.insertText(keyOutput)
+            return
         }
     }
     
@@ -100,7 +100,7 @@ class Catboard: KeyboardViewController {
     }
     
     func takeScreenshotDelay() {
-        var timer = NSTimer.scheduledTimerWithTimeInterval(0.1, target: self, selector: Selector("takeScreenshot"), userInfo: nil, repeats: false)
+        NSTimer.scheduledTimerWithTimeInterval(0.1, target: self, selector: Selector("takeScreenshot"), userInfo: nil, repeats: false)
     }
     
     func takeScreenshot() {
@@ -110,14 +110,14 @@ class Catboard: KeyboardViewController {
             let oldViewColor = self.view.backgroundColor
             self.view.backgroundColor = UIColor(hue: (216/360.0), saturation: 0.05, brightness: 0.86, alpha: 1)
             
-            var rect = self.view.bounds
+            let rect = self.view.bounds
             UIGraphicsBeginImageContextWithOptions(rect.size, true, 0)
             var context = UIGraphicsGetCurrentContext()
             self.view.drawViewHierarchyInRect(self.view.bounds, afterScreenUpdates: true)
-            var capturedImage = UIGraphicsGetImageFromCurrentImageContext()
+            let capturedImage = UIGraphicsGetImageFromCurrentImageContext()
             UIGraphicsEndImageContext()
             let name = (self.interfaceOrientation.isPortrait ? "Screenshot-Portrait" : "Screenshot-Landscape")
-            var imagePath = "/Users/archagon/Documents/Programming/OSX/RussianPhoneticKeyboard/External/tasty-imitation-keyboard/\(name).png"
+            let imagePath = "/Users/archagon/Documents/Programming/OSX/RussianPhoneticKeyboard/External/tasty-imitation-keyboard/\(name).png"
             
             if let pngRep = UIImagePNGRepresentation(capturedImage) {
                 pngRep.writeToFile(imagePath, atomically: true)

@@ -247,7 +247,7 @@ class KeyboardKey: UIControl {
                 path?.applyTransform(transformFromShapeToView)
                 if path != nil { toPath.appendPath(path!) }
                 if let edgePaths = shape.edgePaths {
-                    for (e, anEdgePath) in edgePaths.enumerate() {
+                    for (_, anEdgePath) in edgePaths.enumerate() {
                         let editablePath = anEdgePath
                         editablePath.applyTransform(transformFromShapeToView)
                         toEdgePaths.appendPath(editablePath)
@@ -271,7 +271,7 @@ class KeyboardKey: UIControl {
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         
-        if let popup = self.popup {
+        if let _ = self.popup {
             self.shadowLayer.shadowPath = shadowPath.CGPath
         }
         

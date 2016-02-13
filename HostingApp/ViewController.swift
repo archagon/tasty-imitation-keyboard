@@ -53,7 +53,7 @@ class HostingAppViewController: UIViewController {
     }
     
     func keyboardDidChangeFrame(notification: NSNotification) {
-        let frameBegin: CGRect! = notification.userInfo?[UIKeyboardFrameBeginUserInfoKey]?.CGRectValue
+        //let frameBegin: CGRect! = notification.userInfo?[UIKeyboardFrameBeginUserInfoKey]?.CGRectValue
         let frameEnd: CGRect! = notification.userInfo?[UIKeyboardFrameEndUserInfoKey]?.CGRectValue
         
         if frameEnd.height == referenceHeight {

@@ -126,7 +126,7 @@ class KeyboardViewController: UIInputViewController {
     }
     
     func defaultsChanged(notification: NSNotification) {
-        let defaults = notification.object as? NSUserDefaults
+        //let defaults = notification.object as? NSUserDefaults
         self.updateKeyCaps(self.shiftState.uppercase())
     }
     
@@ -191,12 +191,8 @@ class KeyboardViewController: UIInputViewController {
     // only available after frame becomes non-zero
     func darkMode() -> Bool {
         let darkMode = { () -> Bool in
-            if let proxy = self.textDocumentProxy as? UITextDocumentProxy {
-                return proxy.keyboardAppearance == UIKeyboardAppearance.Dark
-            }
-            else {
-                return false
-            }
+            let proxy = self.textDocumentProxy
+            return proxy.keyboardAppearance == UIKeyboardAppearance.Dark
         }()
         
         return darkMode
@@ -457,9 +453,6 @@ class KeyboardViewController: UIInputViewController {
             // auto period on double space
             // TODO: timeout
             
-            var lastCharCountInBeforeContext: Int = 0
-            var readyForDoubleSpacePeriod: Bool = true
-            
             self.handleAutoPeriod(model)
             // TODO: reset context
         }
@@ -479,7 +472,7 @@ class KeyboardViewController: UIInputViewController {
             }
             
             let charactersAreInCorrectState = { () -> Bool in
-                let previousContext = (self.textDocumentProxy as? UITextDocumentProxy)?.documentContextBeforeInput
+                let previousContext = self.textDocumentProxy.documentContextBeforeInput
                 
                 if previousContext == nil || (previousContext!).characters.count < 3 {
                     return false
@@ -507,10 +500,10 @@ class KeyboardViewController: UIInputViewController {
             }()
             
             if charactersAreInCorrectState {
-                (self.textDocumentProxy as? UITextDocumentProxy)?.deleteBackward()
-                (self.textDocumentProxy as? UITextDocumentProxy)?.deleteBackward()
-                (self.textDocumentProxy as? UITextDocumentProxy)?.insertText(".")
-                (self.textDocumentProxy as? UITextDocumentProxy)?.insertText(" ")
+                self.textDocumentProxy.deleteBackward()
+                self.textDocumentProxy.deleteBackward()
+                self.textDocumentProxy.insertText(".")
+                self.textDocumentProxy.insertText(" ")
             }
             
             self.autoPeriodState = .NoSpace
@@ -532,9 +525,7 @@ class KeyboardViewController: UIInputViewController {
     func backspaceDown(sender: KeyboardKey) {
         self.cancelBackspaceTimers()
         
-        if let textDocumentProxy = self.textDocumentProxy as? UIKeyInput {
-            textDocumentProxy.deleteBackward()
-        }
+        self.textDocumentProxy.deleteBackward()
         self.setCapsIfNeeded()
         
         // trigger for subsequent deletes
@@ -553,9 +544,7 @@ class KeyboardViewController: UIInputViewController {
     func backspaceRepeatCallback() {
         self.playKeySound()
         
-        if let textDocumentProxy = self.textDocumentProxy as? UIKeyInput {
-            textDocumentProxy.deleteBackward()
-        }
+        self.textDocumentProxy.deleteBackward()
         self.setCapsIfNeeded()
     }
     
@@ -743,61 +732,57 @@ class KeyboardViewController: UIInputViewController {
             return false
         }
         
-        if let traits = self.textDocumentProxy as? UITextInputTraits {
-            if let autocapitalization = traits.autocapitalizationType {
-                let documentProxy = self.textDocumentProxy as? UITextDocumentProxy
-                var beforeContext = documentProxy?.documentContextBeforeInput
-                
-                switch autocapitalization {
-                case .None:
-                    return false
-                case .Words:
-                    if let beforeContext = documentProxy?.documentContextBeforeInput {
-                        let previousCharacter = beforeContext[beforeContext.endIndex.predecessor()]
-                        return self.characterIsWhitespace(previousCharacter)
-                    }
-                    else {
-                        return true
-                    }
-                
-                case .Sentences:
-                    if let beforeContext = documentProxy?.documentContextBeforeInput {
-                        let offset = min(3, beforeContext.characters.count)
-                        var index = beforeContext.endIndex
-                        
-                        for (var i = 0; i < offset; i += 1) {
-                            index = index.predecessor()
-                            let char = beforeContext[index]
-                            
-                            if characterIsPunctuation(char) {
-                                if i == 0 {
-                                    return false //not enough spaces after punctuation
-                                }
-                                else {
-                                    return true //punctuation with at least one space after it
-                                }
-                            }
-                            else {
-                                if !characterIsWhitespace(char) {
-                                    return false //hit a foreign character before getting to 3 spaces
-                                }
-                                else if characterIsNewline(char) {
-                                    return true //hit start of line
-                                }
-                            }
-                        }
-                        
-                        return true //either got 3 spaces or hit start of line
-                    }
-                    else {
-                        return true
-                    }
-                case .AllCharacters:
+        let traits = self.textDocumentProxy
+        if let autocapitalization = traits.autocapitalizationType {
+            let documentProxy = self.textDocumentProxy
+            //var beforeContext = documentProxy.documentContextBeforeInput
+            
+            switch autocapitalization {
+            case .None:
+                return false
+            case .Words:
+                if let beforeContext = documentProxy.documentContextBeforeInput {
+                    let previousCharacter = beforeContext[beforeContext.endIndex.predecessor()]
+                    return self.characterIsWhitespace(previousCharacter)
+                }
+                else {
                     return true
                 }
-            }
-            else {
-                return false
+            
+            case .Sentences:
+                if let beforeContext = documentProxy.documentContextBeforeInput {
+                    let offset = min(3, beforeContext.characters.count)
+                    var index = beforeContext.endIndex
+                    
+                    for (var i = 0; i < offset; i += 1) {
+                        index = index.predecessor()
+                        let char = beforeContext[index]
+                        
+                        if characterIsPunctuation(char) {
+                            if i == 0 {
+                                return false //not enough spaces after punctuation
+                            }
+                            else {
+                                return true //punctuation with at least one space after it
+                            }
+                        }
+                        else {
+                            if !characterIsWhitespace(char) {
+                                return false //hit a foreign character before getting to 3 spaces
+                            }
+                            else if characterIsNewline(char) {
+                                return true //hit start of line
+                            }
+                        }
+                    }
+                    
+                    return true //either got 3 spaces or hit start of line
+                }
+                else {
+                    return true
+                }
+            case .AllCharacters:
+                return true
             }
         }
         else {
@@ -825,9 +810,7 @@ class KeyboardViewController: UIInputViewController {
     class var globalColors: GlobalColors.Type { get { return GlobalColors.self }}
     
     func keyPressed(key: Key) {
-        if let proxy = (self.textDocumentProxy as? UIKeyInput) {
-            proxy.insertText(key.outputForCase(self.shiftState.uppercase()))
-        }
+        self.textDocumentProxy.insertText(key.outputForCase(self.shiftState.uppercase()))
     }
     
     // a banner that sits in the empty space on top of the keyboard
