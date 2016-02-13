@@ -52,7 +52,9 @@ class CatboardBanner: ExtraView {
         self.updateAppearance()
     }
     
-    func updateAppearance() {
+    override func updateAppearance() {
+        super.updateAppearance()
+        
         if self.catSwitch.on {
             self.catLabel.text = "😺"
             self.catLabel.alpha = 1

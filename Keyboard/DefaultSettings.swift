@@ -16,12 +16,6 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
     @IBOutlet var settingsLabel: UILabel?
     @IBOutlet var pixelLine: UIView?
     
-    override var darkMode: Bool {
-        didSet {
-            self.updateAppearance(darkMode)
-        }
-    }
-    
     let cellBackgroundColorDark = UIColor.whiteColor().colorWithAlphaComponent(CGFloat(0.25))
     let cellBackgroundColorLight = UIColor.whiteColor().colorWithAlphaComponent(CGFloat(1))
     let cellLabelColorDark = UIColor.whiteColor()
@@ -62,7 +56,7 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
         self.loadNib()
     }
 
-    required init(coder aDecoder: NSCoder) {
+    required init?(coder aDecoder: NSCoder) {
         fatalError("loading from nib not supported")
     }
     
@@ -70,8 +64,8 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
         let assets = NSBundle(forClass: self.dynamicType).loadNibNamed("DefaultSettings", owner: self, options: nil)
         
         if assets.count > 0 {
-            if var rootView = assets.first as? UIView {
-                rootView.setTranslatesAutoresizingMaskIntoConstraints(false)
+            if let rootView = assets.first as? UIView {
+                rootView.translatesAutoresizingMaskIntoConstraints = false
                 self.addSubview(rootView)
                 
                 let left = NSLayoutConstraint(item: rootView, attribute: NSLayoutAttribute.Left, relatedBy: NSLayoutRelation.Equal, toItem: self, attribute: NSLayoutAttribute.Left, multiplier: 1, constant: 0)
@@ -93,7 +87,7 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
         // XXX: this is here b/c a totally transparent background does not support scrolling in blank areas
         self.tableView?.backgroundColor = UIColor.whiteColor().colorWithAlphaComponent(0.01)
         
-        self.updateAppearance(self.darkMode)
+        self.updateAppearance()
     }
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
@@ -122,7 +116,7 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        if var cell = tableView.dequeueReusableCellWithIdentifier("cell") as? DefaultSettingsTableViewCell {
+        if let cell = tableView.dequeueReusableCellWithIdentifier("cell") as? DefaultSettingsTableViewCell {
             let key = self.settingsList[indexPath.section].1[indexPath.row]
             
             if cell.sw.allTargets().count == 0 {
@@ -147,23 +141,23 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
         }
     }
     
-    func updateAppearance(dark: Bool) {
-        if dark {
+    override func updateAppearance() {
+        super.updateAppearance()
+        
+        if darkMode {
             self.effectsView?.effect
             let blueColor = UIColor(red: 135/CGFloat(255), green: 206/CGFloat(255), blue: 250/CGFloat(255), alpha: 1)
             self.pixelLine?.backgroundColor = blueColor.colorWithAlphaComponent(CGFloat(0.5))
             self.backButton?.setTitleColor(blueColor, forState: UIControlState.Normal)
             self.settingsLabel?.textColor = UIColor.whiteColor()
             
-            if let visibleCells = self.tableView?.visibleCells() {
+            if let visibleCells = self.tableView?.visibleCells {
                 for cell in visibleCells {
-                    if var cell = cell as? UITableViewCell {
-                        cell.backgroundColor = cellBackgroundColorDark
-                        var label = cell.viewWithTag(2) as? UILabel
-                        label?.textColor = cellLabelColorDark
-                        var longLabel = cell.viewWithTag(3) as? UITextView
-                        longLabel?.textColor = cellLongLabelColorDark
-                    }
+                    cell.backgroundColor = cellBackgroundColorDark
+                    let label = cell.viewWithTag(2) as? UILabel
+                    label?.textColor = cellLabelColorDark
+                    let longLabel = cell.viewWithTag(3) as? UITextView
+                    longLabel?.textColor = cellLongLabelColorDark
                 }
             }
         }
@@ -173,15 +167,13 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
             self.backButton?.setTitleColor(blueColor, forState: UIControlState.Normal)
             self.settingsLabel?.textColor = UIColor.grayColor()
             
-            if let visibleCells = self.tableView?.visibleCells() {
+            if let visibleCells = self.tableView?.visibleCells {
                 for cell in visibleCells {
-                    if var cell = cell as? UITableViewCell {
-                        cell.backgroundColor = cellBackgroundColorLight
-                        var label = cell.viewWithTag(2) as? UILabel
-                        label?.textColor = cellLabelColorLight
-                        var longLabel = cell.viewWithTag(3) as? UITextView
-                        longLabel?.textColor = cellLongLabelColorLight
-                    }
+                    cell.backgroundColor = cellBackgroundColorLight
+                    let label = cell.viewWithTag(2) as? UILabel
+                    label?.textColor = cellLabelColorLight
+                    let longLabel = cell.viewWithTag(3) as? UITextView
+                    longLabel?.textColor = cellLongLabelColorLight
                 }
             }
         }
@@ -215,9 +207,9 @@ class DefaultSettingsTableViewCell: UITableViewCell {
         
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        self.sw.setTranslatesAutoresizingMaskIntoConstraints(false)
-        self.label.setTranslatesAutoresizingMaskIntoConstraints(false)
-        self.longLabel.setTranslatesAutoresizingMaskIntoConstraints(false)
+        self.sw.translatesAutoresizingMaskIntoConstraints = false
+        self.label.translatesAutoresizingMaskIntoConstraints = false
+        self.longLabel.translatesAutoresizingMaskIntoConstraints = false
         
         self.longLabel.text = nil
         self.longLabel.scrollEnabled = false
@@ -232,14 +224,14 @@ class DefaultSettingsTableViewCell: UITableViewCell {
         self.addSubview(self.label)
         self.addSubview(self.longLabel)
         
-        self.addConstraints()
+        self.setupConstraints()
     }
 
-    required init(coder aDecoder: NSCoder) {
+    required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func addConstraints() {
+    func setupConstraints() {
         let margin: CGFloat = 8
         let sideMargin = margin * 2
         
@@ -294,7 +286,7 @@ class DefaultSettingsTableViewCell: UITableViewCell {
         if hasLongText != self.constraintsSetForLongLabel {
             self.removeConstraints(self.cellConstraints)
             self.cellConstraints.removeAll()
-            self.addConstraints()
+            self.setupConstraints()
         }
     }
 }
