@@ -178,7 +178,7 @@ class KeyboardKey: UIControl {
         }()
     }
     
-    required init(coder: NSCoder) {
+    required init?(coder: NSCoder) {
         fatalError("NSCoding not supported")
     }
     
@@ -190,7 +190,7 @@ class KeyboardKey: UIControl {
     override func layoutSubviews() {
         self.layoutPopupIfNeeded()
         
-        var boundingBox = (self.popup != nil ? CGRectUnion(self.bounds, self.popup!.frame) : self.bounds)
+        let boundingBox = (self.popup != nil ? CGRectUnion(self.bounds, self.popup!.frame) : self.bounds)
         
         if self.bounds.width == 0 || self.bounds.height == 0 {
             return
@@ -233,22 +233,22 @@ class KeyboardKey: UIControl {
         self.popup?.layoutIfNeeded()
         self.connector?.layoutIfNeeded()
         
-        var testPath = UIBezierPath()
-        var edgePath = UIBezierPath()
+        let testPath = UIBezierPath()
+        let edgePath = UIBezierPath()
         
         let unitSquare = CGRectMake(0, 0, 1, 1)
         
         // TODO: withUnder
         let addCurves = { (fromShape: KeyboardKeyBackground?, toPath: UIBezierPath, toEdgePaths: UIBezierPath) -> Void in
             if let shape = fromShape {
-                var path = shape.fillPath
-                var translatedUnitSquare = self.displayView.convertRect(unitSquare, fromView: shape)
+                let path = shape.fillPath
+                let translatedUnitSquare = self.displayView.convertRect(unitSquare, fromView: shape)
                 let transformFromShapeToView = CGAffineTransformMakeTranslation(translatedUnitSquare.origin.x, translatedUnitSquare.origin.y)
                 path?.applyTransform(transformFromShapeToView)
                 if path != nil { toPath.appendPath(path!) }
                 if let edgePaths = shape.edgePaths {
-                    for (e, anEdgePath) in enumerate(edgePaths) {
-                        var editablePath = anEdgePath
+                    for (e, anEdgePath) in edgePaths.enumerate() {
+                        let editablePath = anEdgePath
                         editablePath.applyTransform(transformFromShapeToView)
                         toEdgePaths.appendPath(editablePath)
                     }
@@ -259,12 +259,12 @@ class KeyboardKey: UIControl {
         addCurves(self.popup, testPath, edgePath)
         addCurves(self.connector, testPath, edgePath)
         
-        var shadowPath = UIBezierPath(CGPath: testPath.CGPath)
+        let shadowPath = UIBezierPath(CGPath: testPath.CGPath)
         
         addCurves(self.background, testPath, edgePath)
         
-        var underPath = self.background.underPath
-        var translatedUnitSquare = self.displayView.convertRect(unitSquare, fromView: self.background)
+        let underPath = self.background.underPath
+        let translatedUnitSquare = self.displayView.convertRect(unitSquare, fromView: self.background)
         let transformFromShapeToView = CGAffineTransformMakeTranslation(translatedUnitSquare.origin.x, translatedUnitSquare.origin.y)
         underPath?.applyTransform(transformFromShapeToView)
         
@@ -429,11 +429,11 @@ class KeyboardKey: UIControl {
         if self.popup == nil {
             self.layer.zPosition = 1000
             
-            var popup = KeyboardKeyBackground(cornerRadius: 9.0, underOffset: self.underOffset)
+            let popup = KeyboardKeyBackground(cornerRadius: 9.0, underOffset: self.underOffset)
             self.popup = popup
             self.addSubview(popup)
             
-            var popupLabel = UILabel()
+            let popupLabel = UILabel()
             popupLabel.textAlignment = self.label.textAlignment
             popupLabel.baselineAdjustment = self.label.baselineAdjustment
             popupLabel.font = self.label.font.fontWithSize(22 * 2)
@@ -551,7 +551,7 @@ class ShapeView: UIView {
         //self.layer.rasterizationScale = UIScreen.mainScreen().scale
     }
     
-    required init(coder aDecoder: NSCoder) {
+    required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
