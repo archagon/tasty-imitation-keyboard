@@ -3,7 +3,7 @@
 //  RussianPhoneticKeyboard
 //
 //  Created by Alexei Baboulevitch on 11/1/14.
-//  Copyright (c) 2014 Alexei Baboulevitch. All rights reserved.
+//  Copyright (c) 2014 Alexei Baboulevitch ("Archagon"). All rights reserved.
 //
 
 import Foundation
