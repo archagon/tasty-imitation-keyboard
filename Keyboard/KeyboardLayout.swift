@@ -166,6 +166,7 @@ class GlobalColors: NSObject {
     class var darkModeSpecialKey: UIColor { get { return UIColor.grayColor().colorWithAlphaComponent(CGFloat(0.3)) }}
     class var darkModeSolidColorSpecialKey: UIColor { get { return UIColor(red: CGFloat(45)/CGFloat(255), green: CGFloat(45)/CGFloat(255), blue: CGFloat(45)/CGFloat(255), alpha: 1) }}
     class var darkModeShiftKeyDown: UIColor { get { return UIColor(red: CGFloat(214)/CGFloat(255), green: CGFloat(220)/CGFloat(255), blue: CGFloat(208)/CGFloat(255), alpha: 1) }}
+    class var specialReturnKey: UIColor { get { return UIColor(red: CGFloat(0)/CGFloat(255), green: CGFloat(122)/CGFloat(255), blue: CGFloat(255)/CGFloat(255), alpha: 1) }}
     class var lightModePopup: UIColor { get { return GlobalColors.lightModeRegularKey }}
     class var darkModePopup: UIColor { get { return UIColor.grayColor() }}
     class var darkModeSolidColorPopup: UIColor { get { return GlobalColors.darkModeSolidColorRegularKey }}
@@ -297,7 +298,7 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
     // CALL THESE FOR LAYOUT/APPEARANCE CHANGES //
     //////////////////////////////////////////////
     
-    func layoutKeys(pageNum: Int, uppercase: Bool, characterUppercase: Bool, shiftState: ShiftState) {
+    func layoutKeys(pageNum: Int, uppercase: Bool, characterUppercase: Bool, shiftState: ShiftState, returnKeyType: UIReturnKeyType) {
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         
@@ -308,7 +309,7 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
                     self.positionKeys(p)
                 }
                 self.updateKeyAppearance()
-                self.updateKeyCaps(true, uppercase: uppercase, characterUppercase: characterUppercase, shiftState: shiftState)
+                self.updateKeyCaps(true, uppercase: uppercase, characterUppercase: characterUppercase, shiftState: shiftState, returnKeyType: returnKeyType)
             }
         }
         
@@ -329,7 +330,7 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         
         if self.dynamicType.shouldPoolKeys {
             self.updateKeyAppearance()
-            self.updateKeyCaps(true, uppercase: uppercase, characterUppercase: characterUppercase, shiftState: shiftState)
+            self.updateKeyCaps(true, uppercase: uppercase, characterUppercase: characterUppercase, shiftState: shiftState, returnKeyType: returnKeyType)
         }
         
         CATransaction.commit()
@@ -397,7 +398,7 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
     
     // on fullReset, we update the keys with shapes, images, etc. as if from scratch; otherwise, just update the text
     // WARNING: if key cache is disabled, DO NOT CALL WITH fullReset MORE THAN ONCE
-    func updateKeyCaps(fullReset: Bool, uppercase: Bool, characterUppercase: Bool, shiftState: ShiftState) {
+    func updateKeyCaps(fullReset: Bool, uppercase: Bool, characterUppercase: Bool, shiftState: ShiftState, returnKeyType: UIReturnKeyType) {
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         
@@ -412,13 +413,13 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         }
         
         for (model, key) in self.modelToView {
-            self.updateKeyCap(key, model: model, fullReset: fullReset, uppercase: uppercase, characterUppercase: characterUppercase, shiftState: shiftState)
+            self.updateKeyCap(key, model: model, fullReset: fullReset, uppercase: uppercase, characterUppercase: characterUppercase, shiftState: shiftState, returnKeyType: returnKeyType)
         }
         
         CATransaction.commit()
     }
     
-    func updateKeyCap(key: KeyboardKey, model: Key, fullReset: Bool, uppercase: Bool, characterUppercase: Bool, shiftState: ShiftState) {
+    func updateKeyCap(key: KeyboardKey, model: Key, fullReset: Bool, uppercase: Bool, characterUppercase: Bool, shiftState: ShiftState, returnKeyType: UIReturnKeyType) {
         if fullReset {
             // font size
             switch model.type {
@@ -492,14 +493,41 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
             (key.shape as? ShiftShape)?.withLock = (shiftState == .Locked)
         }
         
-        self.updateKeyCapText(key, model: model, uppercase: uppercase, characterUppercase: characterUppercase)
+        self.updateKeyCapText(key, model: model, uppercase: uppercase, characterUppercase: characterUppercase, returnKeyType: returnKeyType)
     }
     
-    func updateKeyCapText(key: KeyboardKey, model: Key, uppercase: Bool, characterUppercase: Bool) {
-        if model.type == .Character {
+    func updateKeyCapText(key: KeyboardKey, model: Key, uppercase: Bool, characterUppercase: Bool, returnKeyType: UIReturnKeyType) {
+        switch model.type {
+        case .Character:
             key.text = model.keyCapForCase(characterUppercase)
-        }
-        else {
+        case .Return:
+            key.text = { (returnKeyType: UIReturnKeyType) -> String in
+                switch returnKeyType {
+                case .Default:
+                    return "return"
+                case .Go:
+                    return "Go"
+                case .Google:
+                    return "Search"
+                case .Join:
+                    return "Join"
+                case .Next:
+                    return "Next"
+                case .Route:
+                    return "Route"
+                case .Search:
+                    return "Search"
+                case .Send:
+                    return "Send"
+                case .Yahoo:
+                    return "Yahoo"
+                case .Done:
+                    return "Done"
+                case .EmergencyCall:
+                    return "Emergency Call"
+                }
+            }(returnKeyType)
+        default:
             key.text = model.keyCapForCase(uppercase)
         }
     }
@@ -553,7 +581,13 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
             key.textColor = (darkMode ? self.globalColors.darkModeTextColor : self.globalColors.lightModeTextColor)
             key.downTextColor = nil
         case
-        Key.KeyType.Return,
+        Key.KeyType.Return:
+            // TODO: Do not set special color for UIReturnKeyNext
+            key.color = self.globalColors.specialReturnKey
+            key.downColor = self.globalColors.regularKey(darkMode, solidColorMode: solidColorMode)
+            key.textColor = self.globalColors.darkModeTextColor
+            key.downTextColor = self.globalColors.lightModeTextColor
+        case
         Key.KeyType.KeyboardChange,
         Key.KeyType.Settings:
             key.color = self.globalColors.specialKey(darkMode, solidColorMode: solidColorMode)
