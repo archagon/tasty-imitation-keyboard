@@ -2,8 +2,8 @@
 //  KeyboardLayout.swift
 //  TransliteratingKeyboard
 //
-//  Created by Alexei Baboulevitch on 7/25/14.
-//  Copyright (c) 2014 Alexei Baboulevitch ("Archagon"). All rights reserved.
+//  Created by Andong Zhan on 7/25/14.
+//  Copyright (c) 2016 Andong Zhan. All rights reserved.
 //
 
 import UIKit
