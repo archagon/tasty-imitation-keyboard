@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>Catboard</string>
+	<string>Careboard</string>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIdentifier</key>
@@ -38,7 +38,7 @@
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.keyboard-service</string>
 		<key>NSExtensionPrincipalClass</key>
-		<string>${PRODUCT_MODULE_NAME}.Catboard</string>
+		<string>${PRODUCT_MODULE_NAME}.Careboard</string>
 	</dict>
 </dict>
 </plist>
