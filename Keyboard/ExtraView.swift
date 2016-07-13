@@ -13,7 +13,12 @@ class ExtraView: UIView {
     var globalColors: GlobalColors.Type?
     var darkMode: Bool
     var solidColorMode: Bool
-    
+	
+	var btn1 : UIButton = UIButton()
+	var btn2 : UIButton = UIButton()
+	var btn3 : UIButton = UIButton()
+	var btn4 : UIButton = UIButton()
+	
     required init(globalColors: GlobalColors.Type?, darkMode: Bool, solidColorMode: Bool) {
         self.globalColors = globalColors
         self.darkMode = darkMode
@@ -23,6 +28,7 @@ class ExtraView: UIView {
     }
     
     required init?(coder aDecoder: NSCoder) {
+
         self.globalColors = nil
         self.darkMode = false
         self.solidColorMode = false

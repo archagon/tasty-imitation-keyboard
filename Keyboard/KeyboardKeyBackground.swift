@@ -70,8 +70,9 @@ class KeyboardKeyBackground: UIView, Connectable {
         self.userInteractionEnabled = false
     }
     
-    required init?(coder: NSCoder) {
-        fatalError("NSCoding not supported")
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     var oldBounds: CGRect?

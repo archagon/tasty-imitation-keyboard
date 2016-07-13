@@ -156,7 +156,7 @@ class KeyboardKey: UIControl {
         self.addSubview(self.background)
         self.background.addSubview(self.label)
         
-        let setupViews: Void = {
+        let _: Void = {
             self.displayView.opaque = false
             self.underView?.opaque = false
             self.borderView?.opaque = false
@@ -179,7 +179,7 @@ class KeyboardKey: UIControl {
     }
     
     required init?(coder: NSCoder) {
-        fatalError("NSCoding not supported")
+           fatalError("NSCoding not supported")
     }
     
     override func setNeedsLayout() {
@@ -450,7 +450,7 @@ class KeyboardKey: UIControl {
         }
     }
     
-    func hidePopup() {
+   @objc func hidePopup() {
         if self.popup != nil {
             self.delegate?.willHidePopup(self)
             
@@ -552,6 +552,7 @@ class ShapeView: UIView {
     }
     
     required init?(coder aDecoder: NSCoder) {
+
         fatalError("init(coder:) has not been implemented")
     }
     
