@@ -45,7 +45,7 @@ class KeyboardConnector: KeyboardKeyBackground {
     }
     
     required init?(coder: NSCoder) {
-        fatalError("NSCoding not supported")
+        fatalError("init(coder:) has not been implemented")
     }
 
     override func didMoveToSuperview() {

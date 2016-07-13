@@ -1221,9 +1221,9 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
                     }
 					else
 					{
-						var widthTotal = UIScreen.mainScreen().bounds.width
+						let widthTotal = UIScreen.mainScreen().bounds.width
 						
-						var widthOfSpace = widthTotal - rounded(currentOrigin) - (gapWidth/2)
+						let widthOfSpace = widthTotal - rounded(currentOrigin) - (gapWidth/2)
 						
 						frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, widthOfSpace, frame.height))
 						currentOrigin += (rightButtonWidth + gapWidth)
@@ -1235,18 +1235,18 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
 				{
 					if hasButtonInDotButtonPosition
 					{
-						var widthTotal = UIScreen.mainScreen().bounds.width
+						let widthTotal = UIScreen.mainScreen().bounds.width
 						
-						var widthOfSpace = widthTotal - rounded(currentOrigin) - (gapWidth/2)
+						let widthOfSpace = widthTotal - rounded(currentOrigin) - (gapWidth/2)
 						
 						frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, widthOfSpace, frame.height))
 						currentOrigin += (rightButtonWidth + gapWidth)
 					}
 					else if hasButtonInAtButtonPosition
 					{
-						var widthTotal = UIScreen.mainScreen().bounds.width
+						let widthTotal = UIScreen.mainScreen().bounds.width
 						
-						var widthOfSpace = widthTotal - rounded(currentOrigin) - (gapWidth/2)
+						let widthOfSpace = widthTotal - rounded(currentOrigin) - (gapWidth/2)
 						
 						frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, widthOfSpace, frame.height))
 						currentOrigin += (rightButtonWidth + gapWidth)

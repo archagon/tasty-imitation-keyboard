@@ -62,10 +62,11 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
         self.loadNib()
     }
 
+
     required init?(coder aDecoder: NSCoder) {
-        fatalError("loading from nib not supported")
+        fatalError("init(coder:) has not been implemented")
     }
-    
+
     func loadNib() {
         let assets = NSBundle(forClass: self.dynamicType).loadNibNamed("DefaultSettings", owner: self, options: nil)
         
@@ -231,10 +232,11 @@ class DefaultSettingsTableViewCell: UITableViewCell {
         self.addConstraints()
     }
 
+    
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     func addConstraints() {
         let margin: CGFloat = 8
         let sideMargin = margin * 2

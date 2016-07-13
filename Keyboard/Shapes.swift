@@ -64,7 +64,7 @@ class Shape: UIView {
         self.addSubview(self.overflowCanvas)
     }
 
-    required init(coder aDecoder: NSCoder) {
+    required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
@@ -104,7 +104,7 @@ class Shape: UIView {
             self.opaque = false
         }
 
-        required init(coder aDecoder: NSCoder) {
+        required init?(coder aDecoder: NSCoder) {
             fatalError("init(coder:) has not been implemented")
         }
         

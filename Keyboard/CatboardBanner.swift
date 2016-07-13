@@ -30,10 +30,11 @@ class CatboardBanner: ExtraView {
         self.updateAppearance()
     }
 
+
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     override func setNeedsLayout() {
         super.setNeedsLayout()
     }
@@ -159,9 +160,9 @@ class CatboardBanner: ExtraView {
             
             for (index, button) in buttons.enumerate() {
                 
-                var topConstraint = NSLayoutConstraint(item: button, attribute: .Top, relatedBy: .Equal, toItem: self, attribute: .Top, multiplier: 1.0, constant: 0)
+                let topConstraint = NSLayoutConstraint(item: button, attribute: .Top, relatedBy: .Equal, toItem: self, attribute: .Top, multiplier: 1.0, constant: 0)
                 
-                var bottomConstraint = NSLayoutConstraint(item: button, attribute: .Bottom, relatedBy: .Equal, toItem: self, attribute: .Bottom, multiplier: 1.0, constant: 0)
+                let bottomConstraint = NSLayoutConstraint(item: button, attribute: .Bottom, relatedBy: .Equal, toItem: self, attribute: .Bottom, multiplier: 1.0, constant: 0)
                 
                 var rightConstraint : NSLayoutConstraint!
                 
@@ -184,7 +185,7 @@ class CatboardBanner: ExtraView {
                     leftConstraint = NSLayoutConstraint(item: button, attribute: .Left, relatedBy: .Equal, toItem: prevtButton, attribute: .Right, multiplier: 1.0, constant: 1)
                     
                     let firstButton = buttons[0]
-                    var widthConstraint = NSLayoutConstraint(item: firstButton, attribute: .Width, relatedBy: .Equal, toItem: button, attribute: .Width, multiplier: 1.0, constant: 1)
+                    let widthConstraint = NSLayoutConstraint(item: firstButton, attribute: .Width, relatedBy: .Equal, toItem: button, attribute: .Width, multiplier: 1.0, constant: 1)
                     
                     widthConstraint.priority = 800
                     self.addConstraint(widthConstraint)
@@ -197,13 +198,13 @@ class CatboardBanner: ExtraView {
         }
         else
         {
-            var buttons = [btn4]
+            let buttons = [btn4]
             
             for (index, button) in buttons.enumerate() {
                 
-                var topConstraint = NSLayoutConstraint(item: button, attribute: .Top, relatedBy: .Equal, toItem: self, attribute: .Top, multiplier: 1.0, constant: 0)
+                let topConstraint = NSLayoutConstraint(item: button, attribute: .Top, relatedBy: .Equal, toItem: self, attribute: .Top, multiplier: 1.0, constant: 0)
                 
-                var bottomConstraint = NSLayoutConstraint(item: button, attribute: .Bottom, relatedBy: .Equal, toItem: self, attribute: .Bottom, multiplier: 1.0, constant: 0)
+                let bottomConstraint = NSLayoutConstraint(item: button, attribute: .Bottom, relatedBy: .Equal, toItem: self, attribute: .Bottom, multiplier: 1.0, constant: 0)
                 
                 var rightConstraint : NSLayoutConstraint!
                 
@@ -257,11 +258,11 @@ class CatboardBanner: ExtraView {
 		{
 			for obj in touches
 			{
-				let touch = obj as! UITouch
+				let touch = obj 
 				let position = touch.locationInView(self)
-				var view = findNearestView(position)
+				let view = findNearestView(position)
 				
-				var viewChangedOwnership = self.ownView(touch, viewToOwn: view)
+				let viewChangedOwnership = self.ownView(touch, viewToOwn: view)
 				if !viewChangedOwnership {
 					self.handleControl(view, controlEvent: .TouchDown)
 					
@@ -280,17 +281,17 @@ class CatboardBanner: ExtraView {
 		{
 			for obj in touches
 			{
-				let touch = obj as! UITouch
+				let touch = obj 
 				let position = touch.locationInView(self)
 				
-				var oldView = self.touchToView[touch]
-				var newView = findNearestView(position)
+				let oldView = self.touchToView[touch]
+				let newView = findNearestView(position)
 				
 				if oldView != newView
 				{
 					self.handleControl(oldView, controlEvent: .TouchDragExit)
 					
-					var viewChangedOwnership = self.ownView(touch, viewToOwn: newView)
+					let viewChangedOwnership = self.ownView(touch, viewToOwn: newView)
 					
 					if !viewChangedOwnership
 					{
@@ -318,9 +319,9 @@ class CatboardBanner: ExtraView {
 		{
 			for obj in touches
 			{
-				let touch = obj as! UITouch
+				let touch = obj 
 				
-				var view = self.touchToView[touch]
+				let view = self.touchToView[touch]
 				
 				let touchPosition = touch.locationInView(self)
 				
@@ -346,9 +347,9 @@ class CatboardBanner: ExtraView {
 		{
 			for obj in touches
 			{
-				let touch = obj as! UITouch
+				let touch = obj 
 				
-				var view = self.touchToView[touch]
+				let view = self.touchToView[touch]
 				
 				self.handleControl(view, controlEvent: .TouchCancel)
 				
@@ -367,7 +368,7 @@ class CatboardBanner: ExtraView {
 		var closest: (UIView, CGFloat)? = nil
 		
 		for anyView in self.subviews {
-			let view = anyView as! UIView
+			let view = anyView 
 			
 			if view.hidden {
 				continue
@@ -446,10 +447,10 @@ class CatboardBanner: ExtraView {
 		if let control = view as? UIControl {
 			let targets = control.allTargets()
 			for target in targets { // TODO: Xcode crashes
-				var actions = control.actionsForTarget(target, forControlEvent: controlEvent)
+				let actions = control.actionsForTarget(target, forControlEvent: controlEvent)
 				if (actions != nil) {
 					for action in actions! {
-						let selector = Selector(action as! String)
+						let selector = Selector(action )
 						
 						control.sendAction(selector, to: target, forEvent: nil)
 					}

@@ -28,6 +28,7 @@ class ExtraView: UIView {
     }
     
     required init?(coder aDecoder: NSCoder) {
+
         self.globalColors = nil
         self.darkMode = false
         self.solidColorMode = false

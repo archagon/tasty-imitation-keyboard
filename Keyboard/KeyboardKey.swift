@@ -179,7 +179,7 @@ class KeyboardKey: UIControl {
     }
     
     required init?(coder: NSCoder) {
-        fatalError("NSCoding not supported")
+           fatalError("NSCoding not supported")
     }
     
     override func setNeedsLayout() {
@@ -552,6 +552,7 @@ class ShapeView: UIView {
     }
     
     required init?(coder aDecoder: NSCoder) {
+
         fatalError("init(coder:) has not been implemented")
     }
     
