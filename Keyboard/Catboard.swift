@@ -116,7 +116,9 @@ class Catboard: KeyboardViewController {
             self.view.drawViewHierarchyInRect(self.view.bounds, afterScreenUpdates: true)
             let capturedImage = UIGraphicsGetImageFromCurrentImageContext()
             UIGraphicsEndImageContext()
-            let name = (self.interfaceOrientation.isPortrait ? "Screenshot-Portrait" : "Screenshot-Landscape")
+            let isPortrait = UIScreen.mainScreen().nativeBounds.size.width < UIScreen.mainScreen().nativeBounds.size.height
+
+            let name = (isPortrait ? "Screenshot-Portrait" : "Screenshot-Landscape")
             let imagePath = "/Users/archagon/Documents/Programming/OSX/RussianPhoneticKeyboard/External/tasty-imitation-keyboard/\(name).png"
             
             if let pngRep = UIImagePNGRepresentation(capturedImage) {

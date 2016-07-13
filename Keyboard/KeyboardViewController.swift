@@ -271,7 +271,7 @@ class KeyboardViewController: UIInputViewController {
 		
 		self.setupLayout()
 		
-		let orientationSavvyBounds = CGRectMake(0, 0, self.view.bounds.width, self.heightForOrientation(self.interfaceOrientation, withTopBanner: false))
+		let orientationSavvyBounds = CGRectMake(0, 0, self.view.bounds.width, self.heightForOrientation(withTopBanner: false))
 		
 		if (lastLayoutBounds != nil && lastLayoutBounds == orientationSavvyBounds) {
 			// do nothing
@@ -315,7 +315,7 @@ class KeyboardViewController: UIInputViewController {
     
     override func viewWillAppear(animated: Bool) {
         self.bannerView?.hidden = false
-        self.keyboardHeight = self.heightForOrientation(self.interfaceOrientation, withTopBanner: true)
+        self.keyboardHeight = self.heightForOrientation(withTopBanner: true)
     }
 	
     override func willRotateToInterfaceOrientation(toInterfaceOrientation: UIInterfaceOrientation, duration: NSTimeInterval) {
@@ -330,7 +330,7 @@ class KeyboardViewController: UIInputViewController {
             }
         }
         
-        self.keyboardHeight = self.heightForOrientation(toInterfaceOrientation, withTopBanner: true)
+        self.keyboardHeight = self.heightForOrientation(withTopBanner: true)
     }
     
     override func didRotateFromInterfaceOrientation(fromInterfaceOrientation: UIInterfaceOrientation) {
@@ -396,14 +396,15 @@ class KeyboardViewController: UIInputViewController {
 		
 	}
 	
-	func heightForOrientation(orientation: UIInterfaceOrientation, withTopBanner: Bool) -> CGFloat {
+	func heightForOrientation(withTopBanner withTopBanner: Bool) -> CGFloat {
 		let isPad = UIDevice.currentDevice().userInterfaceIdiom == UIUserInterfaceIdiom.Pad
 		
 		//TODO: hardcoded stuff
 		let actualScreenWidth = (UIScreen.mainScreen().nativeBounds.size.width /
 			UIScreen.mainScreen().nativeScale)
+        let isPortrait = UIScreen.mainScreen().nativeBounds.size.width < UIScreen.mainScreen().nativeBounds.size.height
 		
-		let canonicalPortraitHeight = (isPad ? CGFloat(264) : CGFloat(orientation.isPortrait && actualScreenWidth >= 400 ? 226 : 216))
+		let canonicalPortraitHeight = (isPad ? CGFloat(264) : CGFloat(isPortrait && actualScreenWidth >= 400 ? 226 : 216))
 		let canonicalLandscapeHeight = (isPad ? CGFloat(352) : CGFloat(162))
 		
 		let topBannerHeight = (withTopBanner ? metric("topBanner") : 0)
@@ -411,11 +412,11 @@ class KeyboardViewController: UIInputViewController {
 		
 		if proxy.keyboardType == UIKeyboardType.NumberPad || proxy.keyboardType == UIKeyboardType.DecimalPad
 		{
-			return CGFloat(orientation.isPortrait ? canonicalPortraitHeight + 0 : canonicalLandscapeHeight + 0)
+			return CGFloat(isPortrait ? canonicalPortraitHeight + 0 : canonicalLandscapeHeight + 0)
 		}
 		else
 		{
-			return CGFloat(orientation.isPortrait ? canonicalPortraitHeight + topBannerHeight : canonicalLandscapeHeight + topBannerHeight)
+			return CGFloat(isPortrait ? canonicalPortraitHeight + topBannerHeight : canonicalLandscapeHeight + topBannerHeight)
 		}
 		
 	}
@@ -584,7 +585,7 @@ class KeyboardViewController: UIInputViewController {
 					
 				}
 				
-				self.keyboardHeight = self.heightForOrientation(self.interfaceOrientation, withTopBanner: true)
+				self.keyboardHeight = self.heightForOrientation(withTopBanner: true)
 				
 				self.constraintsAdded = false
 				self.setupLayout()
@@ -1202,11 +1203,12 @@ class KeyboardViewController: UIInputViewController {
 				if arrOptions[0].characters.count > 0
 				{
 					var offsetY : CGFloat = 9
-					
+                    let isLandscape = UIScreen.mainScreen().nativeBounds.size.width > UIScreen.mainScreen().nativeBounds.size.height
+
 					if KeyboardViewController.getDeviceType() == TTDeviceType.TTDeviceTypeIPhone4
 					{
 						offsetY = 9
-						if self.interfaceOrientation == UIInterfaceOrientation.LandscapeLeft || self.interfaceOrientation == UIInterfaceOrientation.LandscapeRight
+						if isLandscape
 						{
 							offsetY = 3
 						}
@@ -1214,7 +1216,7 @@ class KeyboardViewController: UIInputViewController {
 					else if KeyboardViewController.getDeviceType() == TTDeviceType.TTDeviceTypeIPhone5
 					{
 						offsetY = 9
-						if self.interfaceOrientation == UIInterfaceOrientation.LandscapeLeft || self.interfaceOrientation == UIInterfaceOrientation.LandscapeRight
+						if isLandscape
 						{
 							offsetY = 3
 						}
@@ -1223,7 +1225,7 @@ class KeyboardViewController: UIInputViewController {
 					else if KeyboardViewController.getDeviceType() == TTDeviceType.TTDeviceTypeIPhone6
 					{
 						offsetY = 13
-						if self.interfaceOrientation == UIInterfaceOrientation.LandscapeLeft || self.interfaceOrientation == UIInterfaceOrientation.LandscapeRight
+						if isLandscape
 						{
 							offsetY = 3
 						}
@@ -1232,7 +1234,7 @@ class KeyboardViewController: UIInputViewController {
 					else if KeyboardViewController.getDeviceType() == TTDeviceType.TTDeviceTypeIPhone6p
 					{
 						offsetY = 16
-						if self.interfaceOrientation == UIInterfaceOrientation.LandscapeLeft || self.interfaceOrientation == UIInterfaceOrientation.LandscapeRight
+						if isLandscape
 						{
 							offsetY = 3
 						}
