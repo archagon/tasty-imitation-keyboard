@@ -127,7 +127,7 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
             let key = self.settingsList[indexPath.section].1[indexPath.row]
             
             if cell.sw.allTargets().count == 0 {
-                cell.sw.addTarget(self, action: Selector("toggleSetting:"), forControlEvents: UIControlEvents.ValueChanged)
+                cell.sw.addTarget(self, action: #selector(DefaultSettings.toggleSetting(_:)), forControlEvents: UIControlEvents.ValueChanged)
             }
             
             cell.sw.on = NSUserDefaults.standardUserDefaults().boolForKey(key)

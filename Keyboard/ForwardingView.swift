@@ -30,7 +30,7 @@ class ForwardingView: UIView,UIGestureRecognizerDelegate {
         self.userInteractionEnabled = true
         self.opaque = false
 		
-		gesture = UILongPressGestureRecognizer(target: self, action: "handleLongGesture:")
+		gesture = UILongPressGestureRecognizer(target: self, action: #selector(ForwardingView.handleLongGesture(_:)))
 		
 		gesture.minimumPressDuration = 0.5
 		gesture.delegate = self
@@ -64,10 +64,8 @@ class ForwardingView: UIView,UIGestureRecognizerDelegate {
             for target in targets {
                 if let actions = control.actionsForTarget(target, forControlEvent: controlEvent) {
                     for action in actions {
-                        if let selectorString = action as? String {
-                            let selector = Selector(selectorString)
+                            let selector = Selector(action)
                             control.sendAction(selector, to: target, forEvent: nil)
-                        }
                     }
                 }
             }
@@ -197,8 +195,7 @@ class ForwardingView: UIView,UIGestureRecognizerDelegate {
         
         var closest: (UIView, CGFloat)? = nil
         
-        for anyView in self.subviews {
-            if let view = anyView as? UIView {
+        for view in self.subviews {
                 if view.hidden {
                     continue
                 }
@@ -215,7 +212,6 @@ class ForwardingView: UIView,UIGestureRecognizerDelegate {
                 else {
                     closest = (view, distance)
                 }
-            }
         }
         
         if closest != nil {
@@ -301,7 +297,7 @@ class ForwardingView: UIView,UIGestureRecognizerDelegate {
 			
 			if(isLongPressEnable == true)
 			{
-				if let v = view
+				if view != nil
 				{
 					if !viewChangedOwnership
 					{
@@ -430,13 +426,11 @@ class ForwardingView: UIView,UIGestureRecognizerDelegate {
 
     override func touchesCancelled(touches: Set<UITouch>?, withEvent event: UIEvent?) {
         for obj in touches! {
-            if let touch = obj as? UITouch {
-                let view = self.touchToView[touch]
+                let view = self.touchToView[obj]
                 
                 self.handleControl(view, controlEvent: .TouchCancel)
                 
-                self.touchToView[touch] = nil
-            }
+                self.touchToView[obj] = nil
         }
     }
 	

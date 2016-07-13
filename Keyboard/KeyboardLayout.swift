@@ -366,7 +366,7 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
                     }
                 }
                 
-                foundCachedKeys.map {
+               let _ = foundCachedKeys.map {
                     keyMap.removeValueForKey($0)
                 }
                 
@@ -798,7 +798,7 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
             
             let mostKeysInRow: Int = {
                 var currentMax: Int = 0
-                for (i, row) in page.rows.enumerate() {
+                for (_, row) in page.rows.enumerate() {
                     currentMax = max(currentMax, row.count)
                 }
                 return currentMax
@@ -926,7 +926,7 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         let specialCharacterGap = sideSpace - specialCharacterWidth
         
         var currentOrigin = frame.origin.x
-        for (k, key) in row.enumerate() {
+        for (k, _) in row.enumerate() {
             if k == 0 {
                 frames.append(CGRectMake(rounded(currentOrigin), frame.origin.y, specialCharacterWidth, frame.height))
                 currentOrigin += (specialCharacterWidth + specialCharacterGap)
@@ -956,7 +956,7 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         var keysBeforeSpace = 0
         var keysAfterSpace = 0
         var reachedSpace = false
-        for (k, key) in row.enumerate() {
+        for (_, key) in row.enumerate() {
             if key.type == Key.KeyType.Space {
                 reachedSpace = true
             }
@@ -1276,7 +1276,7 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
         
         let popupWidth = key.bounds.width + self.layoutConstants.popupWidthIncrement
         let popupHeight = totalHeight - self.layoutConstants.popupGap - key.bounds.height
-        let popupCenterY = 0
+        //let popupCenterY = 0
         
         return CGRectMake((key.bounds.width - popupWidth) / CGFloat(2), -popupHeight - self.layoutConstants.popupGap, popupWidth, popupHeight)
     }

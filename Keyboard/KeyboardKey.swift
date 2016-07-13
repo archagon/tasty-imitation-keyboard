@@ -156,7 +156,7 @@ class KeyboardKey: UIControl {
         self.addSubview(self.background)
         self.background.addSubview(self.label)
         
-        let setupViews: Void = {
+        let _: Void = {
             self.displayView.opaque = false
             self.underView?.opaque = false
             self.borderView?.opaque = false
@@ -450,7 +450,7 @@ class KeyboardKey: UIControl {
         }
     }
     
-    func hidePopup() {
+   @objc func hidePopup() {
         if self.popup != nil {
             self.delegate?.willHidePopup(self)
             

@@ -87,7 +87,7 @@ class Catboard: KeyboardViewController {
                 for rowKeys in page.rows {
                     for key in rowKeys {
                         if let keyView = self.layout!.viewForKey(key) {
-                            keyView.addTarget(self, action: "takeScreenshotDelay", forControlEvents: .TouchDown)
+                            keyView.addTarget(self, action: #selector(Catboard.takeScreenshotDelay), forControlEvents: .TouchDown)
                         }
                     }
                 }
@@ -100,7 +100,7 @@ class Catboard: KeyboardViewController {
     }
     
     func takeScreenshotDelay() {
-        NSTimer.scheduledTimerWithTimeInterval(0.1, target: self, selector: Selector("takeScreenshot"), userInfo: nil, repeats: false)
+        NSTimer.scheduledTimerWithTimeInterval(0.1, target: self, selector: #selector(Catboard.takeScreenshot), userInfo: nil, repeats: false)
     }
     
     func takeScreenshot() {
@@ -112,7 +112,7 @@ class Catboard: KeyboardViewController {
             
             let rect = self.view.bounds
             UIGraphicsBeginImageContextWithOptions(rect.size, true, 0)
-            var context = UIGraphicsGetCurrentContext()
+            var _ = UIGraphicsGetCurrentContext()
             self.view.drawViewHierarchyInRect(self.view.bounds, afterScreenUpdates: true)
             let capturedImage = UIGraphicsGetImageFromCurrentImageContext()
             UIGraphicsEndImageContext()

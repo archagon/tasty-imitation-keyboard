@@ -98,8 +98,8 @@
 -(CGRect)boundsForView
 {
     CGRect bounds = self.boundsWithStroke;
-    CGFloat maxWidth = MAX( fabsf( CGRectGetMinX( bounds )), fabsf( CGRectGetMaxX( bounds )));
-    CGFloat maxHeight = MAX( fabsf( CGRectGetMinY( bounds )), fabsf( CGRectGetMaxY( bounds )));
+    CGFloat maxWidth = MAX( fabs( CGRectGetMinX( bounds )), fabs( CGRectGetMaxX( bounds )));
+    CGFloat maxHeight = MAX( fabs( CGRectGetMinY( bounds )), fabs( CGRectGetMaxY( bounds )));
     
     return CGRectMake( 0.0f, 0.0f, maxWidth * 2.0f, maxHeight * 2.0f );
 }
