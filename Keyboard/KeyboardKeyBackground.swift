@@ -56,18 +56,18 @@ class KeyboardKeyBackground: UIView, Connectable {
         arcStartingAngles.reserveCapacity(4)
         
         for _ in 0..<4 {
-            startingPoints.append(CGPointZero)
-            segmentPoints.append((CGPointZero, CGPointZero))
-            arcCenters.append(CGPointZero)
+            startingPoints.append(CGPoint.zero)
+            segmentPoints.append((CGPoint.zero, CGPoint.zero))
+            arcCenters.append(CGPoint.zero)
             arcStartingAngles.append(0)
         }
         
         self.cornerRadius = cornerRadius
         self.underOffset = underOffset
         
-        super.init(frame: CGRectZero)
+        super.init(frame: CGRect.zero)
         
-        self.userInteractionEnabled = false
+        self.isUserInteractionEnabled = false
     }
     
     required init?(coder: NSCoder) {
@@ -80,7 +80,7 @@ class KeyboardKeyBackground: UIView, Connectable {
             if self.bounds.width == 0 || self.bounds.height == 0 {
                 return
             }
-            if oldBounds != nil && CGRectEqualToRect(self.bounds, oldBounds!) {
+            if oldBounds != nil && self.bounds.equalTo(oldBounds!) {
                 return
             }
         }
@@ -97,15 +97,15 @@ class KeyboardKeyBackground: UIView, Connectable {
     let floatPiDiv2 = CGFloat(M_PI/2.0)
     let floatPiDivNeg2 = -CGFloat(M_PI/2.0)
     
-    func generatePointsForDrawing(bounds: CGRect) {
+    func generatePointsForDrawing(_ bounds: CGRect) {
         let segmentWidth = bounds.width
         let segmentHeight = bounds.height - CGFloat(underOffset)
         
         // base, untranslated corner points
-        self.startingPoints[0] = CGPointMake(0, segmentHeight)
-        self.startingPoints[1] = CGPointMake(0, 0)
-        self.startingPoints[2] = CGPointMake(segmentWidth, 0)
-        self.startingPoints[3] = CGPointMake(segmentWidth, segmentHeight)
+        self.startingPoints[0] = CGPoint(x: 0, y: segmentHeight)
+        self.startingPoints[1] = CGPoint(x: 0, y: 0)
+        self.startingPoints[2] = CGPoint(x: segmentWidth, y: 0)
+        self.startingPoints[3] = CGPoint(x: segmentWidth, y: segmentHeight)
         
         self.arcStartingAngles[0] = floatPiDiv2
         self.arcStartingAngles[2] = floatPiDivNeg2
@@ -141,18 +141,18 @@ class KeyboardKeyBackground: UIView, Connectable {
                 floatYCorner = cornerRadius
             }
             
-            let p0 = CGPointMake(
-                currentPoint.x + (floatXCorner),
-                currentPoint.y + underOffset + (floatYCorner))
-            let p1 = CGPointMake(
-                nextPoint.x - (floatXCorner),
-                nextPoint.y + underOffset - (floatYCorner))
+            let p0 = CGPoint(
+                x: currentPoint.x + (floatXCorner),
+                y: currentPoint.y + underOffset + (floatYCorner))
+            let p1 = CGPoint(
+                x: nextPoint.x - (floatXCorner),
+                y: nextPoint.y + underOffset - (floatYCorner))
             
             self.segmentPoints[i] = (p0, p1)
             
-            let c = CGPointMake(
-                p0.x - (floatYCorner),
-                p0.y + (floatXCorner))
+            let c = CGPoint(
+                x: p0.x - (floatYCorner),
+                y: p0.y + (floatXCorner))
 
             self.arcCenters[i] = c
         }
@@ -185,14 +185,14 @@ class KeyboardKeyBackground: UIView, Connectable {
                 // TODO: figure out if this is ncessary
                 if prevPoint == nil {
                     prevPoint = segmentPoint.0
-                    fillPath.moveToPoint(prevPoint!)
+                    fillPath.move(to: prevPoint!)
                 }
 
-                fillPath.addLineToPoint(segmentPoint.0)
-                fillPath.addLineToPoint(segmentPoint.1)
+                fillPath.addLine(to: segmentPoint.0)
+                fillPath.addLine(to: segmentPoint.1)
                 
-                edgePath!.moveToPoint(segmentPoint.0)
-                edgePath!.addLineToPoint(segmentPoint.1)
+                edgePath!.move(to: segmentPoint.0)
+                edgePath!.addLine(to: segmentPoint.1)
                 
                 prevPoint = segmentPoint.1
             }
@@ -206,58 +206,58 @@ class KeyboardKeyBackground: UIView, Connectable {
                 
                 if prevPoint == nil {
                     prevPoint = segmentPoint.1
-                    fillPath.moveToPoint(prevPoint!)
+                    fillPath.move(to: prevPoint!)
                 }
                 
                 let startAngle = self.arcStartingAngles[(i + 1) % 4]
                 let endAngle = startAngle + floatPiDiv2
                 let arcCenter = self.arcCenters[(i + 1) % 4]
                 
-                fillPath.addLineToPoint(prevPoint!)
-                fillPath.addArcWithCenter(arcCenter, radius: self.cornerRadius, startAngle: startAngle, endAngle: endAngle, clockwise: true)
+                fillPath.addLine(to: prevPoint!)
+                fillPath.addArc(withCenter: arcCenter, radius: self.cornerRadius, startAngle: startAngle, endAngle: endAngle, clockwise: true)
                 
-                edgePath!.moveToPoint(prevPoint!)
-                edgePath!.addArcWithCenter(arcCenter, radius: self.cornerRadius, startAngle: startAngle, endAngle: endAngle, clockwise: true)
+                edgePath!.move(to: prevPoint!)
+                edgePath!.addArc(withCenter: arcCenter, radius: self.cornerRadius, startAngle: startAngle, endAngle: endAngle, clockwise: true)
                 
                 prevPoint = self.segmentPoints[(i + 1) % 4].0
             }
             
-            edgePath?.applyTransform(CGAffineTransformMakeTranslation(0, -self.underOffset))
+            edgePath?.apply(CGAffineTransform(translationX: 0, y: -self.underOffset))
             
             if edgePath != nil { edgePaths.append(edgePath!) }
         }
         
-        fillPath.closePath()
-        fillPath.applyTransform(CGAffineTransformMakeTranslation(0, -self.underOffset))
+        fillPath.close()
+        fillPath.apply(CGAffineTransform(translationX: 0, y: -self.underOffset))
         
         let underPath = { () -> UIBezierPath in
             let underPath = UIBezierPath()
             
-            underPath.moveToPoint(self.segmentPoints[2].1)
+            underPath.move(to: self.segmentPoints[2].1)
             
             var startAngle = self.arcStartingAngles[3]
             var endAngle = startAngle + CGFloat(M_PI/2.0)
-            underPath.addArcWithCenter(self.arcCenters[3], radius: CGFloat(self.cornerRadius), startAngle: startAngle, endAngle: endAngle, clockwise: true)
+            underPath.addArc(withCenter: self.arcCenters[3], radius: CGFloat(self.cornerRadius), startAngle: startAngle, endAngle: endAngle, clockwise: true)
 
-            underPath.addLineToPoint(self.segmentPoints[3].1)
+            underPath.addLine(to: self.segmentPoints[3].1)
             
             startAngle = self.arcStartingAngles[0]
             endAngle = startAngle + CGFloat(M_PI/2.0)
-            underPath.addArcWithCenter(self.arcCenters[0], radius: CGFloat(self.cornerRadius), startAngle: startAngle, endAngle: endAngle, clockwise: true)
+            underPath.addArc(withCenter: self.arcCenters[0], radius: CGFloat(self.cornerRadius), startAngle: startAngle, endAngle: endAngle, clockwise: true)
             
-            underPath.addLineToPoint(CGPointMake(self.segmentPoints[0].0.x, self.segmentPoints[0].0.y - self.underOffset))
+            underPath.addLine(to: CGPoint(x: self.segmentPoints[0].0.x, y: self.segmentPoints[0].0.y - self.underOffset))
             
             startAngle = self.arcStartingAngles[1]
             endAngle = startAngle - CGFloat(M_PI/2.0)
-            underPath.addArcWithCenter(CGPointMake(self.arcCenters[0].x, self.arcCenters[0].y - self.underOffset), radius: CGFloat(self.cornerRadius), startAngle: startAngle, endAngle: endAngle, clockwise: false)
+            underPath.addArc(withCenter: CGPoint(x: self.arcCenters[0].x, y: self.arcCenters[0].y - self.underOffset), radius: CGFloat(self.cornerRadius), startAngle: startAngle, endAngle: endAngle, clockwise: false)
             
-            underPath.addLineToPoint(CGPointMake(self.segmentPoints[2].1.x - self.cornerRadius, self.segmentPoints[2].1.y + self.cornerRadius - self.underOffset))
+            underPath.addLine(to: CGPoint(x: self.segmentPoints[2].1.x - self.cornerRadius, y: self.segmentPoints[2].1.y + self.cornerRadius - self.underOffset))
             
             startAngle = self.arcStartingAngles[0]
             endAngle = startAngle - CGFloat(M_PI/2.0)
-            underPath.addArcWithCenter(CGPointMake(self.arcCenters[3].x, self.arcCenters[3].y - self.underOffset), radius: CGFloat(self.cornerRadius), startAngle: startAngle, endAngle: endAngle, clockwise: false)
+            underPath.addArc(withCenter: CGPoint(x: self.arcCenters[3].x, y: self.arcCenters[3].y - self.underOffset), radius: CGFloat(self.cornerRadius), startAngle: startAngle, endAngle: endAngle, clockwise: false)
             
-            underPath.closePath()
+            underPath.close()
             
             return underPath
         }()
@@ -267,7 +267,7 @@ class KeyboardKeyBackground: UIView, Connectable {
         self.underPath = underPath
     }
     
-    func attachmentPoints(direction: Direction) -> (CGPoint, CGPoint) {
+    func attachmentPoints(_ direction: Direction) -> (CGPoint, CGPoint) {
         let returnValue = (
             self.segmentPoints[direction.clockwise().rawValue].0,
             self.segmentPoints[direction.counterclockwise().rawValue].1)
@@ -279,7 +279,7 @@ class KeyboardKeyBackground: UIView, Connectable {
         return self.attached
     }
     
-    func attach(direction: Direction?) {
+    func attach(_ direction: Direction?) {
         self.attached = direction
     }
 }

@@ -15,7 +15,7 @@ import UIKit
 ///////////////////
 
 class BackspaceShape: Shape {
-    override func drawCall(color: UIColor) {
+    override func drawCall(_ color: UIColor) {
         drawBackspace(self.bounds, color: color)
     }
 }
@@ -27,13 +27,13 @@ class ShiftShape: Shape {
         }
     }
     
-    override func drawCall(color: UIColor) {
+    override func drawCall(_ color: UIColor) {
         drawShift(self.bounds, color: color, withRect: self.withLock)
     }
 }
 
 class GlobeShape: Shape {
-    override func drawCall(color: UIColor) {
+    override func drawCall(_ color: UIColor) {
         drawGlobe(self.bounds, color: color)
     }
 }
@@ -51,13 +51,13 @@ class Shape: UIView {
     var overflowCanvas: OverflowCanvas!
     
     convenience init() {
-        self.init(frame: CGRectZero)
+        self.init(frame: CGRect.zero)
     }
     
     override required init(frame: CGRect) {
         super.init(frame: frame)
         
-        self.opaque = false
+        self.isOpaque = false
         self.clipsToBounds = false
         
         self.overflowCanvas = OverflowCanvas(shape: self)
@@ -73,7 +73,7 @@ class Shape: UIView {
         if self.bounds.width == 0 || self.bounds.height == 0 {
             return
         }
-        if oldBounds != nil && CGRectEqualToRect(self.bounds, oldBounds!) {
+        if oldBounds != nil && self.bounds.equalTo(oldBounds!) {
             return
         }
         oldBounds = self.bounds
@@ -81,17 +81,17 @@ class Shape: UIView {
         super.layoutSubviews()
         
         let overflowCanvasSizeRatio = CGFloat(1.25)
-        let overflowCanvasSize = CGSizeMake(self.bounds.width * overflowCanvasSizeRatio, self.bounds.height * overflowCanvasSizeRatio)
+        let overflowCanvasSize = CGSize(width: self.bounds.width * overflowCanvasSizeRatio, height: self.bounds.height * overflowCanvasSizeRatio)
         
-        self.overflowCanvas.frame = CGRectMake(
-            CGFloat((self.bounds.width - overflowCanvasSize.width) / 2.0),
-            CGFloat((self.bounds.height - overflowCanvasSize.height) / 2.0),
-            overflowCanvasSize.width,
-            overflowCanvasSize.height)
+        self.overflowCanvas.frame = CGRect(
+            x: CGFloat((self.bounds.width - overflowCanvasSize.width) / 2.0),
+            y: CGFloat((self.bounds.height - overflowCanvasSize.height) / 2.0),
+            width: overflowCanvasSize.width,
+            height: overflowCanvasSize.height)
         self.overflowCanvas.setNeedsDisplay()
     }
     
-    func drawCall(color: UIColor) { /* override me! */ }
+    func drawCall(_ color: UIColor) { /* override me! */ }
     
     class OverflowCanvas: UIView {
         unowned var shape: Shape
@@ -99,28 +99,28 @@ class Shape: UIView {
         init(shape: Shape) {
             self.shape = shape
             
-            super.init(frame: CGRectZero)
+            super.init(frame: CGRect.zero)
             
-            self.opaque = false
+            self.isOpaque = false
         }
 
         required init(coder aDecoder: NSCoder) {
             fatalError("init(coder:) has not been implemented")
         }
         
-        override func drawRect(rect: CGRect) {
+        override func draw(_ rect: CGRect) {
             let ctx = UIGraphicsGetCurrentContext()
             CGColorSpaceCreateDeviceRGB()
             
-            CGContextSaveGState(ctx)
+            ctx?.saveGState()
             
             let xOffset = (self.bounds.width - self.shape.bounds.width) / CGFloat(2)
             let yOffset = (self.bounds.height - self.shape.bounds.height) / CGFloat(2)
-            CGContextTranslateCTM(ctx, xOffset, yOffset)
+            ctx?.translateBy(x: xOffset, y: yOffset)
             
-            self.shape.drawCall(shape.color != nil ? shape.color! : UIColor.blackColor())
+            self.shape.drawCall(shape.color != nil ? shape.color! : UIColor.black)
             
-            CGContextRestoreGState(ctx)
+            ctx?.restoreGState()
         }
     }
 }
@@ -129,7 +129,7 @@ class Shape: UIView {
 // SHAPE FUNCTIONS //
 /////////////////////
 
-func getFactors(fromSize: CGSize, toRect: CGRect) -> (xScalingFactor: CGFloat, yScalingFactor: CGFloat, lineWidthScalingFactor: CGFloat, fillIsHorizontal: Bool, offset: CGFloat) {
+func getFactors(_ fromSize: CGSize, toRect: CGRect) -> (xScalingFactor: CGFloat, yScalingFactor: CGFloat, lineWidthScalingFactor: CGFloat, fillIsHorizontal: Bool, offset: CGFloat) {
     
     let xSize = { () -> CGFloat in
         let scaledSize = (fromSize.width / CGFloat(2))
@@ -156,55 +156,55 @@ func getFactors(fromSize: CGSize, toRect: CGRect) -> (xScalingFactor: CGFloat, y
     return (actualSize, actualSize, actualSize, false, 0)
 }
 
-func centerShape(fromSize: CGSize, toRect: CGRect) {
+func centerShape(_ fromSize: CGSize, toRect: CGRect) {
     let xOffset = (toRect.width - fromSize.width) / CGFloat(2)
     let yOffset = (toRect.height - fromSize.height) / CGFloat(2)
     
     let ctx = UIGraphicsGetCurrentContext()
-    CGContextSaveGState(ctx)
-    CGContextTranslateCTM(ctx, xOffset, yOffset)
+    ctx?.saveGState()
+    ctx?.translateBy(x: xOffset, y: yOffset)
 }
 
 func endCenter() {
     let ctx = UIGraphicsGetCurrentContext()
-    CGContextRestoreGState(ctx)
+    ctx?.restoreGState()
 }
 
-func drawBackspace(bounds: CGRect, color: UIColor) {
-    let factors = getFactors(CGSizeMake(44, 32), toRect: bounds)
+func drawBackspace(_ bounds: CGRect, color: UIColor) {
+    let factors = getFactors(CGSize(width: 44, height: 32), toRect: bounds)
     let xScalingFactor = factors.xScalingFactor
     let yScalingFactor = factors.yScalingFactor
     let lineWidthScalingFactor = factors.lineWidthScalingFactor
     
-    centerShape(CGSizeMake(44 * xScalingFactor, 32 * yScalingFactor), toRect: bounds)
+    centerShape(CGSize(width: 44 * xScalingFactor, height: 32 * yScalingFactor), toRect: bounds)
     
     
     //// Color Declarations
     let color = color
-    let color2 = UIColor.grayColor() // TODO:
+    let color2 = UIColor.gray // TODO:
     
     //// Bezier Drawing
     let bezierPath = UIBezierPath()
-    bezierPath.moveToPoint(CGPointMake(16 * xScalingFactor, 32 * yScalingFactor))
-    bezierPath.addLineToPoint(CGPointMake(38 * xScalingFactor, 32 * yScalingFactor))
-    bezierPath.addCurveToPoint(CGPointMake(44 * xScalingFactor, 26 * yScalingFactor), controlPoint1: CGPointMake(38 * xScalingFactor, 32 * yScalingFactor), controlPoint2: CGPointMake(44 * xScalingFactor, 32 * yScalingFactor))
-    bezierPath.addCurveToPoint(CGPointMake(44 * xScalingFactor, 6 * yScalingFactor), controlPoint1: CGPointMake(44 * xScalingFactor, 22 * yScalingFactor), controlPoint2: CGPointMake(44 * xScalingFactor, 6 * yScalingFactor))
-    bezierPath.addCurveToPoint(CGPointMake(36 * xScalingFactor, 0 * yScalingFactor), controlPoint1: CGPointMake(44 * xScalingFactor, 6 * yScalingFactor), controlPoint2: CGPointMake(44 * xScalingFactor, 0 * yScalingFactor))
-    bezierPath.addCurveToPoint(CGPointMake(16 * xScalingFactor, 0 * yScalingFactor), controlPoint1: CGPointMake(32 * xScalingFactor, 0 * yScalingFactor), controlPoint2: CGPointMake(16 * xScalingFactor, 0 * yScalingFactor))
-    bezierPath.addLineToPoint(CGPointMake(0 * xScalingFactor, 18 * yScalingFactor))
-    bezierPath.addLineToPoint(CGPointMake(16 * xScalingFactor, 32 * yScalingFactor))
-    bezierPath.closePath()
+    bezierPath.move(to: CGPoint(x: 16 * xScalingFactor, y: 32 * yScalingFactor))
+    bezierPath.addLine(to: CGPoint(x: 38 * xScalingFactor, y: 32 * yScalingFactor))
+    bezierPath.addCurve(to: CGPoint(x: 44 * xScalingFactor, y: 26 * yScalingFactor), controlPoint1: CGPoint(x: 38 * xScalingFactor, y: 32 * yScalingFactor), controlPoint2: CGPoint(x: 44 * xScalingFactor, y: 32 * yScalingFactor))
+    bezierPath.addCurve(to: CGPoint(x: 44 * xScalingFactor, y: 6 * yScalingFactor), controlPoint1: CGPoint(x: 44 * xScalingFactor, y: 22 * yScalingFactor), controlPoint2: CGPoint(x: 44 * xScalingFactor, y: 6 * yScalingFactor))
+    bezierPath.addCurve(to: CGPoint(x: 36 * xScalingFactor, y: 0 * yScalingFactor), controlPoint1: CGPoint(x: 44 * xScalingFactor, y: 6 * yScalingFactor), controlPoint2: CGPoint(x: 44 * xScalingFactor, y: 0 * yScalingFactor))
+    bezierPath.addCurve(to: CGPoint(x: 16 * xScalingFactor, y: 0 * yScalingFactor), controlPoint1: CGPoint(x: 32 * xScalingFactor, y: 0 * yScalingFactor), controlPoint2: CGPoint(x: 16 * xScalingFactor, y: 0 * yScalingFactor))
+    bezierPath.addLine(to: CGPoint(x: 0 * xScalingFactor, y: 18 * yScalingFactor))
+    bezierPath.addLine(to: CGPoint(x: 16 * xScalingFactor, y: 32 * yScalingFactor))
+    bezierPath.close()
     color.setFill()
     bezierPath.fill()
     
     
     //// Bezier 2 Drawing
     let bezier2Path = UIBezierPath()
-    bezier2Path.moveToPoint(CGPointMake(20 * xScalingFactor, 10 * yScalingFactor))
-    bezier2Path.addLineToPoint(CGPointMake(34 * xScalingFactor, 22 * yScalingFactor))
-    bezier2Path.addLineToPoint(CGPointMake(20 * xScalingFactor, 10 * yScalingFactor))
-    bezier2Path.closePath()
-    UIColor.grayColor().setFill()
+    bezier2Path.move(to: CGPoint(x: 20 * xScalingFactor, y: 10 * yScalingFactor))
+    bezier2Path.addLine(to: CGPoint(x: 34 * xScalingFactor, y: 22 * yScalingFactor))
+    bezier2Path.addLine(to: CGPoint(x: 20 * xScalingFactor, y: 10 * yScalingFactor))
+    bezier2Path.close()
+    UIColor.gray.setFill()
     bezier2Path.fill()
     color2.setStroke()
     bezier2Path.lineWidth = 2.5 * lineWidthScalingFactor
@@ -213,11 +213,11 @@ func drawBackspace(bounds: CGRect, color: UIColor) {
     
     //// Bezier 3 Drawing
     let bezier3Path = UIBezierPath()
-    bezier3Path.moveToPoint(CGPointMake(20 * xScalingFactor, 22 * yScalingFactor))
-    bezier3Path.addLineToPoint(CGPointMake(34 * xScalingFactor, 10 * yScalingFactor))
-    bezier3Path.addLineToPoint(CGPointMake(20 * xScalingFactor, 22 * yScalingFactor))
-    bezier3Path.closePath()
-    UIColor.redColor().setFill()
+    bezier3Path.move(to: CGPoint(x: 20 * xScalingFactor, y: 22 * yScalingFactor))
+    bezier3Path.addLine(to: CGPoint(x: 34 * xScalingFactor, y: 10 * yScalingFactor))
+    bezier3Path.addLine(to: CGPoint(x: 20 * xScalingFactor, y: 22 * yScalingFactor))
+    bezier3Path.close()
+    UIColor.red.setFill()
     bezier3Path.fill()
     color2.setStroke()
     bezier3Path.lineWidth = 2.5 * lineWidthScalingFactor
@@ -226,13 +226,13 @@ func drawBackspace(bounds: CGRect, color: UIColor) {
     endCenter()
 }
 
-func drawShift(bounds: CGRect, color: UIColor, withRect: Bool) {
-    let factors = getFactors(CGSizeMake(38, (withRect ? 34 + 4 : 32)), toRect: bounds)
+func drawShift(_ bounds: CGRect, color: UIColor, withRect: Bool) {
+    let factors = getFactors(CGSize(width: 38, height: (withRect ? 34 + 4 : 32)), toRect: bounds)
     let xScalingFactor = factors.xScalingFactor
     let yScalingFactor = factors.yScalingFactor
     _ = factors.lineWidthScalingFactor
     
-    centerShape(CGSizeMake(38 * xScalingFactor, (withRect ? 34 + 4 : 32) * yScalingFactor), toRect: bounds)
+    centerShape(CGSize(width: 38 * xScalingFactor, height: (withRect ? 34 + 4 : 32) * yScalingFactor), toRect: bounds)
     
     
     //// Color Declarations
@@ -240,26 +240,26 @@ func drawShift(bounds: CGRect, color: UIColor, withRect: Bool) {
     
     //// Bezier Drawing
     let bezierPath = UIBezierPath()
-    bezierPath.moveToPoint(CGPointMake(28 * xScalingFactor, 18 * yScalingFactor))
-    bezierPath.addLineToPoint(CGPointMake(38 * xScalingFactor, 18 * yScalingFactor))
-    bezierPath.addLineToPoint(CGPointMake(38 * xScalingFactor, 18 * yScalingFactor))
-    bezierPath.addLineToPoint(CGPointMake(19 * xScalingFactor, 0 * yScalingFactor))
-    bezierPath.addLineToPoint(CGPointMake(0 * xScalingFactor, 18 * yScalingFactor))
-    bezierPath.addLineToPoint(CGPointMake(0 * xScalingFactor, 18 * yScalingFactor))
-    bezierPath.addLineToPoint(CGPointMake(10 * xScalingFactor, 18 * yScalingFactor))
-    bezierPath.addLineToPoint(CGPointMake(10 * xScalingFactor, 28 * yScalingFactor))
-    bezierPath.addCurveToPoint(CGPointMake(14 * xScalingFactor, 32 * yScalingFactor), controlPoint1: CGPointMake(10 * xScalingFactor, 28 * yScalingFactor), controlPoint2: CGPointMake(10 * xScalingFactor, 32 * yScalingFactor))
-    bezierPath.addCurveToPoint(CGPointMake(24 * xScalingFactor, 32 * yScalingFactor), controlPoint1: CGPointMake(16 * xScalingFactor, 32 * yScalingFactor), controlPoint2: CGPointMake(24 * xScalingFactor, 32 * yScalingFactor))
-    bezierPath.addCurveToPoint(CGPointMake(28 * xScalingFactor, 28 * yScalingFactor), controlPoint1: CGPointMake(24 * xScalingFactor, 32 * yScalingFactor), controlPoint2: CGPointMake(28 * xScalingFactor, 32 * yScalingFactor))
-    bezierPath.addCurveToPoint(CGPointMake(28 * xScalingFactor, 18 * yScalingFactor), controlPoint1: CGPointMake(28 * xScalingFactor, 26 * yScalingFactor), controlPoint2: CGPointMake(28 * xScalingFactor, 18 * yScalingFactor))
-    bezierPath.closePath()
+    bezierPath.move(to: CGPoint(x: 28 * xScalingFactor, y: 18 * yScalingFactor))
+    bezierPath.addLine(to: CGPoint(x: 38 * xScalingFactor, y: 18 * yScalingFactor))
+    bezierPath.addLine(to: CGPoint(x: 38 * xScalingFactor, y: 18 * yScalingFactor))
+    bezierPath.addLine(to: CGPoint(x: 19 * xScalingFactor, y: 0 * yScalingFactor))
+    bezierPath.addLine(to: CGPoint(x: 0 * xScalingFactor, y: 18 * yScalingFactor))
+    bezierPath.addLine(to: CGPoint(x: 0 * xScalingFactor, y: 18 * yScalingFactor))
+    bezierPath.addLine(to: CGPoint(x: 10 * xScalingFactor, y: 18 * yScalingFactor))
+    bezierPath.addLine(to: CGPoint(x: 10 * xScalingFactor, y: 28 * yScalingFactor))
+    bezierPath.addCurve(to: CGPoint(x: 14 * xScalingFactor, y: 32 * yScalingFactor), controlPoint1: CGPoint(x: 10 * xScalingFactor, y: 28 * yScalingFactor), controlPoint2: CGPoint(x: 10 * xScalingFactor, y: 32 * yScalingFactor))
+    bezierPath.addCurve(to: CGPoint(x: 24 * xScalingFactor, y: 32 * yScalingFactor), controlPoint1: CGPoint(x: 16 * xScalingFactor, y: 32 * yScalingFactor), controlPoint2: CGPoint(x: 24 * xScalingFactor, y: 32 * yScalingFactor))
+    bezierPath.addCurve(to: CGPoint(x: 28 * xScalingFactor, y: 28 * yScalingFactor), controlPoint1: CGPoint(x: 24 * xScalingFactor, y: 32 * yScalingFactor), controlPoint2: CGPoint(x: 28 * xScalingFactor, y: 32 * yScalingFactor))
+    bezierPath.addCurve(to: CGPoint(x: 28 * xScalingFactor, y: 18 * yScalingFactor), controlPoint1: CGPoint(x: 28 * xScalingFactor, y: 26 * yScalingFactor), controlPoint2: CGPoint(x: 28 * xScalingFactor, y: 18 * yScalingFactor))
+    bezierPath.close()
     color2.setFill()
     bezierPath.fill()
     
     
     if withRect {
         //// Rectangle Drawing
-        let rectanglePath = UIBezierPath(rect: CGRectMake(10 * xScalingFactor, 34 * yScalingFactor, 18 * xScalingFactor, 4 * yScalingFactor))
+        let rectanglePath = UIBezierPath(rect: CGRect(x: 10 * xScalingFactor, y: 34 * yScalingFactor, width: 18 * xScalingFactor, height: 4 * yScalingFactor))
         color2.setFill()
         rectanglePath.fill()
     }
@@ -267,20 +267,20 @@ func drawShift(bounds: CGRect, color: UIColor, withRect: Bool) {
     endCenter()
 }
 
-func drawGlobe(bounds: CGRect, color: UIColor) {
-    let factors = getFactors(CGSizeMake(41, 40), toRect: bounds)
+func drawGlobe(_ bounds: CGRect, color: UIColor) {
+    let factors = getFactors(CGSize(width: 41, height: 40), toRect: bounds)
     let xScalingFactor = factors.xScalingFactor
     let yScalingFactor = factors.yScalingFactor
     let lineWidthScalingFactor = factors.lineWidthScalingFactor
     
-    centerShape(CGSizeMake(41 * xScalingFactor, 40 * yScalingFactor), toRect: bounds)
+    centerShape(CGSize(width: 41 * xScalingFactor, height: 40 * yScalingFactor), toRect: bounds)
     
     
     //// Color Declarations
     let color = color
     
     //// Oval Drawing
-    let ovalPath = UIBezierPath(ovalInRect: CGRectMake(0 * xScalingFactor, 0 * yScalingFactor, 40 * xScalingFactor, 40 * yScalingFactor))
+    let ovalPath = UIBezierPath(ovalIn: CGRect(x: 0 * xScalingFactor, y: 0 * yScalingFactor, width: 40 * xScalingFactor, height: 40 * yScalingFactor))
     color.setStroke()
     ovalPath.lineWidth = 1 * lineWidthScalingFactor
     ovalPath.stroke()
@@ -288,10 +288,10 @@ func drawGlobe(bounds: CGRect, color: UIColor) {
     
     //// Bezier Drawing
     let bezierPath = UIBezierPath()
-    bezierPath.moveToPoint(CGPointMake(20 * xScalingFactor, -0 * yScalingFactor))
-    bezierPath.addLineToPoint(CGPointMake(20 * xScalingFactor, 40 * yScalingFactor))
-    bezierPath.addLineToPoint(CGPointMake(20 * xScalingFactor, -0 * yScalingFactor))
-    bezierPath.closePath()
+    bezierPath.move(to: CGPoint(x: 20 * xScalingFactor, y: -0 * yScalingFactor))
+    bezierPath.addLine(to: CGPoint(x: 20 * xScalingFactor, y: 40 * yScalingFactor))
+    bezierPath.addLine(to: CGPoint(x: 20 * xScalingFactor, y: -0 * yScalingFactor))
+    bezierPath.close()
     color.setStroke()
     bezierPath.lineWidth = 1 * lineWidthScalingFactor
     bezierPath.stroke()
@@ -299,10 +299,10 @@ func drawGlobe(bounds: CGRect, color: UIColor) {
     
     //// Bezier 2 Drawing
     let bezier2Path = UIBezierPath()
-    bezier2Path.moveToPoint(CGPointMake(0.5 * xScalingFactor, 19.5 * yScalingFactor))
-    bezier2Path.addLineToPoint(CGPointMake(39.5 * xScalingFactor, 19.5 * yScalingFactor))
-    bezier2Path.addLineToPoint(CGPointMake(0.5 * xScalingFactor, 19.5 * yScalingFactor))
-    bezier2Path.closePath()
+    bezier2Path.move(to: CGPoint(x: 0.5 * xScalingFactor, y: 19.5 * yScalingFactor))
+    bezier2Path.addLine(to: CGPoint(x: 39.5 * xScalingFactor, y: 19.5 * yScalingFactor))
+    bezier2Path.addLine(to: CGPoint(x: 0.5 * xScalingFactor, y: 19.5 * yScalingFactor))
+    bezier2Path.close()
     color.setStroke()
     bezier2Path.lineWidth = 1 * lineWidthScalingFactor
     bezier2Path.stroke()
@@ -310,9 +310,9 @@ func drawGlobe(bounds: CGRect, color: UIColor) {
     
     //// Bezier 3 Drawing
     let bezier3Path = UIBezierPath()
-    bezier3Path.moveToPoint(CGPointMake(21.63 * xScalingFactor, 0.42 * yScalingFactor))
-    bezier3Path.addCurveToPoint(CGPointMake(21.63 * xScalingFactor, 39.6 * yScalingFactor), controlPoint1: CGPointMake(21.63 * xScalingFactor, 0.42 * yScalingFactor), controlPoint2: CGPointMake(41 * xScalingFactor, 19 * yScalingFactor))
-    bezier3Path.lineCapStyle = .Round;
+    bezier3Path.move(to: CGPoint(x: 21.63 * xScalingFactor, y: 0.42 * yScalingFactor))
+    bezier3Path.addCurve(to: CGPoint(x: 21.63 * xScalingFactor, y: 39.6 * yScalingFactor), controlPoint1: CGPoint(x: 21.63 * xScalingFactor, y: 0.42 * yScalingFactor), controlPoint2: CGPoint(x: 41 * xScalingFactor, y: 19 * yScalingFactor))
+    bezier3Path.lineCapStyle = .round;
     
     color.setStroke()
     bezier3Path.lineWidth = 1 * lineWidthScalingFactor
@@ -321,9 +321,9 @@ func drawGlobe(bounds: CGRect, color: UIColor) {
     
     //// Bezier 4 Drawing
     let bezier4Path = UIBezierPath()
-    bezier4Path.moveToPoint(CGPointMake(17.76 * xScalingFactor, 0.74 * yScalingFactor))
-    bezier4Path.addCurveToPoint(CGPointMake(18.72 * xScalingFactor, 39.6 * yScalingFactor), controlPoint1: CGPointMake(17.76 * xScalingFactor, 0.74 * yScalingFactor), controlPoint2: CGPointMake(-2.5 * xScalingFactor, 19.04 * yScalingFactor))
-    bezier4Path.lineCapStyle = .Round;
+    bezier4Path.move(to: CGPoint(x: 17.76 * xScalingFactor, y: 0.74 * yScalingFactor))
+    bezier4Path.addCurve(to: CGPoint(x: 18.72 * xScalingFactor, y: 39.6 * yScalingFactor), controlPoint1: CGPoint(x: 17.76 * xScalingFactor, y: 0.74 * yScalingFactor), controlPoint2: CGPoint(x: -2.5 * xScalingFactor, y: 19.04 * yScalingFactor))
+    bezier4Path.lineCapStyle = .round;
     
     color.setStroke()
     bezier4Path.lineWidth = 1 * lineWidthScalingFactor
@@ -332,9 +332,9 @@ func drawGlobe(bounds: CGRect, color: UIColor) {
     
     //// Bezier 5 Drawing
     let bezier5Path = UIBezierPath()
-    bezier5Path.moveToPoint(CGPointMake(6 * xScalingFactor, 7 * yScalingFactor))
-    bezier5Path.addCurveToPoint(CGPointMake(34 * xScalingFactor, 7 * yScalingFactor), controlPoint1: CGPointMake(6 * xScalingFactor, 7 * yScalingFactor), controlPoint2: CGPointMake(19 * xScalingFactor, 21 * yScalingFactor))
-    bezier5Path.lineCapStyle = .Round;
+    bezier5Path.move(to: CGPoint(x: 6 * xScalingFactor, y: 7 * yScalingFactor))
+    bezier5Path.addCurve(to: CGPoint(x: 34 * xScalingFactor, y: 7 * yScalingFactor), controlPoint1: CGPoint(x: 6 * xScalingFactor, y: 7 * yScalingFactor), controlPoint2: CGPoint(x: 19 * xScalingFactor, y: 21 * yScalingFactor))
+    bezier5Path.lineCapStyle = .round;
     
     color.setStroke()
     bezier5Path.lineWidth = 1 * lineWidthScalingFactor
@@ -343,9 +343,9 @@ func drawGlobe(bounds: CGRect, color: UIColor) {
     
     //// Bezier 6 Drawing
     let bezier6Path = UIBezierPath()
-    bezier6Path.moveToPoint(CGPointMake(6 * xScalingFactor, 33 * yScalingFactor))
-    bezier6Path.addCurveToPoint(CGPointMake(34 * xScalingFactor, 33 * yScalingFactor), controlPoint1: CGPointMake(6 * xScalingFactor, 33 * yScalingFactor), controlPoint2: CGPointMake(19 * xScalingFactor, 22 * yScalingFactor))
-    bezier6Path.lineCapStyle = .Round;
+    bezier6Path.move(to: CGPoint(x: 6 * xScalingFactor, y: 33 * yScalingFactor))
+    bezier6Path.addCurve(to: CGPoint(x: 34 * xScalingFactor, y: 33 * yScalingFactor), controlPoint1: CGPoint(x: 6 * xScalingFactor, y: 33 * yScalingFactor), controlPoint2: CGPoint(x: 19 * xScalingFactor, y: 22 * yScalingFactor))
+    bezier6Path.lineCapStyle = .round;
     
     color.setStroke()
     bezier6Path.lineWidth = 1 * lineWidthScalingFactor
