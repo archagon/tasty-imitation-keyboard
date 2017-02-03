@@ -7,21 +7,21 @@
 //
 
 enum Direction: Int, CustomStringConvertible {
-    case Left = 0
-    case Down = 3
-    case Right = 2
-    case Up = 1
+    case left = 0
+    case down = 3
+    case right = 2
+    case up = 1
     
     var description: String {
     get {
         switch self {
-        case Left:
+        case .left:
             return "Left"
-        case Right:
+        case .right:
             return "Right"
-        case Up:
+        case .up:
             return "Up"
-        case Down:
+        case .down:
             return "Down"
         }
     }
@@ -29,48 +29,48 @@ enum Direction: Int, CustomStringConvertible {
     
     func clockwise() -> Direction {
         switch self {
-        case Left:
-            return Up
-        case Right:
-            return Down
-        case Up:
-            return Right
-        case Down:
-            return Left
+        case .left:
+            return .up
+        case .right:
+            return .down
+        case .up:
+            return .right
+        case .down:
+            return .left
         }
     }
     
     func counterclockwise() -> Direction {
         switch self {
-        case Left:
-            return Down
-        case Right:
-            return Up
-        case Up:
-            return Left
-        case Down:
-            return Right
+        case .left:
+            return .down
+        case .right:
+            return .up
+        case .up:
+            return .left
+        case .down:
+            return .right
         }
     }
     
     func opposite() -> Direction {
         switch self {
-        case Left:
-            return Right
-        case Right:
-            return Left
-        case Up:
-            return Down
-        case Down:
-            return Up
+        case .left:
+            return .right
+        case .right:
+            return .left
+        case .up:
+            return .down
+        case .down:
+            return .up
         }
     }
     
     func horizontal() -> Bool {
         switch self {
         case
-        Left,
-        Right:
+        .left,
+        .right:
             return true
         default:
             return false

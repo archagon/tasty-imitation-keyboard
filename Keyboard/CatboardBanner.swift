@@ -24,9 +24,9 @@ class CatboardBanner: ExtraView {
         self.addSubview(self.catSwitch)
         self.addSubview(self.catLabel)
         
-        self.catSwitch.on = NSUserDefaults.standardUserDefaults().boolForKey(kCatTypeEnabled)
-        self.catSwitch.transform = CGAffineTransformMakeScale(0.75, 0.75)
-        self.catSwitch.addTarget(self, action: Selector("respondToSwitch"), forControlEvents: UIControlEvents.ValueChanged)
+        self.catSwitch.isOn = UserDefaults.standard.bool(forKey: kCatTypeEnabled)
+        self.catSwitch.transform = CGAffineTransform(scaleX: 0.75, y: 0.75)
+        self.catSwitch.addTarget(self, action: #selector(CatboardBanner.respondToSwitch), for: UIControlEvents.valueChanged)
         
         self.updateAppearance()
     }
@@ -44,16 +44,16 @@ class CatboardBanner: ExtraView {
 
         self.catSwitch.center = self.center
         self.catLabel.center = self.center
-        self.catLabel.frame.origin = CGPointMake(self.catSwitch.frame.origin.x + self.catSwitch.frame.width + 8, self.catLabel.frame.origin.y)
+        self.catLabel.frame.origin = CGPoint(x: self.catSwitch.frame.origin.x + self.catSwitch.frame.width + 8, y: self.catLabel.frame.origin.y)
     }
     
     func respondToSwitch() {
-        NSUserDefaults.standardUserDefaults().setBool(self.catSwitch.on, forKey: kCatTypeEnabled)
+        UserDefaults.standard.set(self.catSwitch.isOn, forKey: kCatTypeEnabled)
         self.updateAppearance()
     }
     
     func updateAppearance() {
-        if self.catSwitch.on {
+        if self.catSwitch.isOn {
             self.catLabel.text = "😺"
             self.catLabel.alpha = 1
         }

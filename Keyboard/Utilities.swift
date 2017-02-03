@@ -36,7 +36,7 @@ import UIKit
 //    return memoized
 //}
 
-func memoize<T:Hashable, U>(fn : T -> U) -> T -> U {
+func memoize<T:Hashable, U>(_ fn : @escaping (T) -> U) -> (T) -> U {
     var cache = [T:U]()
     return {
         (val : T) -> U in
@@ -67,7 +67,7 @@ func memoize<T:Hashable, U>(fn : T -> U) -> T -> U {
 //    return memoized
 //}
 
-var profile: ((id: String) -> Double?) = {
+var profile: ((_ id: String) -> Double?) = {
     var counterForName = Dictionary<String, Double>()
     var isOpen = Dictionary<String, Double>()
     
