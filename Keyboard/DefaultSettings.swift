@@ -69,7 +69,7 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
     func loadNib() {
         let assets = Bundle(for: type(of: self)).loadNibNamed("DefaultSettings", owner: self, options: nil)
         
-        if (assets?.count)! > 0 {
+        if (assets?.count ?? 0) > 0 {
             if let rootView = assets?.first as? UIView {
                 rootView.translatesAutoresizingMaskIntoConstraints = false
                 self.addSubview(rootView)
@@ -149,9 +149,10 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
     
     func updateAppearance(_ dark: Bool) {
         if dark {
+            let _ = self.effectsView?.effect //AB: used for side effect, maybe? can't remember, probably junk
             let blueColor = UIColor(red: 135/CGFloat(255), green: 206/CGFloat(255), blue: 250/CGFloat(255), alpha: 1)
             self.pixelLine?.backgroundColor = blueColor.withAlphaComponent(CGFloat(0.5))
-            self.backButton?.setTitleColor(blueColor, for: UIControlState())
+            self.backButton?.setTitleColor(blueColor, for: .normal)
             self.settingsLabel?.textColor = UIColor.white
             
             if let visibleCells = self.tableView?.visibleCells {
@@ -167,7 +168,7 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
         else {
             let blueColor = UIColor(red: 0/CGFloat(255), green: 122/CGFloat(255), blue: 255/CGFloat(255), alpha: 1)
             self.pixelLine?.backgroundColor = blueColor.withAlphaComponent(CGFloat(0.5))
-            self.backButton?.setTitleColor(blueColor, for: UIControlState())
+            self.backButton?.setTitleColor(blueColor, for: .normal)
             self.settingsLabel?.textColor = UIColor.gray
             
             if let visibleCells = self.tableView?.visibleCells {

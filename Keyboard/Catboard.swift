@@ -116,10 +116,13 @@ class Catboard: KeyboardViewController {
             let capturedImage = UIGraphicsGetImageFromCurrentImageContext()
             UIGraphicsEndImageContext()
             
-            // HACK: Detecting orientation manually
-            let screenSize: CGSize = UIScreen.main.bounds.size
-            let orientation: UIInterfaceOrientation = screenSize.width < screenSize.height ? .portrait : .landscapeLeft
-            let name = (orientation.isPortrait ? "Screenshot-Portrait" : "Screenshot-Landscape")
+            // AB: consider re-enabling this when interfaceOrientation actually breaks
+            //// HACK: Detecting orientation manually
+            //let screenSize: CGSize = UIScreen.main.bounds.size
+            //let orientation: UIInterfaceOrientation = screenSize.width < screenSize.height ? .portrait : .landscapeLeft
+            //let name = (orientation.isPortrait ? "Screenshot-Portrait" : "Screenshot-Landscape")
+            
+            let name = (self.interfaceOrientation.isPortrait ? "Screenshot-Portrait" : "Screenshot-Landscape")
             let imagePath = "/Users/archagon/Documents/Programming/OSX/RussianPhoneticKeyboard/External/tasty-imitation-keyboard/\(name).png"
             
             if let pngRep = UIImagePNGRepresentation(capturedImage!) {

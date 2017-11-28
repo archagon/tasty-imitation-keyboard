@@ -210,7 +210,7 @@ class KeyboardViewController: UIInputViewController {
         
         self.setupLayout()
         
-        let orientationSavvyBounds = CGRect(x: 0, y: 0, width: self.view.bounds.width, height: self.height(withTopBanner: false))
+        let orientationSavvyBounds = CGRect(x: 0, y: 0, width: self.view.bounds.width, height: self.height(forOrientation: self.interfaceOrientation, withTopBanner: false))
         
         if (lastLayoutBounds != nil && lastLayoutBounds == orientationSavvyBounds) {
             // do nothing
@@ -243,7 +243,7 @@ class KeyboardViewController: UIInputViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         self.bannerView?.isHidden = false
-        self.keyboardHeight = self.height(withTopBanner: true)
+        self.keyboardHeight = self.height(forOrientation: self.interfaceOrientation, withTopBanner: true)
     }
     
     override func willRotate(to toInterfaceOrientation: UIInterfaceOrientation, duration: TimeInterval) {
@@ -258,7 +258,7 @@ class KeyboardViewController: UIInputViewController {
             }
         }
         
-        self.keyboardHeight = self.height(withTopBanner: true)
+        self.keyboardHeight = self.height(forOrientation: toInterfaceOrientation, withTopBanner: true)
     }
     
     override func didRotate(from fromInterfaceOrientation: UIInterfaceOrientation) {
@@ -270,11 +270,13 @@ class KeyboardViewController: UIInputViewController {
         }
     }
     
-    func height(withTopBanner: Bool) -> CGFloat {
+    func height(forOrientation orientation: UIInterfaceOrientation, withTopBanner: Bool) -> CGFloat {
         let isPad = UIDevice.current.userInterfaceIdiom == UIUserInterfaceIdiom.pad
-        // HACK: Detecting orientation manually
-        let screenSize: CGSize = UIScreen.main.bounds.size
-        let orientation: UIInterfaceOrientation = screenSize.width < screenSize.height ? .portrait : .landscapeLeft
+        
+        // AB: consider re-enabling this when interfaceOrientation actually breaks
+        //// HACK: Detecting orientation manually
+        //let screenSize: CGSize = UIScreen.main.bounds.size
+        //let orientation: UIInterfaceOrientation = screenSize.width < screenSize.height ? .portrait : .landscapeLeft
         
         //TODO: hardcoded stuff
         let actualScreenWidth = (UIScreen.main.nativeBounds.size.width / UIScreen.main.nativeScale)

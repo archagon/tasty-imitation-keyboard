@@ -156,24 +156,26 @@ class KeyboardKey: UIControl {
         self.addSubview(self.background)
         self.background.addSubview(self.label)
         
-        self.displayView.isOpaque = false
-        self.underView?.isOpaque = false
-        self.borderView?.isOpaque = false
-        
-        self.shadowLayer.shadowOpacity = Float(0.2)
-        self.shadowLayer.shadowRadius = 4
-        self.shadowLayer.shadowOffset = CGSize(width: 0, height: 3)
-        
-        self.borderView?.lineWidth = CGFloat(0.5)
-        self.borderView?.fillColor = UIColor.clear
-        
-        self.label.textAlignment = NSTextAlignment.center
-        self.label.baselineAdjustment = UIBaselineAdjustment.alignCenters
-        self.label.font = self.label.font.withSize(22)
-        self.label.adjustsFontSizeToFitWidth = true
-        self.label.minimumScaleFactor = CGFloat(0.1)
-        self.label.isUserInteractionEnabled = false
-        self.label.numberOfLines = 1
+        setupViews: do {
+            self.displayView.isOpaque = false
+            self.underView?.isOpaque = false
+            self.borderView?.isOpaque = false
+            
+            self.shadowLayer.shadowOpacity = Float(0.2)
+            self.shadowLayer.shadowRadius = 4
+            self.shadowLayer.shadowOffset = CGSize(width: 0, height: 3)
+            
+            self.borderView?.lineWidth = CGFloat(0.5)
+            self.borderView?.fillColor = UIColor.clear
+            
+            self.label.textAlignment = NSTextAlignment.center
+            self.label.baselineAdjustment = UIBaselineAdjustment.alignCenters
+            self.label.font = self.label.font.withSize(22)
+            self.label.adjustsFontSizeToFitWidth = true
+            self.label.minimumScaleFactor = CGFloat(0.1)
+            self.label.isUserInteractionEnabled = false
+            self.label.numberOfLines = 1
+        }
     }
     
     required init?(coder: NSCoder) {

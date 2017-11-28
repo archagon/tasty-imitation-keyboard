@@ -93,7 +93,9 @@ class KeyboardConnector: KeyboardKeyBackground {
     }
     
     override func generatePointsForDrawing(_ bounds: CGRect) {
-        guard let startConnectable = startConnectable, let endConnectable = endConnectable else { return }
+        guard let startConnectable = startConnectable, let endConnectable = endConnectable else {
+            return
+        }
         
         //////////////////
         // prepare data //
@@ -116,6 +118,7 @@ class KeyboardConnector: KeyboardKeyBackground {
         }
 
         let path = CGMutablePath()
+        
         path.move(to: convertedStartPoints.0)
         path.addLine(to: convertedEndPoints.1)
         path.addLine(to: convertedEndPoints.0)

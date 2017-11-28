@@ -93,9 +93,9 @@ class KeyboardKeyBackground: UIView, Connectable {
         self.dirty = false
     }
     
-    let floatPi = CGFloat(M_PI)
-    let floatPiDiv2 = CGFloat(M_PI/2.0)
-    let floatPiDivNeg2 = -CGFloat(M_PI/2.0)
+    let floatPi = CGFloat.pi
+    let floatPiDiv2 = CGFloat.pi/2.0
+    let floatPiDivNeg2 = -CGFloat.pi/2.0
     
     func generatePointsForDrawing(_ bounds: CGRect) {
         let segmentWidth = bounds.width
@@ -236,25 +236,25 @@ class KeyboardKeyBackground: UIView, Connectable {
             underPath.move(to: self.segmentPoints[2].1)
             
             var startAngle = self.arcStartingAngles[3]
-            var endAngle = startAngle + CGFloat(M_PI/2.0)
+            var endAngle = startAngle + CGFloat.pi/2.0
             underPath.addArc(withCenter: self.arcCenters[3], radius: CGFloat(self.cornerRadius), startAngle: startAngle, endAngle: endAngle, clockwise: true)
 
             underPath.addLine(to: self.segmentPoints[3].1)
             
             startAngle = self.arcStartingAngles[0]
-            endAngle = startAngle + CGFloat(M_PI/2.0)
+            endAngle = startAngle + CGFloat.pi/2.0
             underPath.addArc(withCenter: self.arcCenters[0], radius: CGFloat(self.cornerRadius), startAngle: startAngle, endAngle: endAngle, clockwise: true)
             
             underPath.addLine(to: CGPoint(x: self.segmentPoints[0].0.x, y: self.segmentPoints[0].0.y - self.underOffset))
             
             startAngle = self.arcStartingAngles[1]
-            endAngle = startAngle - CGFloat(M_PI/2.0)
+            endAngle = startAngle - CGFloat.pi/2.0
             underPath.addArc(withCenter: CGPoint(x: self.arcCenters[0].x, y: self.arcCenters[0].y - self.underOffset), radius: CGFloat(self.cornerRadius), startAngle: startAngle, endAngle: endAngle, clockwise: false)
             
             underPath.addLine(to: CGPoint(x: self.segmentPoints[2].1.x - self.cornerRadius, y: self.segmentPoints[2].1.y + self.cornerRadius - self.underOffset))
             
             startAngle = self.arcStartingAngles[0]
-            endAngle = startAngle - CGFloat(M_PI/2.0)
+            endAngle = startAngle - CGFloat.pi/2.0
             underPath.addArc(withCenter: CGPoint(x: self.arcCenters[3].x, y: self.arcCenters[3].y - self.underOffset), radius: CGFloat(self.cornerRadius), startAngle: startAngle, endAngle: endAngle, clockwise: false)
             
             underPath.close()
