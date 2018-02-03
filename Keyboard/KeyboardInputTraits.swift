@@ -28,7 +28,7 @@ extension KeyboardViewController {
         traitPollingTimer?.add(to: RunLoop.current, forMode: RunLoopMode.defaultRunLoopMode)
     }
     
-    func pollTraits() {
+    @objc func pollTraits() {
         let proxy = self.textDocumentProxy
         
         if let layout = self.layout {

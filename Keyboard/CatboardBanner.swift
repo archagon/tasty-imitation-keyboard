@@ -47,7 +47,7 @@ class CatboardBanner: ExtraView {
         self.catLabel.frame.origin = CGPoint(x: self.catSwitch.frame.origin.x + self.catSwitch.frame.width + 8, y: self.catLabel.frame.origin.y)
     }
     
-    func respondToSwitch() {
+    @objc func respondToSwitch() {
         UserDefaults.standard.set(self.catSwitch.isOn, forKey: kCatTypeEnabled)
         self.updateAppearance()
     }

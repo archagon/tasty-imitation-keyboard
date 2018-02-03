@@ -425,7 +425,7 @@ class KeyboardKey: UIControl {
         }
     }
     
-    func showPopup() {
+    @objc func showPopup() {
         if self.popup == nil {
             self.layer.zPosition = 1000
             
@@ -450,7 +450,7 @@ class KeyboardKey: UIControl {
         }
     }
     
-    func hidePopup() {
+    @objc func hidePopup() {
         if self.popup != nil {
             self.delegate?.willHidePopup(for: self)
             
