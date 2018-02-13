@@ -24,6 +24,7 @@ enum VibrancyType {
     case darkRegular
 }
 
+@objcMembers
 class KeyboardKey: UIControl {
     
     weak var delegate: KeyboardKeyProtocol?
