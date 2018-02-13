@@ -38,13 +38,13 @@ class HostingAppViewController: UIViewController {
     var secondHeightTime: TimeInterval?
     var referenceHeight: CGFloat = 216
     
-    func keyboardWillShow() {
+    @objc func keyboardWillShow() {
         if startTime == nil {
             startTime = CACurrentMediaTime()
         }
     }
     
-    func keyboardDidHide() {
+    @objc func keyboardDidHide() {
         startTime = nil
         firstHeightTime = nil
         secondHeightTime = nil
@@ -52,7 +52,7 @@ class HostingAppViewController: UIViewController {
         self.stats?.text = "(Waiting for keyboard...)"
     }
     
-    func keyboardDidChangeFrame(_ notification: Notification) {
+    @objc func keyboardDidChangeFrame(_ notification: Notification) {
         //let frameBegin: CGRect! = notification.userInfo?[UIKeyboardFrameBeginUserInfoKey]?.CGRectValue
         let frameEnd: CGRect! = (notification.userInfo?[UIKeyboardFrameEndUserInfoKey] as AnyObject).cgRectValue
         
