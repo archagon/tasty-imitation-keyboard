@@ -127,6 +127,11 @@ class Key: Hashable {
         counter += 1
     }
     
+    func hash(into hasher: inout Hasher)
+    {
+        hasher.combine(self.hashValue)
+    }
+    
     convenience init(_ key: Key) {
         self.init(key.type)
         
