@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3FE808EF231F894300C1A90A /* GreekKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FE808EE231F894300C1A90A /* GreekKeyboard.swift */; };
 		4E00A6E5197183EE009414F2 /* KeyboardKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E807DC81946209600D875D1 /* KeyboardKey.swift */; };
 		4E3B5A941A0654A8003366F6 /* KeyboardInputTraits.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E3B5A931A0654A8003366F6 /* KeyboardInputTraits.swift */; };
 		4E52A6D21A06A61F006A08CE /* ImageKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E52A6D11A06A61F006A08CE /* ImageKey.swift */; };
@@ -96,7 +95,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		3FE808EE231F894300C1A90A /* GreekKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GreekKeyboard.swift; sourceTree = "<group>"; };
 		4E3B5A931A0654A8003366F6 /* KeyboardInputTraits.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyboardInputTraits.swift; sourceTree = "<group>"; };
 		4E52A6D11A06A61F006A08CE /* ImageKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageKey.swift; sourceTree = "<group>"; };
 		4E52A6D31A06A626006A08CE /* ExtraView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExtraView.swift; sourceTree = "<group>"; };
@@ -180,7 +178,6 @@
 				4E5B67A1196E03B700114361 /* KeyboardModel.swift */,
 				4ECBD90119F16DC7004FA2A3 /* DefaultKeyboard.swift */,
 				4E60A13D1979FB2E00854CC8 /* DirectionEnum.swift */,
-				3FE808EE231F894300C1A90A /* GreekKeyboard.swift */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -476,7 +473,6 @@
 				4E52A6D21A06A61F006A08CE /* ImageKey.swift in Sources */,
 				4E52A6D41A06A626006A08CE /* ExtraView.swift in Sources */,
 				4EC2A47019DF811E00F789E1 /* ForwardingView.swift in Sources */,
-				3FE808EF231F894300C1A90A /* GreekKeyboard.swift in Sources */,
 				4EC2A46E19DF811E00F789E1 /* KeyboardLayout.swift in Sources */,
 				4E60A13A1979FA5C00854CC8 /* KeyboardKeyBackground.swift in Sources */,
 				4E5B67A2196E03B700114361 /* KeyboardModel.swift in Sources */,
