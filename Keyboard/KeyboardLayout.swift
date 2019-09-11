@@ -235,6 +235,10 @@ extension CGRect: Hashable {
             return (origin.x.hashValue ^ origin.y.hashValue ^ size.width.hashValue ^ size.height.hashValue)
         }
     }
+    public func hash(into hasher: inout Hasher)
+    {
+        hasher.combine(self.hashValue)
+    }
 }
 
 extension CGSize: Hashable {
@@ -242,6 +246,10 @@ extension CGSize: Hashable {
         get {
             return (width.hashValue ^ height.hashValue)
         }
+    }
+    public func hash(into hasher: inout Hasher)
+    {
+        hasher.combine(self.hashValue)
     }
 }
 
@@ -610,7 +618,7 @@ class KeyboardLayout: NSObject, KeyboardKeyProtocol {
                 }
             }
             
-            let id = "p\(p)r\(r)k\(k)"
+            let id = "p\(String(describing: p))r\(String(describing: r))k\(String(describing: k))"
             if let key = self.nonPooledMap[id] {
                 return key
             }
