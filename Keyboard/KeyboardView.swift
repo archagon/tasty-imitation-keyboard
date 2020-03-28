@@ -8,7 +8,23 @@
 
 import UIKit
 
+public protocol KeyboardViewProtocel: NSObjectProtocol {
+    var documentContextBeforeInput: String? { get }
+    
+    func insertText(_ text: String)
+
+    func deleteBackward()
+    
+    var keyboardAppearance: UIKeyboardAppearance { get set } // default is UIKeyboardAppearanceDefault
+    
+    var autocapitalizationType: UITextAutocapitalizationType { get set } // default is UITextAutocapitalizationTypeSentences
+    
+    var orientation: UIInterfaceOrientation { get }
+}
+
 class KeyboardView: UIView {
+    weak var keyboardDelegate: KeyboardViewProtocel?
+    
     let backspaceDelay: TimeInterval = 0.5
     let backspaceRepeat: TimeInterval = 0.07
     
@@ -266,7 +282,10 @@ class KeyboardView: UIView {
     @objc func backspaceDown(_ sender: KeyboardKey) {
         self.cancelBackspaceTimers()
         
-        self.textDocumentProxy.deleteBackward()
+        if let delegate = self.keyboardDelegate {
+            delegate.deleteBackward()
+        }
+        
         self.updateCapsIfNeeded()
         
         // trigger for subsequent deletes
@@ -284,8 +303,11 @@ class KeyboardView: UIView {
     
     @objc func backspaceRepeatCallback() {
         self.playKeySound()
-        
-        self.textDocumentProxy.deleteBackward()
+
+        if let delegate = self.keyboardDelegate {
+            delegate.deleteBackward()
+        }
+                
         self.updateCapsIfNeeded()
     }
     
@@ -508,8 +530,10 @@ class KeyboardView: UIView {
     // only available after frame becomes non-zero
     func darkMode() -> Bool {
         let darkMode = { () -> Bool in
-            let proxy = self.textDocumentProxy
-            return proxy.keyboardAppearance == UIKeyboardAppearance.dark
+            if let delegate = self.keyboardDelegate {
+                return delegate.keyboardAppearance == .dark
+            }
+            return false
         }()
 
         return darkMode
@@ -551,7 +575,7 @@ class KeyboardView: UIView {
         return UIAccessibility.isReduceTransparencyEnabled
     }
     
-    func toggleSettings() {
+    @objc func toggleSettings() {
         // lazy load settings
         if self.settingsView == nil {
             if let aSettings = self.createSettings() {
@@ -593,7 +617,9 @@ class KeyboardView: UIView {
     class var globalColors: GlobalColors.Type { get { return GlobalColors.self }}
     
     func keyPressed(_ key: Key) {
-        self.textDocumentProxy.insertText(key.outputForCase(self.shiftState.uppercase()))
+        if let delegate = self.keyboardDelegate {
+            delegate.insertText(key.outputForCase(self.shiftState.uppercase()))
+        }
     }
     
     // a banner that sits in the empty space on top of the keyboard
@@ -626,12 +652,12 @@ extension KeyboardView {
     }
     
     @objc func pollTraits() {
-        let proxy = self.textDocumentProxy
-        
-        if let layout = self.layout {
-            let appearanceIsDark = (proxy.keyboardAppearance == UIKeyboardAppearance.dark)
-            if appearanceIsDark != layout.darkMode {
-                self.updateAppearances(appearanceIsDark)
+        if let delegate = self.keyboardDelegate {
+            if let layout = self.layout {
+                let appearanceIsDark = (delegate.keyboardAppearance == UIKeyboardAppearance.dark)
+                if appearanceIsDark != layout.darkMode {
+                    self.updateAppearances(appearanceIsDark)
+                }
             }
         }
     }
@@ -646,7 +672,12 @@ extension KeyboardView {
         
         self.setupLayout()
         
-        let orientationSavvyBounds = CGRect(x: 0, y: 0, width: self.bounds.width, height: self.height(forOrientation: .portrait, withTopBanner: false))
+        var orientation: UIInterfaceOrientation = .portrait
+        if let delegate = self.keyboardDelegate {
+            orientation = delegate.orientation
+        }
+        
+        let orientationSavvyBounds = CGRect(x: 0, y: 0, width: self.bounds.width, height: self.height(forOrientation: orientation, withTopBanner: false))
         
         if (lastLayoutBounds != nil && lastLayoutBounds == orientationSavvyBounds) {
             // do nothing
@@ -677,7 +708,13 @@ extension KeyboardView {
     
     func viewWillAppear(_ animated: Bool) {
         self.bannerView?.isHidden = false
-        self.keyboardHeight = self.height(forOrientation: .portrait, withTopBanner: true)
+        
+        var orientation: UIInterfaceOrientation = .portrait
+        if let delegate = self.keyboardDelegate {
+            orientation = delegate.orientation
+        }
+        
+        self.keyboardHeight = self.height(forOrientation: orientation, withTopBanner: true)
     }
     
     func willRotate(to toInterfaceOrientation: UIInterfaceOrientation, duration: TimeInterval) {
@@ -723,38 +760,42 @@ extension KeyboardView {
             }
             
             let charactersAreInCorrectState = { () -> Bool in
-                let previousContext = self.textDocumentProxy.documentContextBeforeInput
-                
-                if previousContext == nil || (previousContext!).count < 3 {
-                    return false
-                }
-                
-                var index = previousContext!.endIndex
-                
-                index = previousContext!.index(before: index)
-                if previousContext![index] != " " {
-                    return false
-                }
-                
-                index = previousContext!.index(before: index)
-                if previousContext![index] != " " {
-                    return false
-                }
-                
-                index = previousContext!.index(before: index)
-                let char = previousContext![index]
-                if self.characterIsWhitespace(char) || self.characterIsPunctuation(char) || char == "," {
-                    return false
+                if let delegate = self.keyboardDelegate {
+                    let previousContext = delegate.documentContextBeforeInput
+                    
+                    if previousContext == nil || (previousContext!).count < 3 {
+                        return false
+                    }
+                    
+                    var index = previousContext!.endIndex
+                    
+                    index = previousContext!.index(before: index)
+                    if previousContext![index] != " " {
+                        return false
+                    }
+                    
+                    index = previousContext!.index(before: index)
+                    if previousContext![index] != " " {
+                        return false
+                    }
+                    
+                    index = previousContext!.index(before: index)
+                    let char = previousContext![index]
+                    if self.characterIsWhitespace(char) || self.characterIsPunctuation(char) || char == "," {
+                        return false
+                    }
                 }
                 
                 return true
             }()
             
             if charactersAreInCorrectState {
-                self.textDocumentProxy.deleteBackward()
-                self.textDocumentProxy.deleteBackward()
-                self.textDocumentProxy.insertText(".")
-                self.textDocumentProxy.insertText(" ")
+                if let delegate = self.keyboardDelegate {
+                    delegate.deleteBackward()
+                    delegate.deleteBackward()
+                    delegate.insertText(".")
+                    delegate.insertText(" ")
+                }
             }
             
             self.autoPeriodState = .noSpace
@@ -795,62 +836,58 @@ extension KeyboardView {
             return false
         }
         
-        let traits = self.textDocumentProxy
-        if let autocapitalization = traits.autocapitalizationType {
-            let documentProxy = self.textDocumentProxy
-            //var beforeContext = documentProxy.documentContextBeforeInput
-            
-            switch autocapitalization {
-            case .none:
-                return false
-            case .words:
-                if let beforeContext = documentProxy.documentContextBeforeInput {
-                    let previousCharacter = beforeContext[beforeContext.index(before: beforeContext.endIndex)]
-                    return self.characterIsWhitespace(previousCharacter)
-                }
-                else {
-                    return true
-                }
-            
-            case .sentences:
-                if let beforeContext = documentProxy.documentContextBeforeInput {
-                    let offset = min(3, beforeContext.count)
-                    var index = beforeContext.endIndex
-                    
-                    for i in 0 ..< offset {
-                        index = beforeContext.index(before: index)
-                        let char = beforeContext[index]
+        if let delegate = self.keyboardDelegate {
+            switch delegate.autocapitalizationType {
+                case .none:
+                    return false
+                case .words:
+                    if let beforeContext = delegate.documentContextBeforeInput {
+                        let previousCharacter = beforeContext[beforeContext.index(before: beforeContext.endIndex)]
+                        return self.characterIsWhitespace(previousCharacter)
+                    }
+                    else {
+                        return true
+                    }
+                
+                case .sentences:
+                    if let beforeContext = delegate.documentContextBeforeInput {
+                        let offset = min(3, beforeContext.count)
+                        var index = beforeContext.endIndex
                         
-                        if characterIsPunctuation(char) {
-                            if i == 0 {
-                                return false //not enough spaces after punctuation
+                        for i in 0 ..< offset {
+                            index = beforeContext.index(before: index)
+                            let char = beforeContext[index]
+                            
+                            if characterIsPunctuation(char) {
+                                if i == 0 {
+                                    return false //not enough spaces after punctuation
+                                }
+                                else {
+                                    return true //punctuation with at least one space after it
+                                }
                             }
                             else {
-                                return true //punctuation with at least one space after it
+                                if !characterIsWhitespace(char) {
+                                    return false //hit a foreign character before getting to 3 spaces
+                                }
+                                else if characterIsNewline(char) {
+                                    return true //hit start of line
+                                }
                             }
                         }
-                        else {
-                            if !characterIsWhitespace(char) {
-                                return false //hit a foreign character before getting to 3 spaces
-                            }
-                            else if characterIsNewline(char) {
-                                return true //hit start of line
-                            }
-                        }
+                        
+                        return true //either got 3 spaces or hit start of line
+                    } else {
+                        return true
                     }
-                    
-                    return true //either got 3 spaces or hit start of line
-                }
-                else {
+                case .allCharacters:
                     return true
-                }
-            case .allCharacters:
-                return true
+                @unknown default:
+                    fatalError()
             }
         }
-        else {
-            return false
-        }
+        
+        return false
     }
     
     // this only works if full access is enabled
