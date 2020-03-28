@@ -40,7 +40,7 @@ class Catboard: KeyboardViewController {
         
         if key.type == .character || key.type == .specialCharacter {
             if let context = textDocumentProxy.documentContextBeforeInput {
-                if context.characters.count < 2 {
+                if context.count < 2 {
                     textDocumentProxy.insertText(keyOutput)
                     return
                 }
@@ -87,7 +87,7 @@ class Catboard: KeyboardViewController {
                 for rowKeys in page.rows {
                     for key in rowKeys {
                         if let keyView = self.layout!.viewForKey(key) {
-                            keyView.addTarget(self, action: #selector(Catboard.takeScreenshotDelay), for: .touchDown)
+                            keyView.addTarget(self, action: #selector(takeScreenshotDelay), for: .touchDown)
                         }
                     }
                 }
@@ -99,11 +99,11 @@ class Catboard: KeyboardViewController {
         return CatboardBanner(globalColors: type(of: self).globalColors, darkMode: false, solidColorMode: self.solidColorMode())
     }
     
-    func takeScreenshotDelay() {
-        Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(Catboard.takeScreenshot), userInfo: nil, repeats: false)
+    @objc func takeScreenshotDelay() {
+        Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(takeScreenshot), userInfo: nil, repeats: false)
     }
     
-    func takeScreenshot() {
+    @objc func takeScreenshot() {
         if !self.view.bounds.isEmpty {
             UIDevice.current.beginGeneratingDeviceOrientationNotifications()
             
@@ -125,7 +125,7 @@ class Catboard: KeyboardViewController {
             let name = (self.interfaceOrientation.isPortrait ? "Screenshot-Portrait" : "Screenshot-Landscape")
             let imagePath = "/Users/archagon/Documents/Programming/OSX/RussianPhoneticKeyboard/External/tasty-imitation-keyboard/\(name).png"
             
-            if let pngRep = UIImagePNGRepresentation(capturedImage!) {
+            if let pngRep = capturedImage!.pngData() {
                 try? pngRep.write(to: URL(fileURLWithPath: imagePath), options: [.atomic])
             }
             
@@ -137,10 +137,10 @@ class Catboard: KeyboardViewController {
 func randomCat() -> String {
     let cats = "🐱😺😸😹😽😻😿😾😼🙀"
     
-    let numCats = cats.characters.count
+    let numCats = cats.count
     let randomCat = arc4random() % UInt32(numCats)
     
-    let index = cats.characters.index(cats.startIndex, offsetBy: Int(randomCat))
+    let index = cats.index(cats.startIndex, offsetBy: Int(randomCat))
     let character = cats[index]
     
     return String(character)
