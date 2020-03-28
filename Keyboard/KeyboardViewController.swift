@@ -427,11 +427,6 @@ class KeyboardViewController: UIInputViewController {
     /////////////////////
     // POPUP DELAY END //
     /////////////////////
-    
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated
-    }
 
     // TODO: this is currently not working as intended; only called when selection changed -- iOS bug
     override func textDidChange(_ textInput: UITextInput?) {

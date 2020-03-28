@@ -36,6 +36,8 @@
 		4EF16F9819D255030076AFCB /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF16F9519D255030076AFCB /* ViewController.swift */; };
 		4EF16F9B19D2550D0076AFCB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF16F9A19D2550D0076AFCB /* AppDelegate.swift */; };
 		4EF16F9F19D2552E0076AFCB /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4EF16F9D19D2552E0076AFCB /* Main.storyboard */; };
+		5A8DFA76242F38B40059B81D /* KeyboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A8DFA75242F38B40059B81D /* KeyboardViewController.swift */; };
+		5A8DFA78242F3A860059B81D /* KeyboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A8DFA77242F3A860059B81D /* KeyboardView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -128,6 +130,8 @@
 		4EF16F9519D255030076AFCB /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		4EF16F9A19D2550D0076AFCB /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		4EF16F9E19D2552E0076AFCB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Main.storyboard; sourceTree = "<group>"; };
+		5A8DFA75242F38B40059B81D /* KeyboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardViewController.swift; sourceTree = "<group>"; };
+		5A8DFA77242F3A860059B81D /* KeyboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -186,6 +190,7 @@
 			isa = PBXGroup;
 			children = (
 				4EC2A46919DF811E00F789E1 /* KeyboardViewController.swift */,
+				5A8DFA77242F3A860059B81D /* KeyboardView.swift */,
 				4E3B5A931A0654A8003366F6 /* KeyboardInputTraits.swift */,
 				4EC2A46A19DF811E00F789E1 /* KeyboardLayout.swift */,
 				4EC2A46C19DF811E00F789E1 /* ForwardingView.swift */,
@@ -245,6 +250,7 @@
 			children = (
 				4EF16F9A19D2550D0076AFCB /* AppDelegate.swift */,
 				4EF16F9519D255030076AFCB /* ViewController.swift */,
+				5A8DFA75242F38B40059B81D /* KeyboardViewController.swift */,
 				4EF16F9D19D2552E0076AFCB /* Main.storyboard */,
 				4EF16F9319D255030076AFCB /* Images.xcassets */,
 				4E807D9619461D9000D875D1 /* Supporting Files */,
@@ -461,6 +467,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4EF16F9B19D2550D0076AFCB /* AppDelegate.swift in Sources */,
+				5A8DFA76242F38B40059B81D /* KeyboardViewController.swift in Sources */,
 				4EF16F9819D255030076AFCB /* ViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -472,6 +479,7 @@
 				4E52A6D21A06A61F006A08CE /* ImageKey.swift in Sources */,
 				4E52A6D41A06A626006A08CE /* ExtraView.swift in Sources */,
 				4EC2A47019DF811E00F789E1 /* ForwardingView.swift in Sources */,
+				5A8DFA78242F3A860059B81D /* KeyboardView.swift in Sources */,
 				4EC2A46E19DF811E00F789E1 /* KeyboardLayout.swift in Sources */,
 				4E60A13A1979FA5C00854CC8 /* KeyboardKeyBackground.swift in Sources */,
 				4E5B67A2196E03B700114361 /* KeyboardModel.swift in Sources */,
